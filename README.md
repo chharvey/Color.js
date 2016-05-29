@@ -1,2 +1,2 @@
-# Color.js
-A color represented as an immutable javascript object.
+# csscolor
+A css color represented as an immutable javascript object.
