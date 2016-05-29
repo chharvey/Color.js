@@ -102,15 +102,19 @@ var Color = (function () {
    * If `w == 0.0`, this method will return exactly this color.
    * `w == 1.0` will return exactly the other color.
    * `w == 0.5` (default if omitted) will result in a perfectly even mix.
+   * Note that `color1.mix(color2, w)` will return the same result as `color2.mix(color1, 1-w)`.
    * @param `color` required Color object; the second color
    * @param `w`     optional number between 0.0 and 1.0, defaults to 0.5; the weight favoring the other color
    * @return        a mix of the two given colors
    */
   Color.prototype.mix = function mix(color, w) {
-    w = (typeof w === 'number') ? w : 0.5
-    var r = Math.round(Util.average(this.red,   color.red,   1-w))
-      , g = Math.round(Util.average(this.green, color.green, 1-w))
-      , b = Math.round(Util.average(this.blue,  color.blue,  1-w))
+    if (w !== 0) w = +w || 0.5
+    function average(a, b, w) {
+      return (a * (1-w)) + (b * w)
+    }
+    var r = Math.round(average(this.red,   color.red,   w))
+      , g = Math.round(average(this.green, color.green, w))
+      , b = Math.round(average(this.blue,  color.blue,  w))
     return new Color(r, g, b)
   }
 
