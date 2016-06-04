@@ -150,9 +150,6 @@ var Color = (function () {
    */
   Color.prototype.toString = function toString(space) {
     function toHex(n) {
-      n = +n || 0
-      // n = Util.bound(n, 0, 255)
-      n = Math.max(0, Math.min(n, 255))
       return '0123456789abcdef'.charAt((n - n % 16) / 16) + '0123456789abcdef'.charAt(n % 16)
     }
     if (space === 'hex') return '#' + toHex(this.red) + toHex(this.green) + toHex(this.blue)
