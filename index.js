@@ -161,22 +161,30 @@ var Color = (function () {
 
 
   /**
+   * CHANGED `Color.newColorRGBString()` is DEPRECATED. Use `Color.fromRGB()` instead.
    * Returns a new Color object, given a string of the form `rgb(r,g,b)` or `rgb(r, g, b)`,
    * where `r`, `g`, and `b` are decimal RGB components (in base 10, out of 255).
    * @param `rgb_string` a string of the form `rgb(r,g,b)` or `rgb(r, g, b)`
    */
   Color.newColorRGBString = function newColorRGBString(rgb_string) {
+    return Color.fromRGB(rgb_string)
+  }
+  Color.fromRGB = function fromRGB(rgb_string) {
     var splitted = rgb_string.slice(4, -1).split(',')
     return new Color(+splitted[0], +splitted[1], +splitted[2])
   }
 
   /**
+   * CHANGED `Color.newColorHexString()` is DEPRECATED. Use `Color.fromHex()` instead.
    * Returns a new Color object, given a string of the form `#rrggbb`,
    * where `rr`, `gg`, and `bb` are hexadecimal RGB components (in base 16, out of ff, lowercase).
    * The `#` must be included.
    * @param `hex_string` a string of the form `#rrggbb` (lowercase)
    */
   Color.newColorHexString = function newColorHexString(hex_string) {
+    return Color.fromHex(hex_string)
+  }
+  Color.fromHex = function fromHex(hex_string) {
     var r_hex = hex_string.slice(1,3)
       , g_hex = hex_string.slice(3,5)
       , b_hex = hex_string.slice(5,7)
@@ -193,6 +201,7 @@ var Color = (function () {
   }
 
   /**
+   * CHANGED `Color.newColorHSV()` is DEPRECATED. Use `Color.fromHSV()` instead.
    * Returns a new Color object, given hue, saturation, and value in HSV-space.
    *
    * Takes HSV-components as number arguments and returns a new Color object with
@@ -211,6 +220,9 @@ var Color = (function () {
    * @return      a new Color object with hsv(`h`, `s`, `v`)
    */
   Color.newColorHSV = function newColorHSV(hue, sat, val) {
+    return Color.fromHSV(hue, sat, val)
+  }
+  Color.fromHSV = function fromHSV(hue, sat, val) {
     var red, grn, blu
     if (sat === 0) {
       // achromatic (gray)
@@ -247,6 +259,7 @@ var Color = (function () {
   }
 
   /**
+   * CHANGED `Color.newColorHSL()` is DEPRECATED. Use `Color.fromHSL()` instead.
    * Returns a new Color object, given hue, saturation, and luminosity.
    * @param `hue` must be between 0 and 360; same as the `hue` in HSV-space
    * @param `sat` must be between 0.0 and 1.0; saturation in HSL-space
@@ -254,6 +267,9 @@ var Color = (function () {
    * @return      a new Color object with hsl(`hue`, `sat`, `lum`)
    */
   Color.newColorHSL = function newColorHSL(hue, sat, lum) {
+    return Color.fromHSL(hue, sat, lum)
+  }
+  Color.fromHSL = function fromHSL(hue, sat, lum) {
     return new Color() // FIXME
   }
 
