@@ -2,7 +2,7 @@
  * A 256-bit color that can be displayed in a pixel, given three primary color components.
  * @type {Color}
  */
-var Color = (function () {
+module.exports = (function () {
   // CONSTRUCTOR
   /**
    * Construct a Color object.
@@ -159,7 +159,7 @@ var Color = (function () {
    */
   Color.prototype.invert = function invert() {
     var newhue = (this.hsvHue() + 180) % 360
-    return Color.newColorHSV(newhue, this.hsvSat(), this.hsvVal())
+    return Color.fromHSV(newhue, this.hsvSat(), this.hsvVal())
   }
 
   /**
@@ -170,7 +170,7 @@ var Color = (function () {
    * @return {Color} a new Color object that corresponds to this color brightened by a percentage `p`
    */
   Color.prototype.brighten = function brighten(p) {
-    // return Color.newColorHSL(this.hslHue(), this.hslSat(), this.hslVal() + p)
+    // return Color.fromHSL(this.hslHue(), this.hslSat(), this.hslVal() + p)
   }
   /**
    * Make a new color that is a darker version of this color by a percentage.
@@ -180,7 +180,7 @@ var Color = (function () {
    * @return {Color} a new Color object that corresponds to this color darkened by a percentage `p`
    */
   Color.prototype.darken = function darken(p) {
-    // return Color.newColorHSL(this.hslHue(), this.hslSat(), this.hslVal() - p)
+    // return Color.fromHSL(this.hslHue(), this.hslSat(), this.hslVal() - p)
     // return this.brighten(-p)
   }
 
@@ -268,7 +268,7 @@ var Color = (function () {
    * @param {string} rgb_string a string of the form `rgb(r,g,b)` or `rgb(r, g, b)`
    * @return {Color} a new Color object constructed from the given rgb string
    */
-  Color.newColorRGBString = function newColorRGBString(rgb_string) {
+  Color.fromRGB = function fromRGB(rgb_string) {
     var splitted = rgb_string.slice(4, -1).split(',')
     return new Color(+splitted[0], +splitted[1], +splitted[2])
   }
@@ -280,7 +280,7 @@ var Color = (function () {
    * @param {string} hex_string a string of the form `#rrggbb` (lowercase)
    * @return {Color} a new Color object constructed from the given hex string
    */
-  Color.newColorHexString = function newColorHexString(hex_string) {
+  Color.fromHex = function fromHex(hex_string) {
     var r_hex = hex_string.slice(1,3)
       , g_hex = hex_string.slice(3,5)
       , b_hex = hex_string.slice(5,7)
@@ -319,7 +319,7 @@ var Color = (function () {
    * @param {number} val must be between 0.0 and 1.0; brightness in HSV-space
    * @return {Color} a new Color object with hsv(hue, sat, val)
    */
-  Color.newColorHSV = function newColorHSV(hue, sat, val) {
+  Color.fromHSV = function fromHSV(hue, sat, val) {
     var red, grn, blu
     if (sat === 0) {
       // achromatic (gray)
@@ -362,7 +362,7 @@ var Color = (function () {
    * @param {number} lum must be between 0.0 and 1.0; luminosity in HSL-space
    * @return {Color} a new Color object with hsl(hue, sat, lum)
    */
-  Color.newColorHSL = function newColorHSL(hue, sat, lum) {
+  Color.fromHSL = function fromHSL(hue, sat, lum) {
     return new Color() // FIXME
   }
 
@@ -374,8 +374,8 @@ var Color = (function () {
   Color.typeCheck = function typeCheck(arg) {
     if (arg instanceof Color) return arg
     if (typeof arg === 'string') {
-      if (arg.slice(0,1) === '#')    return Color.newColorHexString(arg)
-      if (arg.slice(0,4) === 'rgb(') return Color.newColorRGBString(arg)
+      if (arg.slice(0,1) === '#')    return Color.fromHex(arg)
+      if (arg.slice(0,4) === 'rgb(') return Color.fromRGB(arg)
                                      return new Color()
     }
     if (typeof arg === 'number') {
@@ -383,20 +383,6 @@ var Color = (function () {
       return new Color(+graytone, +graytone, +graytone)
     }
     return new Color()
-  }
-
-  /**
-   * Mixes (averages) two colors, with a given weight favoring the first color.
-   * If `w == 1.0`, this method will return `color1`. `w == 0.0`, will return `color2`.
-   * `w == 0.5` (default if omitted) will result in a perfectly even mix.
-   * CHANGED this function is deprecated. Use `Color.prototype.mix()` instead.
-   * @param `color1` required Color object; the first color
-   * @param `color2` required Color object; the second color
-   * @param `w`      optional number between 0.0 and 1.0, defaults to 0.5; the weight favoring the first color
-   * @return         a mix of the two given colors
-   */
-  Color.mix = function mix(color1, color2, w) {
-    return color1.mix(color2, 1-w)
   }
 
   return Color
