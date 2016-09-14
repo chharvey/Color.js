@@ -159,7 +159,7 @@ module.exports = (function () {
    */
   Color.prototype.invert = function invert() {
     var newhue = (this.hsvHue() + 180) % 360
-    return Color.newColorHSV(newhue, this.hsvSat(), this.hsvVal())
+    return Color.fromHSV(newhue, this.hsvSat(), this.hsvVal())
   }
 
   /**
@@ -170,7 +170,7 @@ module.exports = (function () {
    * @return {Color} a new Color object that corresponds to this color brightened by a percentage `p`
    */
   Color.prototype.brighten = function brighten(p) {
-    // return Color.newColorHSL(this.hslHue(), this.hslSat(), this.hslVal() + p)
+    // return Color.fromHSL(this.hslHue(), this.hslSat(), this.hslVal() + p)
   }
   /**
    * Make a new color that is a darker version of this color by a percentage.
@@ -180,7 +180,7 @@ module.exports = (function () {
    * @return {Color} a new Color object that corresponds to this color darkened by a percentage `p`
    */
   Color.prototype.darken = function darken(p) {
-    // return Color.newColorHSL(this.hslHue(), this.hslSat(), this.hslVal() - p)
+    // return Color.fromHSL(this.hslHue(), this.hslSat(), this.hslVal() - p)
     // return this.brighten(-p)
   }
 
@@ -374,8 +374,8 @@ module.exports = (function () {
   Color.typeCheck = function typeCheck(arg) {
     if (arg instanceof Color) return arg
     if (typeof arg === 'string') {
-      if (arg.slice(0,1) === '#')    return Color.newColorHexString(arg)
-      if (arg.slice(0,4) === 'rgb(') return Color.newColorRGBString(arg)
+      if (arg.slice(0,1) === '#')    return Color.fromHex(arg)
+      if (arg.slice(0,4) === 'rgb(') return Color.fromRGB(arg)
                                      return new Color()
     }
     if (typeof arg === 'number') {
