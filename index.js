@@ -1,169 +1,272 @@
-var Color = (function () {
+/**
+ * A 256-bit color that can be displayed in a pixel, given three primary color components.
+ * @type {Color}
+ */
+module.exports = (function () {
+  // CONSTRUCTOR
   /**
-   * Constructs a 256-bit color that can be displayed in a pixel, given three primary color components.
-   * @param `red` optional non-negative integer ≤ 255, defaults to 0; the red   component of this color
-   * @param `grn` optional non-negative integer ≤ 255, defaults to 0; the green component of this color
-   * @param `blu` optional non-negative integer ≤ 255, defaults to 0; the blue  component of this color
+   * Construct a Color object.
+   * @constructor
+   * @param {number=0} red a non-negative integer ≤ 255; the red   component of this color
+   * @param {number=0} grn a non-negative integer ≤ 255; the green component of this color
+   * @param {number=0} blu a non-negative integer ≤ 255; the blue  component of this color
    */
   function Color(red, grn, blu) {
     var self = this
 
-    self.red   = +red || 0
-    self.green = +grn || 0
-    self.blue  = +blu || 0
+    self._RED   = +red || 0
+    self._GREEN = +grn || 0
+    self._BLUE  = +blu || 0
 
     /**
      * The HSV-space hue of this color, or what "color" this color is.
+     * @type {number}
      */
-    self.hsv_hue = (function () {
+    self._HSV_HUE = (function () {
       return 0 // FIXME
     })()
+
     /**
      * The vividness of this color. A lower saturation means the color is closer to white,
      * a higher saturation means the color is more true to its hue.
+     * @type {number}
      */
-    self.hsv_sat = (function () {
+    self._HSV_SAT = (function () {
       return 0 // FIXME
     })()
+
     /**
      * The brightness of this color. A lower value means the color is closer to black, a higher
      * value means the color is more true to its hue.
      * The HSV-space value ("brightness") of this color is equivalent to the ratio of the
      * brightest RGB-component’s value to 255, as a percentage.
+     * @type {number}
      */
-    self.hsv_val = (function () {
-      return Math.max(self.red, self.green, self.blue) / 255
+    self._HSV_VAL = (function () {
+      return Math.max(self._RED, self._GREEN, self._BLUE) / 255
     })()
+
     /**
-     * The Hue of this color. Identical to `this.hsv_hue`.
+     * The Hue of this color. Identical to `this._HSV_HUE`.
+     * @type {number}
      */
-    self.hsl_hue = (function () {
-      return self.hsv_hue
+    self._HSL_HUE = (function () {
+      return self._HSV_HUE
     })()
+
     /**
      * The amount of "color" in the color. A lower saturation means the color is more grayer,
      * a higher saturation means the color is more colorful.
+     * @type {number}
      */
-    self.hsl_sat = (function () {
+    self._HSL_SAT = (function () {
       return 0 // FIXME
     })();
+
     /**
      * How "white" or "black" the color is. A lower luminosity means the color is closer to black,
      * a higher luminosity means the color is closer to white.
+     * @type {number}
      */
-    self.hsl_lum = (function () {
+    self._HSL_LUM = (function () {
       return 0 // FIXME
     })()
   }
 
+
+  // ACCESSOR FUNCTIONS
   /**
-   * Returns a new color that is the complement of this color.
+   * Get the red component of this color.
+   * @return {number} the red component of this color
+   */
+  Color.prototype.red = function red() {
+    return this._RED
+  }
+  /**
+   * Get the green component of this color.
+   * @return {number} the green component of this color
+   */
+  Color.prototype.green = function green() {
+    return this._GREEN
+  }
+  /**
+   * Get the blue component of this color.
+   * @return {number} the blue component of this color
+   */
+  Color.prototype.blue = function blue() {
+    return this._BLUE
+  }
+
+  /**
+   * Get the hsv-hue of this color.
+   * @return {number} the hsv-hue of this color
+   */
+  Color.prototype.hsvHue = function hsvHue() {
+    return this._HSV_HUE
+  }
+  /**
+   * Get the hsv-saturation of this color.
+   * @return {number} the hsv-saturation of this color
+   */
+  Color.prototype.hsvSat = function hsvSat() {
+    return this._HSV_SAT
+  }
+  /**
+   * Get the hsv-value of this color.
+   * @return {number} the hsv-value of this color
+   */
+  Color.prototype.hsvVal = function hsvVal() {
+    return this._HSV_VAL
+  }
+
+  /**
+   * Get the hsl-hue of this color.
+   * @return {number} the hsl-hue of this color
+   */
+  Color.prototype.hslHue = function hslHue() {
+    return this._HSL_HUE
+  }
+  /**
+   * Get the hsl-saturation of this color.
+   * @return {number} the hsl-saturation of this color
+   */
+  Color.prototype.hslSat = function hslSat() {
+    return this._HSL_SAT
+  }
+  /**
+   * Get the hsl-luminocity of this color.
+   * @return {number} the hsl-luminocity of this color
+   */
+  Color.prototype.hslLum = function hslLum() {
+    return this._HSL_LUM
+  }
+
+
+  // METHODS
+  /**
+   * Return a new color that is the complement of this color.
    * The complement of a color is the difference between that color and white (#fff).
-   * @return a new Color object that corresponds to this color’s complement
+   * @return {Color} a new Color object that corresponds to this color’s complement
    */
   Color.prototype.complement = function complement() {
-    return new Color(255 - this.red, 255 - this.green, 255 - this.blue)
+    return new Color(255 - this.red(), 255 - this.green(), 255 - this.blue())
   }
 
   /**
-   * Returns a new color that is the inverse of this color.
+   * Return a new color that is the inverse of this color.
    * The inverse of a color is that color with a hue rotation of 180 degrees.
-   * @return a new Color object that corresponds to this color’s inverse
+   * @return {Color} a new Color object that corresponds to this color’s inverse
    */
   Color.prototype.invert = function invert() {
-    var newhue = (this.hsv_hue + 180) % 360
-    return Color.newColorHSV(newhue, this.hsv_sat, this.hsv_val)
+    var newhue = (this.hsvHue() + 180) % 360
+    return Color.newColorHSV(newhue, this.hsvSat(), this.hsvVal())
   }
 
   /**
-   * Makes a new color that is a brighter version of this color by a percentage.
+   * Make a new color that is a brighter version of this color by a percentage.
    * 1.0 corresponds to making it completely white (#fff), and 0% keeps this color the same.
    * A negative parameter will darken this color (see `this.darken(p)`).
-   * @param `p` must be between -1.0 and 1.0; the percentage by which to lighten this color
-   * @return    a new Color object that corresponds to this color brightened by a percentage `p`
+   * @param {number} p must be between -1.0 and 1.0; the percentage by which to lighten this color
+   * @return {Color} a new Color object that corresponds to this color brightened by a percentage `p`
    */
   Color.prototype.brighten = function brighten(p) {
-    // return Color.newColorHSL(this.hsl_hue, this.hsl_sat, this.hsl_val + p)
+    // return Color.newColorHSL(this.hslHue(), this.hslSat(), this.hslVal() + p)
   }
   /**
-   * Makes a new color that is a darker version of this color by a percentage.
+   * Make a new color that is a darker version of this color by a percentage.
    * 1.0 corresponds to making it completely black (#000), abd 0% keeps this color the same.
    * A negative parameter will lighten this color (see `this.brighten(p)`).
-   * @param `p` must be between -1.0 and 1.0; the percentage by which to darken this color
-   * @return    a new Color object that corresponds to this color darkened by a percentage `p`
+   * @param {number} p must be between -1.0 and 1.0; the percentage by which to darken this color
+   * @return {Color} a new Color object that corresponds to this color darkened by a percentage `p`
    */
   Color.prototype.darken = function darken(p) {
-    // return Color.newColorHSL(this.hsl_hue, this.hsl_sat, this.hsl_val - p)
+    // return Color.newColorHSL(this.hslHue(), this.hslSat(), this.hslVal() - p)
     // return this.brighten(-p)
   }
 
   /**
-   * Mixes (averages) another color with this color, with a given weight favoring that color.
-   * If `w == 0.0`, this method will return exactly this color.
-   * `w == 1.0` will return exactly the other color.
-   * `w == 0.5` (default if omitted) will result in a perfectly even mix.
-   * Note that `color1.mix(color2, w)` will return the same result as `color2.mix(color1, 1-w)`.
-   * @param `color` required Color object; the second color
-   * @param `w`     optional number between 0.0 and 1.0, defaults to 0.5; the weight favoring the other color
-   * @return        a mix of the two given colors
+   * Mix (average) another color with this color, with a given weight favoring that color.
+   * If `w == 0.0`, return exactly this color.
+   * `w == 1.0` return exactly the other color.
+   * `w == 0.5` (default if omitted) return a perfectly even mix.
+   * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
+   * @param {Color} $color the second color
+   * @param {number=0.5} w between 0.0 and 1.0; the weight favoring the other color
+   * @return {Color} a mix of the two given colors
    */
-  Color.prototype.mix = function mix(color, w) {
+  Color.prototype.mix = function mix($color, w) {
     if (w !== 0) w = +w || 0.5
     function average(a, b, w) {
       return (a * (1-w)) + (b * w)
     }
-    var r = Math.round(average(this.red,   color.red,   w))
-      , g = Math.round(average(this.green, color.green, w))
-      , b = Math.round(average(this.blue,  color.blue,  w))
+    var r = Math.round(average(this.red(),   $color.red(),   w))
+      , g = Math.round(average(this.green(), $color.green(), w))
+      , b = Math.round(average(this.blue(),  $color.blue(),  w))
     return new Color(r, g, b)
   }
 
   /**
-   * Returns the *contrast ratio* between two colors.
+   * Return the *contrast ratio* between two colors.
    * More info can be found at
-   * https://www.w3.org/TR/WCAG/#contrast-ratiodef
-   * @param `color` required Color object; the second color to check
-   * @return        the contrast ratio of this color with the argument
+   * {@link https://www.w3.org/TR/WCAG/#contrast-ratiodef}
+   * @param {Color} $color the second color to check
+   * @return {number} the contrast ratio of this color with the argument
    */
-  Color.prototype.contrastRatio = function contrastRatio(color) {
+  Color.prototype.contrastRatio = function contrastRatio($color) {
+    /**
+     * Return the relative lumance of a color.
+     * @param  {Color} c a Color object
+     * @return {number} the relative lumance of the color
+     */
     function relLum(c) {
+      /**
+       * A helper function.
+       * @param  {number} p a decimal representation of an rgb component of a color
+       * @return {number} the output of some mathematical function of `p`
+       */
       function coef(p) {
         return (p <= 0.03928) ? p/12.92 : Math.pow((p+0.055)/1.055,2.4)
       }
-      return 0.2126*coef(c.red  /255)
-           + 0.7152*coef(c.green/255)
-           + 0.0722*coef(c.blue /255)
+      return 0.2126*coef(c.red()  /255)
+           + 0.7152*coef(c.green()/255)
+           + 0.0722*coef(c.blue() /255)
     }
     var lum1 = relLum(this)
-      , lum2 = relLum(color)
+      , lum2 = relLum($color)
     return (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05)
   }
 
   /**
-   * Returns a string representation of this color.
-   * If `space === 'hsv'`, returns `hsv(h, s, v)`
-   * If `space === 'hsl'`, returns `hsl(h, s, l)`
-   * If `space === 'hex'`, returns `#rrggbb`
-   * If `space === 'rgb'`, or if no param is given, returns `rgb(r, g, b)`
-   * @param `space` optional ('rgb'): a string representing the space in which this color exists
-   * @return        a string representing this color.
+   * Return a string representation of this color.
+   * If `space === 'hsv'`, return `hsv(h, s, v)`
+   * If `space === 'hsl'`, return `hsl(h, s, l)`
+   * If `space === 'hex'`, return `#rrggbb`
+   * If `space === 'rgb'` (default), return `rgb(r, g, b)`
+   * @param {string='rgb'} space represents the space in which this color exists
+   * @return {string} a string representing this color.
    */
   Color.prototype.toString = function toString(space) {
+    /**
+     * Converts a decimal number to a hexadecimal number, as a string.
+     * @param  {number} n a number in base 10
+     * @return {string} a number in base 16
+     */
     function toHex(n) {
       return '0123456789abcdef'.charAt((n - n % 16) / 16) + '0123456789abcdef'.charAt(n % 16)
     }
-    if (space === 'hex') return '#' + toHex(this.red) + toHex(this.green) + toHex(this.blue)
-    if (space === 'hsv') return 'hsv(' + this.hsv_hue + ', ' + this.hsv_sat + ', ' + this.hsv_val + ')'
-    if (space === 'hsl') return 'hsl(' + this.hsl_hue + ', ' + this.hsl_sat + ', ' + this.hsl_lum + ')'
-                         return 'rgb(' + this.red     + ', ' + this.green   + ', ' + this.blue    + ')'
+    if (space === 'hex') return '#' + toHex(this.red()) + toHex(this.green())  + toHex(this.blue())
+    if (space === 'hsv') return 'hsv(' + this.hsvHue()  + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ')'
+    if (space === 'hsl') return 'hsl(' + this.hslHue()  + ', ' + this.hslSat() + ', ' + this.hslLum() + ')'
+                         return 'rgb(' + this.red()     + ', ' + this.green()  + ', ' + this.blue()   + ')'
   }
 
 
-
+  // STATIC MEMBERS
   /**
-   * Returns a new Color object, given a string of the form `rgb(r,g,b)` or `rgb(r, g, b)`,
+   * Return a new Color object, given a string of the form `rgb(r,g,b)` or `rgb(r, g, b)`,
    * where `r`, `g`, and `b` are decimal RGB components (in base 10, out of 255).
-   * @param `rgb_string` a string of the form `rgb(r,g,b)` or `rgb(r, g, b)`
+   * @param {string} rgb_string a string of the form `rgb(r,g,b)` or `rgb(r, g, b)`
+   * @return {Color} a new Color object constructed from the given rgb string
    */
   Color.fromRGB = function fromRGB(rgb_string) {
     var splitted = rgb_string.slice(4, -1).split(',')
@@ -171,15 +274,21 @@ var Color = (function () {
   }
 
   /**
-   * Returns a new Color object, given a string of the form `#rrggbb`,
+   * Return a new Color object, given a string of the form `#rrggbb`,
    * where `rr`, `gg`, and `bb` are hexadecimal RGB components (in base 16, out of ff, lowercase).
    * The `#` must be included.
-   * @param `hex_string` a string of the form `#rrggbb` (lowercase)
+   * @param {string} hex_string a string of the form `#rrggbb` (lowercase)
+   * @return {Color} a new Color object constructed from the given hex string
    */
   Color.fromHex = function fromHex(hex_string) {
     var r_hex = hex_string.slice(1,3)
       , g_hex = hex_string.slice(3,5)
       , b_hex = hex_string.slice(5,7)
+    /**
+     * Converts a hexadecimal number (as a string) to a decimal number.
+     * @param  {string} n a number in base 16
+     * @return {number} a number in base 10
+     */
     function toDec(x) {
       var tens = 0
         , ones = 0
@@ -193,7 +302,7 @@ var Color = (function () {
   }
 
   /**
-   * Returns a new Color object, given hue, saturation, and value in HSV-space.
+   * Return a new Color object, given hue, saturation, and value in HSV-space.
    *
    * Takes HSV-components as number arguments and returns a new Color object with
    * RGB-components, each a base-10 number from 0 to 255.
@@ -203,12 +312,12 @@ var Color = (function () {
    * before calling this method.
    *
    * Ported from the excellent java algorithm by Eugene Vishnevsky at:
-   * http://www.cs.rit.edu/~ncs/color/t_convert.html
+   * {@link http://www.cs.rit.edu/~ncs/color/t_convert.html}
    *
-   * @param `hue` must be between 0 and 360; hue in HSV-space
-   * @param `sat` must be between 0.0 and 1.0; saturation in HSV-space
-   * @param `val` must be between 0.0 and 1.0; brightness in HSV-space
-   * @return      a new Color object with hsv(`h`, `s`, `v`)
+   * @param {number} hue must be between 0 and 360; hue in HSV-space
+   * @param {number} sat must be between 0.0 and 1.0; saturation in HSV-space
+   * @param {number} val must be between 0.0 and 1.0; brightness in HSV-space
+   * @return {Color} a new Color object with hsv(hue, sat, val)
    */
   Color.fromHSV = function fromHSV(hue, sat, val) {
     var red, grn, blu
@@ -240,18 +349,18 @@ var Color = (function () {
     blu = Math.round(blu * 255)
 
     var returned = new Color(red, grn, blu)
-    returned.hsv_hue = hue
-    returned.hsv_sat = sat
-    returned.hsv_val = val
+    // returned._HSV_HUE = hue // XXX ILLEGAL setting immutable property
+    // returned._HSV_SAT = sat // XXX ILLEGAL setting immutable property
+    // returned._HSV_VAL = val // XXX ILLEGAL setting immutable property
     return returned
   }
 
   /**
-   * Returns a new Color object, given hue, saturation, and luminosity.
-   * @param `hue` must be between 0 and 360; same as the `hue` in HSV-space
-   * @param `sat` must be between 0.0 and 1.0; saturation in HSL-space
-   * @param `lum` must be between 0.0 and 1.0; luminosity in HSL-space
-   * @return      a new Color object with hsl(`hue`, `sat`, `lum`)
+   * Return a new Color object, given hue, saturation, and luminosity.
+   * @param {number} hue must be between 0 and 360; same as the `hue` in HSV-space
+   * @param {number} sat must be between 0.0 and 1.0; saturation in HSL-space
+   * @param {number} lum must be between 0.0 and 1.0; luminosity in HSL-space
+   * @return {Color} a new Color object with hsl(hue, sat, lum)
    */
   Color.fromHSL = function fromHSL(hue, sat, lum) {
     return new Color() // FIXME
@@ -259,16 +368,18 @@ var Color = (function () {
 
   /**
    * Checks the type of an argument, and converts it to a color.
+   * @param  {unknown} arg any argument
+   * @return {Color} a new Color object constructed from the given argument
    */
-  Color.typeCheck = function typeCheck(param) {
-    if (param.red || param.green || param.blue) return param
-    if (typeof param === 'string') {
-      if (param.slice(0,1) === '#')    return Color.newColorHexString(param)
-      if (param.slice(0,4) === 'rgb(') return Color.newColorRGBString(param)
-      return new Color()
+  Color.typeCheck = function typeCheck(arg) {
+    if (arg instanceof Color) return arg
+    if (typeof arg === 'string') {
+      if (arg.slice(0,1) === '#')    return Color.newColorHexString(arg)
+      if (arg.slice(0,4) === 'rgb(') return Color.newColorRGBString(arg)
+                                     return new Color()
     }
-    if (typeof param === 'number') {
-      var graytone = Util.bound(param, 0, 255)
+    if (typeof arg === 'number') {
+      var graytone = Math.min(Math.max(arg, 0), 255) // bound(arg, 0, 255)
       return new Color(+graytone, +graytone, +graytone)
     }
     return new Color()
