@@ -2,7 +2,7 @@
  * A 256-bit color that can be displayed in a pixel, given three primary color components.
  * @type {Color}
  */
-var Color = (function () {
+module.exports = (function () {
   // CONSTRUCTOR
   /**
    * Construct a Color object.
