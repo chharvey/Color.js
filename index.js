@@ -22,7 +22,7 @@ var Color = (function () {
      * The HSV-space hue of this color, or what "color" this color is.
      * @type {number}
      */
-    self.hsv_hue = (function () {
+    self._HSV_HUE = (function () {
       return 0 // FIXME
     })()
 
@@ -31,7 +31,7 @@ var Color = (function () {
      * a higher saturation means the color is more true to its hue.
      * @type {number}
      */
-    self.hsv_sat = (function () {
+    self._HSV_SAT = (function () {
       return 0 // FIXME
     })()
 
@@ -42,16 +42,16 @@ var Color = (function () {
      * brightest RGB-component’s value to 255, as a percentage.
      * @type {number}
      */
-    self.hsv_val = (function () {
+    self._HSV_VAL = (function () {
       return Math.max(self._RED, self._GREEN, self._BLUE) / 255
     })()
 
     /**
-     * The Hue of this color. Identical to `this.hsv_hue`.
+     * The Hue of this color. Identical to `this._HSV_HUE`.
      * @type {number}
      */
-    self.hsl_hue = (function () {
-      return self.hsv_hue
+    self._HSL_HUE = (function () {
+      return self._HSV_HUE
     })()
 
     /**
@@ -59,7 +59,7 @@ var Color = (function () {
      * a higher saturation means the color is more colorful.
      * @type {number}
      */
-    self.hsl_sat = (function () {
+    self._HSL_SAT = (function () {
       return 0 // FIXME
     })();
 
@@ -68,10 +68,11 @@ var Color = (function () {
      * a higher luminosity means the color is closer to white.
      * @type {number}
      */
-    self.hsl_lum = (function () {
+    self._HSL_LUM = (function () {
       return 0 // FIXME
     })()
   }
+
 
   // ACCESSOR FUNCTIONS
   /**
@@ -81,7 +82,6 @@ var Color = (function () {
   Color.prototype.red = function red() {
     return this._RED
   }
-
   /**
    * Get the green component of this color.
    * @return {number} the green component of this color
@@ -89,13 +89,56 @@ var Color = (function () {
   Color.prototype.green = function green() {
     return this._GREEN
   }
-
   /**
    * Get the blue component of this color.
    * @return {number} the blue component of this color
    */
   Color.prototype.blue = function blue() {
     return this._BLUE
+  }
+
+  /**
+   * Get the hsv-hue of this color.
+   * @return {number} the hsv-hue of this color
+   */
+  Color.prototype.hsvHue = function hsvHue() {
+    return this._HSV_HUE
+  }
+  /**
+   * Get the hsv-saturation of this color.
+   * @return {number} the hsv-saturation of this color
+   */
+  Color.prototype.hsvSat = function hsvSat() {
+    return this._HSV_SAT
+  }
+  /**
+   * Get the hsv-value of this color.
+   * @return {number} the hsv-value of this color
+   */
+  Color.prototype.hsvVal = function hsvVal() {
+    return this._HSV_VAL
+  }
+
+  /**
+   * Get the hsl-hue of this color.
+   * @return {number} the hsl-hue of this color
+   */
+  Color.prototype.hslHue = function hslHue() {
+    return this._HSL_HUE
+  }
+  /**
+   * Get the hsl-saturation of this color.
+   * @return {number} the hsl-saturation of this color
+   */
+  Color.prototype.hslSat = function hslSat() {
+    return this._HSL_SAT
+  }
+  /**
+   * Get the hsl-luminocity of this color.
+   * @return {number} the hsl-luminocity of this color
+   */
+  Color.prototype.hslLum = function hslLum() {
+    return this._HSL_LUM
   }
 
 
@@ -115,8 +158,8 @@ var Color = (function () {
    * @return {Color} a new Color object that corresponds to this color’s inverse
    */
   Color.prototype.invert = function invert() {
-    var newhue = (this.hsv_hue + 180) % 360
-    return Color.newColorHSV(newhue, this.hsv_sat, this.hsv_val)
+    var newhue = (this.hsvHue() + 180) % 360
+    return Color.newColorHSV(newhue, this.hsvSat(), this.hsvVal())
   }
 
   /**
@@ -127,7 +170,7 @@ var Color = (function () {
    * @return {Color} a new Color object that corresponds to this color brightened by a percentage `p`
    */
   Color.prototype.brighten = function brighten(p) {
-    // return Color.newColorHSL(this.hsl_hue, this.hsl_sat, this.hsl_val + p)
+    // return Color.newColorHSL(this.hslHue(), this.hslSat(), this.hslVal() + p)
   }
   /**
    * Make a new color that is a darker version of this color by a percentage.
@@ -137,7 +180,7 @@ var Color = (function () {
    * @return {Color} a new Color object that corresponds to this color darkened by a percentage `p`
    */
   Color.prototype.darken = function darken(p) {
-    // return Color.newColorHSL(this.hsl_hue, this.hsl_sat, this.hsl_val - p)
+    // return Color.newColorHSL(this.hslHue(), this.hslSat(), this.hslVal() - p)
     // return this.brighten(-p)
   }
 
@@ -211,10 +254,10 @@ var Color = (function () {
     function toHex(n) {
       return '0123456789abcdef'.charAt((n - n % 16) / 16) + '0123456789abcdef'.charAt(n % 16)
     }
-    if (space === 'hex') return '#' + toHex(this.red()) + toHex(this.green()) + toHex(this.blue())
-    if (space === 'hsv') return 'hsv(' + this.hsv_hue + ', ' + this.hsv_sat + ', ' + this.hsv_val + ')'
-    if (space === 'hsl') return 'hsl(' + this.hsl_hue + ', ' + this.hsl_sat + ', ' + this.hsl_lum + ')'
-                         return 'rgb(' + this.red()   + ', ' + this.green() + ', ' + this.blue()  + ')'
+    if (space === 'hex') return '#' + toHex(this.red()) + toHex(this.green())  + toHex(this.blue())
+    if (space === 'hsv') return 'hsv(' + this.hsvHue()  + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ')'
+    if (space === 'hsl') return 'hsl(' + this.hslHue()  + ', ' + this.hslSat() + ', ' + this.hslLum() + ')'
+                         return 'rgb(' + this.red()     + ', ' + this.green()  + ', ' + this.blue()   + ')'
   }
 
 
@@ -269,7 +312,7 @@ var Color = (function () {
    * before calling this method.
    *
    * Ported from the excellent java algorithm by Eugene Vishnevsky at:
-   * http://www.cs.rit.edu/~ncs/color/t_convert.html
+   * {@link http://www.cs.rit.edu/~ncs/color/t_convert.html}
    *
    * @param {number} hue must be between 0 and 360; hue in HSV-space
    * @param {number} sat must be between 0.0 and 1.0; saturation in HSV-space
@@ -306,9 +349,9 @@ var Color = (function () {
     blu = Math.round(blu * 255)
 
     var returned = new Color(red, grn, blu)
-    returned.hsv_hue = hue
-    returned.hsv_sat = sat
-    returned.hsv_val = val
+    // returned._HSV_HUE = hue // XXX ILLEGAL setting immutable property
+    // returned._HSV_SAT = sat // XXX ILLEGAL setting immutable property
+    // returned._HSV_VAL = val // XXX ILLEGAL setting immutable property
     return returned
   }
 
