@@ -14,9 +14,9 @@ var Color = (function () {
   function Color(red, grn, blu) {
     var self = this
 
-    self.red   = +red || 0
-    self.green = +grn || 0
-    self.blue  = +blu || 0
+    self._RED   = +red || 0
+    self._GREEN = +grn || 0
+    self._BLUE  = +blu || 0
 
     /**
      * The HSV-space hue of this color, or what "color" this color is.
@@ -43,7 +43,7 @@ var Color = (function () {
      * @type {number}
      */
     self.hsv_val = (function () {
-      return Math.max(self.red, self.green, self.blue) / 255
+      return Math.max(self._RED, self._GREEN, self._BLUE) / 255
     })()
 
     /**
@@ -74,6 +74,29 @@ var Color = (function () {
   }
 
   // ACCESSOR FUNCTIONS
+  /**
+   * Get the red component of this color.
+   * @return {number} the red component of this color
+   */
+  Color.prototype.red = function red() {
+    return this._RED
+  }
+
+  /**
+   * Get the green component of this color.
+   * @return {number} the green component of this color
+   */
+  Color.prototype.green = function green() {
+    return this._GREEN
+  }
+
+  /**
+   * Get the blue component of this color.
+   * @return {number} the blue component of this color
+   */
+  Color.prototype.blue = function blue() {
+    return this._BLUE
+  }
 
 
   // METHODS
@@ -83,7 +106,7 @@ var Color = (function () {
    * @return {Color} a new Color object that corresponds to this color’s complement
    */
   Color.prototype.complement = function complement() {
-    return new Color(255 - this.red, 255 - this.green, 255 - this.blue)
+    return new Color(255 - this.red(), 255 - this.green(), 255 - this.blue())
   }
 
   /**
@@ -133,9 +156,9 @@ var Color = (function () {
     function average(a, b, w) {
       return (a * (1-w)) + (b * w)
     }
-    var r = Math.round(average(this.red,   $color.red,   w))
-      , g = Math.round(average(this.green, $color.green, w))
-      , b = Math.round(average(this.blue,  $color.blue,  w))
+    var r = Math.round(average(this.red(),   $color.red(),   w))
+      , g = Math.round(average(this.green(), $color.green(), w))
+      , b = Math.round(average(this.blue(),  $color.blue(),  w))
     return new Color(r, g, b)
   }
 
@@ -161,9 +184,9 @@ var Color = (function () {
       function coef(p) {
         return (p <= 0.03928) ? p/12.92 : Math.pow((p+0.055)/1.055,2.4)
       }
-      return 0.2126*coef(c.red  /255)
-           + 0.7152*coef(c.green/255)
-           + 0.0722*coef(c.blue /255)
+      return 0.2126*coef(c.red()  /255)
+           + 0.7152*coef(c.green()/255)
+           + 0.0722*coef(c.blue() /255)
     }
     var lum1 = relLum(this)
       , lum2 = relLum($color)
@@ -188,10 +211,10 @@ var Color = (function () {
     function toHex(n) {
       return '0123456789abcdef'.charAt((n - n % 16) / 16) + '0123456789abcdef'.charAt(n % 16)
     }
-    if (space === 'hex') return '#' + toHex(this.red) + toHex(this.green) + toHex(this.blue)
+    if (space === 'hex') return '#' + toHex(this.red()) + toHex(this.green()) + toHex(this.blue())
     if (space === 'hsv') return 'hsv(' + this.hsv_hue + ', ' + this.hsv_sat + ', ' + this.hsv_val + ')'
     if (space === 'hsl') return 'hsl(' + this.hsl_hue + ', ' + this.hsl_sat + ', ' + this.hsl_lum + ')'
-                         return 'rgb(' + this.red     + ', ' + this.green   + ', ' + this.blue    + ')'
+                         return 'rgb(' + this.red()   + ', ' + this.green() + ', ' + this.blue()  + ')'
   }
 
 
@@ -306,14 +329,14 @@ var Color = (function () {
    * @return {Color} a new Color object constructed from the given argument
    */
   Color.typeCheck = function typeCheck(arg) {
-    if (arg.red || arg.green || arg.blue) return arg
+    if (arg instanceof Color) return arg
     if (typeof arg === 'string') {
       if (arg.slice(0,1) === '#')    return Color.newColorHexString(arg)
       if (arg.slice(0,4) === 'rgb(') return Color.newColorRGBString(arg)
-      return new Color()
+                                     return new Color()
     }
     if (typeof arg === 'number') {
-      var graytone = Util.bound(arg, 0, 255)
+      var graytone = Math.min(Math.max(arg, 0), 255) // bound(arg, 0, 255)
       return new Color(+graytone, +graytone, +graytone)
     }
     return new Color()
