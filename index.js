@@ -32,16 +32,6 @@ module.exports = (function () {
     })()
 
     /**
-     * The vividness of this color. A lower saturation means the color is closer to white,
-     * a higher saturation means the color is more true to its hue.
-     * An decimal bound by [0, 1].
-     * @type {number}
-     */
-    self._HSV_SAT = (function () {
-      return _chroma / self._HSV_VAL
-    })()
-
-    /**
      * The brightness of this color. A lower value means the color is closer to black, a higher
      * value means the color is more true to its hue.
      * The HSV-space value ("brightness") of this color is equivalent to the ratio of the
@@ -54,12 +44,32 @@ module.exports = (function () {
     })()
 
     /**
+     * The vividness of this color. A lower saturation means the color is closer to white,
+     * a higher saturation means the color is more true to its hue.
+     * An decimal bound by [0, 1].
+     * @type {number}
+     */
+    self._HSV_SAT = (function () {
+      return _chroma / self._HSV_VAL
+    })()
+
+    /**
      * The Hue of this color. Identical to `this._HSV_HUE`.
      * An integer bound by [0, 255].
      * @type {number}
      */
     self._HSL_HUE = (function () {
       return self._HSV_HUE
+    })()
+
+    /**
+     * How "white" or "black" the color is. A lower luminosity means the color is closer to black,
+     * a higher luminosity means the color is closer to white.
+     * An decimal bound by [0, 1].
+     * @type {number}
+     */
+    self._HSL_LUM = (function () {
+      return 0.5 * (_max + _min)
     })()
 
     /**
@@ -74,16 +84,6 @@ module.exports = (function () {
       // else                      return _chroma / (2 - (2*self._HSL_LUM))
       // return _chroma / (1 - Math.abs(2*self._HSL_LUM - 1))
     })();
-
-    /**
-     * How "white" or "black" the color is. A lower luminosity means the color is closer to black,
-     * a higher luminosity means the color is closer to white.
-     * An decimal bound by [0, 1].
-     * @type {number}
-     */
-    self._HSL_LUM = (function () {
-      return 0.5 * (_max + _min)
-    })()
   }
 
 
