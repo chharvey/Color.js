@@ -169,6 +169,33 @@ module.exports = (function () {
   }
 
   /**
+   * Return a new color that is a more saturated (more colorful) version of this color by a percentage.
+   * This method calculates saturation in the HSL space.
+   * A parameter of 1.0 returns a color with full saturation, and 0.0 returns an identical color.
+   * A negative number will {@link Color.desaturate()|desaturate} this color.
+   * @param  {number} p must be between -1.0 and 1.0; the value by which to saturate this color
+   * @param  {boolean=} relative true if the saturation added is relative
+   * @return {Color} a new Color object that corresponds to this color saturated by `p`
+   */
+  Color.prototype.saturate = function saturate(p, relative) {
+    var newsat = this.hslSat() + (relative ? (this.hslSat() * p) : p)
+    newsat = Math.min(Math.max(0, newsat), 1)
+    return Color.fromHSL(this.hslHue(), newsat, this.hslLum())
+  }
+
+  /**
+   * Return a new color that is a less saturated version of this color by a percentage.
+   * A parameter of 1.0 returns a grayscale color, and 0.0 returns an identical color.
+   * @see Color.saturate()
+   * @param  {number} p must be between -1.0 and 1.0; the value by which to desaturate this color
+   * @param  {boolean=} relative true if the saturation subtracted is relative
+   * @return {Color} a new Color object that corresponds to this color desaturated by `p`
+   */
+  Color.prototype.desaturate = function desaturate(p, relative) {
+    return this.saturate(-p, relative)
+  }
+
+  /**
    * Return a new color that is a brighter version of this color by a percentage.
    * This method calculates with luminocity in the HSL space.
    * A parameter of 1.0 returns white (#fff), and 0.0 returns an identical color.
