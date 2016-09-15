@@ -164,7 +164,16 @@ module.exports = (function () {
    * @return {Color} a new Color object that corresponds to this color’s inverse
    */
   Color.prototype.invert = function invert() {
-    var newhue = (this.hsvHue() + 180) % 360
+    return this.rotate(180)
+  }
+
+  /**
+   * Return a new color that is a hue-rotation of this color.
+   * @param  {number} a the number of degrees to rotate
+   * @return {Color} a new color corresponding to this color rotated by `a` degrees
+   */
+  Color.prototype.rotate = function rotate(a) {
+    var newhue = (this.hsvHue() + a) % 360
     return Color.fromHSV(newhue, this.hsvSat(), this.hsvVal())
   }
 
