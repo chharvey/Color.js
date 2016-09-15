@@ -18,13 +18,17 @@ module.exports = (function () {
     self._GREEN = +grn || 0
     self._BLUE  = +blu || 0
 
+    var _max = Math.max(self._RED, self._GREEN, self._BLUE) / 255
+    var _min = Math.min(self._RED, self._GREEN, self._BLUE) / 255
+    var _chroma = _max - _min
+
     /**
      * The HSV-space hue of this color, or what "color" this color is.
      * An integer bound by [0, 255].
      * @type {number}
      */
     self._HSV_HUE = (function () {
-      return 0 // FIXME
+      return Math.atan2(Math.sqrt(3) * (self._GREEN - self._BLUE), 2*self._RED - self._GREEN - self._BLUE)
     })()
 
     /**
@@ -34,7 +38,7 @@ module.exports = (function () {
      * @type {number}
      */
     self._HSV_SAT = (function () {
-      return 0 // FIXME
+      return _chroma / self._HSV_VAL
     })()
 
     /**
@@ -46,7 +50,7 @@ module.exports = (function () {
      * @type {number}
      */
     self._HSV_VAL = (function () {
-      return Math.max(self._RED, self._GREEN, self._BLUE) / 255
+      return _max
     })()
 
     /**
@@ -65,7 +69,10 @@ module.exports = (function () {
      * @type {number}
      */
     self._HSL_SAT = (function () {
-      return 0 // FIXME
+      // FIXME
+      // if (self._HSL_LUM <= 0.5) return _chroma / (2*self._HSL_LUM)
+      // else                      return _chroma / (2 - (2*self._HSL_LUM))
+      // return _chroma / (1 - Math.abs(2*self._HSL_LUM - 1))
     })();
 
     /**
@@ -75,7 +82,7 @@ module.exports = (function () {
      * @type {number}
      */
     self._HSL_LUM = (function () {
-      return 0 // FIXME
+      return 0.5 * (_max + _min)
     })()
   }
 
