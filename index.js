@@ -20,6 +20,7 @@ module.exports = (function () {
 
     /**
      * The HSV-space hue of this color, or what "color" this color is.
+     * An integer bound by [0, 255].
      * @type {number}
      */
     self._HSV_HUE = (function () {
@@ -29,6 +30,7 @@ module.exports = (function () {
     /**
      * The vividness of this color. A lower saturation means the color is closer to white,
      * a higher saturation means the color is more true to its hue.
+     * An decimal bound by [0, 1].
      * @type {number}
      */
     self._HSV_SAT = (function () {
@@ -40,6 +42,7 @@ module.exports = (function () {
      * value means the color is more true to its hue.
      * The HSV-space value ("brightness") of this color is equivalent to the ratio of the
      * brightest RGB-component’s value to 255, as a percentage.
+     * An decimal bound by [0, 1].
      * @type {number}
      */
     self._HSV_VAL = (function () {
@@ -48,6 +51,7 @@ module.exports = (function () {
 
     /**
      * The Hue of this color. Identical to `this._HSV_HUE`.
+     * An integer bound by [0, 255].
      * @type {number}
      */
     self._HSL_HUE = (function () {
@@ -57,6 +61,7 @@ module.exports = (function () {
     /**
      * The amount of "color" in the color. A lower saturation means the color is more grayer,
      * a higher saturation means the color is more colorful.
+     * An decimal bound by [0, 1].
      * @type {number}
      */
     self._HSL_SAT = (function () {
@@ -66,6 +71,7 @@ module.exports = (function () {
     /**
      * How "white" or "black" the color is. A lower luminosity means the color is closer to black,
      * a higher luminosity means the color is closer to white.
+     * An decimal bound by [0, 1].
      * @type {number}
      */
     self._HSL_LUM = (function () {
@@ -163,7 +169,8 @@ module.exports = (function () {
   }
 
   /**
-   * Make a new color that is a brighter version of this color by a percentage.
+   * Return a new color that is a brighter version of this color by a percentage.
+   * This method calculates brightness in the HSV space.
    * 1.0 corresponds to making it completely white (#fff), and 0% keeps this color the same.
    * A negative parameter will darken this color (see `this.darken(p)`).
    * @param {number} p must be between -1.0 and 1.0; the percentage by which to lighten this color
@@ -172,10 +179,12 @@ module.exports = (function () {
   Color.prototype.brighten = function brighten(p) {
     // return Color.fromHSL(this.hslHue(), this.hslSat(), this.hslVal() + p)
   }
+
   /**
-   * Make a new color that is a darker version of this color by a percentage.
+   * The opposite of `this.brighten()`.
+   * Return a new color that is a darker version of this color by a percentage.
    * 1.0 corresponds to making it completely black (#000), abd 0% keeps this color the same.
-   * A negative parameter will lighten this color (see `this.brighten(p)`).
+   * @see Color#brighten()
    * @param {number} p must be between -1.0 and 1.0; the percentage by which to darken this color
    * @return {Color} a new Color object that corresponds to this color darkened by a percentage `p`
    */
