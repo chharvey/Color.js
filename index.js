@@ -20,7 +20,7 @@ module.exports = (function () {
 
     /**
      * The HSV-space hue of this color, or what "color" this color is.
-     * An integer bound by [0, 255].
+     * A number bound by [0, 360).
      * @type {number}
      */
     self._HSV_HUE = (function () {
@@ -30,7 +30,7 @@ module.exports = (function () {
     /**
      * The vividness of this color. A lower saturation means the color is closer to white,
      * a higher saturation means the color is more true to its hue.
-     * An decimal bound by [0, 1].
+     * A number bound by [0, 1].
      * @type {number}
      */
     self._HSV_SAT = (function () {
@@ -42,7 +42,7 @@ module.exports = (function () {
      * value means the color is more true to its hue.
      * The HSV-space value ("brightness") of this color is equivalent to the ratio of the
      * brightest RGB-component’s value to 255, as a percentage.
-     * An decimal bound by [0, 1].
+     * A number bound by [0, 1].
      * @type {number}
      */
     self._HSV_VAL = (function () {
@@ -51,7 +51,7 @@ module.exports = (function () {
 
     /**
      * The Hue of this color. Identical to `this._HSV_HUE`.
-     * An integer bound by [0, 255].
+     * A number bound by [0, 360).
      * @type {number}
      */
     self._HSL_HUE = (function () {
@@ -61,7 +61,7 @@ module.exports = (function () {
     /**
      * The amount of "color" in the color. A lower saturation means the color is more grayer,
      * a higher saturation means the color is more colorful.
-     * An decimal bound by [0, 1].
+     * A number bound by [0, 1].
      * @type {number}
      */
     self._HSL_SAT = (function () {
@@ -71,7 +71,7 @@ module.exports = (function () {
     /**
      * How "white" or "black" the color is. A lower luminosity means the color is closer to black,
      * a higher luminosity means the color is closer to white.
-     * An decimal bound by [0, 1].
+     * A number bound by [0, 1].
      * @type {number}
      */
     self._HSL_LUM = (function () {
