@@ -32,9 +32,7 @@ module.exports = (function () {
      * @type {number}
      */
     self._HSV_HUE = (function () {
-      if (_chroma === 0) {
-        return 0
-      }
+      if (_chroma === 0) return 0
 
       var $rgb = [
         self._RED   / 255
@@ -42,7 +40,7 @@ module.exports = (function () {
       , self._BLUE  / 255
       ]
 
-      ;[
+      return [
         function (r, g, b) { return ((g - b) / _chroma % 6) * 60 }
       , function (r, g, b) { return ((b - r) / _chroma + 2) * 60 }
       , function (r, g, b) { return ((r - g) / _chroma + 4) * 60 }
@@ -53,7 +51,7 @@ module.exports = (function () {
       // cases[self._RED   / 255] = function (r, g, b) { return ((g - b) / _chroma % 6) * 60 }
       // cases[self._GREEN / 255] = function (r, g, b) { return ((b - r) / _chroma + 2) * 60 }
       // cases[self._BLUE  / 255] = function (r, g, b) { return ((r - g) / _chroma + 4) * 60 }
-      // cases[_max].apply(null, $rgb)
+      // return cases[_max].apply(null, $rgb)
     })()
 
     /**
@@ -117,10 +115,7 @@ module.exports = (function () {
      * @type {number}
      */
     self._HSL_SAT = (function () {
-      if (_chroma === 0) {
-        // covers the cases (self._HSL_LUM === 0) || (self._HSL_LUM === 1)
-        return 0
-      }
+      if (_chroma === 0) return 0 // covers the cases (self._HSL_LUM === 0) || (self._HSL_LUM === 1)
       return _chroma / ((self._HSL_LUM <= 0.5)  ?  2*self._HSL_LUM  :  (2 - 2*self._HSL_LUM))
     })();
   }
