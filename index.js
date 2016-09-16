@@ -25,10 +25,35 @@ module.exports = (function () {
     /**
      * The HSV-space hue of this color, or what "color" this color is.
      * An integer bound by [0, 255].
+     *
+     * Exercise: prove:
+     * _HSV_HUE === Math.atan2(Math.sqrt(3) * (g - b), 2*r - g - b)
+     *
      * @type {number}
      */
     self._HSV_HUE = (function () {
-      return Math.atan2(Math.sqrt(3) * (self._GREEN - self._BLUE), 2*self._RED - self._GREEN - self._BLUE)
+      if (_chroma === 0) {
+        return 0
+      }
+
+      var $rgb = [
+        self._RED   / 255
+      , self._GREEN / 255
+      , self._BLUE  / 255
+      ]
+
+      ;[
+        function (r, g, b) { return ((g - b) / _chroma % 6) * 60 }
+      , function (r, g, b) { return ((b - r) / _chroma + 2) * 60 }
+      , function (r, g, b) { return ((r - g) / _chroma + 4) * 60 }
+      ][$rgb.indexOf(_max)].apply(null, $rgb)
+
+      // NOTE the above is equivalent to:
+      // var cases = {}
+      // cases[self._RED   / 255] = function (r, g, b) { return ((g - b) / _chroma % 6) * 60 }
+      // cases[self._GREEN / 255] = function (r, g, b) { return ((b - r) / _chroma + 2) * 60 }
+      // cases[self._BLUE  / 255] = function (r, g, b) { return ((r - g) / _chroma + 4) * 60 }
+      // cases[_max].apply(null, $rgb)
     })()
 
     /**
