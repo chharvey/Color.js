@@ -273,22 +273,22 @@ module.exports = (function () {
      * @param  {Color} c a Color object
      * @return {number} the relative lumance of the color
      */
-    function relLum(c) {
+    function luma(c, b) {
       /**
        * A helper function.
        * @param  {number} p a decimal representation of an rgb component of a color
        * @return {number} the output of some mathematical function of `p`
        */
       function coef(p) {
-        return (p <= 0.03928) ? p/12.92 : Math.pow((p+0.055)/1.055,2.4)
+        return (p <= 0.03928) ? p/12.92 : Math.pow((p + 0.055)/1.055, 2.4)
       }
       return 0.2126*coef(c.red()  /255)
            + 0.7152*coef(c.green()/255)
            + 0.0722*coef(c.blue() /255)
     }
-    var lum1 = relLum(this)
-      , lum2 = relLum($color)
-    return (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05)
+    var x = [1,2,3]
+    var both = [luma(this), luma($color)]
+    return (Math.max.apply(null, both) + 0.05) / (Math.min.apply(null, both) + 0.05)
   }
 
   /**
