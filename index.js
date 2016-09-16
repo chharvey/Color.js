@@ -336,20 +336,19 @@ module.exports = (function () {
     } else {
       ;(function () {
         var h = hue / 60 // sector 0 to 5
-          , i = Math.floor(h)
-          , f = h - i // factorial part of h
-          , p = val * (1 - sat)
-          , q = val * (1 - sat * f)
-          , t = val * (1 - sat * (1 - f))
-        var cases = {
+        var i = Math.floor(h)
+        var f = h - i // factorial part of h
+        var p = val * (1 - sat)
+        var q = val * (1 - sat * f)
+        var t = val * (1 - sat * (1 - f))
+        ;({
           0 : function () { red = val; grn = t;   blu = p;   }
         , 1 : function () { red = q;   grn = val; blu = p;   }
         , 2 : function () { red = p;   grn = val; blu = t;   }
         , 3 : function () { red = p;   grn = q;   blu = val; }
         , 4 : function () { red = t;   grn = p;   blu = val; }
         , 5 : function () { red = val; grn = p;   blu = q;   }
-        }
-        cases[i]()
+        })[i]()
       })()
     }
 
