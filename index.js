@@ -76,13 +76,27 @@ module.exports = (function () {
      * The amount of "color" in the color. A lower saturation means the color is more grayer,
      * a higher saturation means the color is more colorful.
      * An decimal bound by [0, 1].
+     *
+     * Exercise: prove:
+     * _HSL_SAT === _chroma / (1 - Math.abs(2*self._HSL_LUM - 1))
+     * Proof:
+     * denom == (function (x) {
+     *   if (x <= 0.5) return 2x
+     *   else          return 2 - 2x
+     * })(_HSL_LUM)
+     * Part A. Let x <= 0.5. Then 2x - 1 <= 0, and |2x - 1| == -(2x - 1).
+     * Then 1 - |2x - 1| == 1 + (2x - 1) = 2x. //
+     * Part B. Let 0.5 < x. Then 1 < 2x - 1, and |2x - 1| == 2x - 1.
+     * Then 1 - |2x - 1| == 1 - (2x - 1) = 2 - 2x. //
+     *
      * @type {number}
      */
     self._HSL_SAT = (function () {
-      // FIXME
-      // if (self._HSL_LUM <= 0.5) return _chroma / (2*self._HSL_LUM)
-      // else                      return _chroma / (2 - (2*self._HSL_LUM))
-      // return _chroma / (1 - Math.abs(2*self._HSL_LUM - 1))
+      if (_chroma === 0) {
+        // covers the cases (self._HSL_LUM === 0) || (self._HSL_LUM === 1)
+        return 0
+      }
+      return _chroma / ((self._HSL_LUM <= 0.5)  ?  2*self._HSL_LUM  :  (2 - 2*self._HSL_LUM))
     })();
   }
 
