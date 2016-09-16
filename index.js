@@ -24,7 +24,7 @@ module.exports = (function () {
 
     /**
      * The HSV-space hue of this color, or what "color" this color is.
-     * An integer bound by [0, 255].
+     * A number bound by [0, 360).
      *
      * Exercise: prove:
      * _HSV_HUE === Math.atan2(Math.sqrt(3) * (g - b), 2*r - g - b)
@@ -59,7 +59,7 @@ module.exports = (function () {
      * value means the color is more true to its hue.
      * The HSV-space value ("brightness") of this color is equivalent to the ratio of the
      * brightest RGB-component’s value to 255, as a percentage.
-     * An decimal bound by [0, 1].
+     * A number bound by [0, 1].
      * @type {number}
      */
     self._HSV_VAL = (function () {
@@ -69,7 +69,7 @@ module.exports = (function () {
     /**
      * The vividness of this color. A lower saturation means the color is closer to white,
      * a higher saturation means the color is more true to its hue.
-     * An decimal bound by [0, 1].
+     * A number bound by [0, 1].
      * @type {number}
      */
     self._HSV_SAT = (function () {
@@ -78,7 +78,7 @@ module.exports = (function () {
 
     /**
      * The Hue of this color. Identical to `this._HSV_HUE`.
-     * An integer bound by [0, 255].
+     * A number bound by [0, 360).
      * @type {number}
      */
     self._HSL_HUE = (function () {
@@ -88,7 +88,7 @@ module.exports = (function () {
     /**
      * How "white" or "black" the color is. A lower luminosity means the color is closer to black,
      * a higher luminosity means the color is closer to white.
-     * An decimal bound by [0, 1].
+     * A number bound by [0, 1].
      * @type {number}
      */
     self._HSL_LUM = (function () {
@@ -98,7 +98,7 @@ module.exports = (function () {
     /**
      * The amount of "color" in the color. A lower saturation means the color is more grayer,
      * a higher saturation means the color is more colorful.
-     * An decimal bound by [0, 1].
+     * A number bound by [0, 1].
      *
      * Exercise: prove:
      * _HSL_SAT === _chroma / (1 - Math.abs(2*self._HSL_LUM - 1))
@@ -423,20 +423,19 @@ module.exports = (function () {
     } else {
       ;(function () {
         var h = hue / 60 // sector 0 to 5
-          , i = Math.floor(h)
-          , f = h - i // factorial part of h
-          , p = val * (1 - sat)
-          , q = val * (1 - sat * f)
-          , t = val * (1 - sat * (1 - f))
-        var cases = {
+        var i = Math.floor(h)
+        var f = h - i // factorial part of h
+        var p = val * (1 - sat)
+        var q = val * (1 - sat * f)
+        var t = val * (1 - sat * (1 - f))
+        ;({
           0 : function () { red = val; grn = t;   blu = p;   }
         , 1 : function () { red = q;   grn = val; blu = p;   }
         , 2 : function () { red = p;   grn = val; blu = t;   }
         , 3 : function () { red = p;   grn = q;   blu = val; }
         , 4 : function () { red = t;   grn = p;   blu = val; }
         , 5 : function () { red = val; grn = p;   blu = q;   }
-        }
-        cases[i]()
+        })[i]()
       })()
     }
 
