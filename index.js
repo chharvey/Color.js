@@ -181,8 +181,8 @@ module.exports = (function () {
     return this._HSL_SAT
   }
   /**
-   * Get the hsl-luminocity of this color.
-   * @return {number} the hsl-luminocity of this color
+   * Get the hsl-luminosity of this color.
+   * @return {number} the hsl-luminosity of this color
    */
   Color.prototype.hslLum = function hslLum() {
     return this._HSL_LUM
@@ -247,19 +247,19 @@ module.exports = (function () {
 
   /**
    * Return a new color that is a brighter version of this color by a percentage.
-   * This method calculates with luminocity in the HSL space.
+   * This method calculates with luminosity in the HSL space.
    * A parameter of 1.0 returns white (#fff), and 0.0 returns an identical color.
    * A negative parameter will {@link Color.darken()|darken} this color.
    *
    * Set `relative = true` to specify the amount as relative to the color’s current brightness.
    * For example, if `$color` has an HSL-lum of 0.5, then calling `$color.brighten(0.5)` will return
-   * a new color with an HSL-lum of 1.0, because the argument 0.5 is simply added to the color’s luminocity.
+   * a new color with an HSL-lum of 1.0, because the argument 0.5 is simply added to the color’s luminosity.
    * However, calling `$color.brighten(0.5, true)` will return a new color with an HSL-lum of 0.75,
-   * because the argument 0.5, relative to the color’s current luminocity of 0.5, results in
-   * an added luminocity of 0.25.
+   * because the argument 0.5, relative to the color’s current luminosity of 0.5, results in
+   * an added luminosity of 0.25.
    *
    * @param {number} p must be between -1.0 and 1.0; the amount by which to lighten this color
-   * @param {boolean=} relative true if the luminocity added is relative
+   * @param {boolean=} relative true if the luminosity added is relative
    * @return {Color} a new Color object that corresponds to this color brightened by `p`
    */
   Color.prototype.brighten = function brighten(p, relative) {
@@ -273,7 +273,7 @@ module.exports = (function () {
    * A parameter of 1.0 returns black (#000), and 0.0 returns an identical color.
    * @see Color.brighten()
    * @param {number} p must be between -1.0 and 1.0; the amount by which to darken this color
-   * @param {boolean=} relative true if the luminocity subtracted is relative
+   * @param {boolean=} relative true if the luminosity subtracted is relative
    * @return {Color} a new Color object that corresponds to this color darkened by `p`
    */
   Color.prototype.darken = function darken(p, relative) {
@@ -314,22 +314,22 @@ module.exports = (function () {
      * @param  {Color} c a Color object
      * @return {number} the relative lumance of the color
      */
-    function relLum(c) {
+    function luma(c, b) {
       /**
        * A helper function.
        * @param  {number} p a decimal representation of an rgb component of a color
        * @return {number} the output of some mathematical function of `p`
        */
       function coef(p) {
-        return (p <= 0.03928) ? p/12.92 : Math.pow((p+0.055)/1.055,2.4)
+        return (p <= 0.03928) ? p/12.92 : Math.pow((p + 0.055)/1.055, 2.4)
       }
       return 0.2126*coef(c.red()  /255)
            + 0.7152*coef(c.green()/255)
            + 0.0722*coef(c.blue() /255)
     }
-    var lum1 = relLum(this)
-      , lum2 = relLum($color)
-    return (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05)
+    var x = [1,2,3]
+    var both = [luma(this), luma($color)]
+    return (Math.max.apply(null, both) + 0.05) / (Math.min.apply(null, both) + 0.05)
   }
 
   /**
