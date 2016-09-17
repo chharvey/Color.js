@@ -459,7 +459,35 @@ module.exports = (function () {
    * @return {Color} a new Color object with hsl(hue, sat, lum)
    */
   Color.fromHSL = function fromHSL(hue, sat, lum) {
-    return new Color() // FIXME
+    var red, grn, blu
+    if (sat === 0) {
+      // achromatic (gray)
+      red = grn = blu = val
+    } else {
+      function hue2rgb(p, q, t) {
+        if (t < 0)   t += 1
+        if (t > 1)   t -= 1
+        if (t < 1/6) return p + (q - p) * 6 * t
+        if (t < 1/2) return q
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6
+        return p
+      }
+      var q = (l < 0.5) ? l*(1 + s) : l + s - l*s
+      var p = 2*l - q
+      red = hue2rgb(p, q, hue + 1/3);
+      grn = hue2rgb(p, q, hue);
+      blu = hue2rgb(p, q, hue - 1/3);
+    }
+
+    red = Math.round(red * 255)
+    grn = Math.round(grn * 255)
+    blu = Math.round(blu * 255)
+
+    return new Color(red, grn, blu)
+    // XXX ILLEGAL setting immutable properties
+    // returned._HSL_HUE = hue
+    // returned._HSL_SAT = sat
+    // returned._HSL_LUM = lum
   }
 
   /**
