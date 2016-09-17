@@ -444,16 +444,16 @@ module.exports = (function () {
     grn = Math.round(grn * 255)
     blu = Math.round(blu * 255)
 
-    var returned = new Color(red, grn, blu)
-    // returned._HSV_HUE = hue // XXX ILLEGAL setting immutable property
-    // returned._HSV_SAT = sat // XXX ILLEGAL setting immutable property
-    // returned._HSV_VAL = val // XXX ILLEGAL setting immutable property
-    return returned
+    return new Color(red, grn, blu)
+    // XXX ILLEGAL setting immutable properties
+    // returned._HSV_HUE = hue
+    // returned._HSV_SAT = sat
+    // returned._HSV_VAL = val
   }
 
   /**
    * Return a new Color object, given hue, saturation, and luminosity.
-   * @param {number} hue must be between 0 and 360; same as the `hue` in HSV-space
+   * @param {number} hue must be between 0 and 360; hue in HSL-space (same as hue in HSV-space)
    * @param {number} sat must be between 0.0 and 1.0; saturation in HSL-space
    * @param {number} lum must be between 0.0 and 1.0; luminosity in HSL-space
    * @return {Color} a new Color object with hsl(hue, sat, lum)
@@ -472,6 +472,8 @@ module.exports = (function () {
     if (typeof arg === 'string') {
       if (arg.slice(0,1) === '#')    return Color.fromHex(arg)
       if (arg.slice(0,4) === 'rgb(') return Color.fromRGB(arg)
+      if (arg.slice(0,4) === 'hsv(') return Color.fromHSV(arg)
+      if (arg.slice(0,4) === 'hsl(') return Color.fromHSL(arg)
                                      return new Color()
     }
     if (typeof arg === 'number') {
