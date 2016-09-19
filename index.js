@@ -416,35 +416,18 @@ module.exports = (function () {
    * @return {Color} a new Color object with hsv(hue, sat, val)
    */
   Color.fromHSV = function fromHSV(hue, sat, val) {
-    var red, grn, blu
-    if (sat === 0) {
-      // achromatic (gray)
-      red = grn = blu = val
-    } else {
-      ;(function () {
-        var h = hue / 60 // sector 0 to 5
-          , i = Math.floor(h)
-          , f = h - i // factorial part of h
-          , p = val * (1 - sat)
-          , q = val * (1 - sat * f)
-          , t = val * (1 - sat * (1 - f))
-        var cases = {
-          0 : function () { red = val; grn = t;   blu = p;   }
-        , 1 : function () { red = q;   grn = val; blu = p;   }
-        , 2 : function () { red = p;   grn = val; blu = t;   }
-        , 3 : function () { red = p;   grn = q;   blu = val; }
-        , 4 : function () { red = t;   grn = p;   blu = val; }
-        , 5 : function () { red = val; grn = p;   blu = q;   }
-        }
-        cases[i]()
-      })()
-    }
-
-    red = Math.round(red * 255)
-    grn = Math.round(grn * 255)
-    blu = Math.round(blu * 255)
-
-    return new Color(red, grn, blu)
+    var c = sat * val
+    var x = c * (1 - Math.abs(hue/60 % 2 - 1))
+    var m = val - c
+    var rgb;
+         if (  0 <= hue && hue <  60) { rgb = [c, x, 0] }
+    else if ( 60 <= hue && hue < 120) { rgb = [x, c, 0] }
+    else if (120 <= hue && hue < 180) { rgb = [0, c, x] }
+    else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
+    else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
+    else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
+    rgb = rgb.map(function (el) { return Math.round((el + m) * 255) })
+    return new Color(rgb[0], rgb[1], rgb[2])
     // XXX ILLEGAL setting immutable properties
     // returned._HSV_HUE = hue
     // returned._HSV_SAT = sat
@@ -459,31 +442,18 @@ module.exports = (function () {
    * @return {Color} a new Color object with hsl(hue, sat, lum)
    */
   Color.fromHSL = function fromHSL(hue, sat, lum) {
-    var red, grn, blu
-    if (sat === 0) {
-      // achromatic (gray)
-      red = grn = blu = val
-    } else {
-      function hue2rgb(p, q, t) {
-        if (t < 0)   t += 1
-        if (t > 1)   t -= 1
-        if (t < 1/6) return p + (q - p) * 6 * t
-        if (t < 1/2) return q
-        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6
-        return p
-      }
-      var q = (l < 0.5) ? l*(1 + s) : l + s - l*s
-      var p = 2*l - q
-      red = hue2rgb(p, q, hue + 1/3);
-      grn = hue2rgb(p, q, hue);
-      blu = hue2rgb(p, q, hue - 1/3);
-    }
-
-    red = Math.round(red * 255)
-    grn = Math.round(grn * 255)
-    blu = Math.round(blu * 255)
-
-    return new Color(red, grn, blu)
+    var c = sat * (1 - Math.abs(2*lum - 1))
+    var x = c * (1 - Math.abs(hue/60 % 2 - 1))
+    var m = lum - c/2
+    var rgb;
+         if (  0 <= hue && hue <  60) { rgb = [c, x, 0] }
+    else if ( 60 <= hue && hue < 120) { rgb = [x, c, 0] }
+    else if (120 <= hue && hue < 180) { rgb = [0, c, x] }
+    else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
+    else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
+    else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
+    rgb = rgb.map(function (el) { return Math.round((el + m) * 255) })
+    return new Color(rgb[0], rgb[1], rgb[2])
     // XXX ILLEGAL setting immutable properties
     // returned._HSL_HUE = hue
     // returned._HSL_SAT = sat
