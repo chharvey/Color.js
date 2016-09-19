@@ -45,13 +45,6 @@ module.exports = (function () {
       , function (r, g, b) { return ((b - r) / _chroma + 2) * 60 }
       , function (r, g, b) { return ((r - g) / _chroma + 4) * 60 }
       ][$rgb.indexOf(_max)].apply(null, $rgb)
-
-      // NOTE the above is equivalent to:
-      // var cases = {}
-      // cases[self._RED   / 255] = function (r, g, b) { return ((g - b) / _chroma % 6) * 60 }
-      // cases[self._GREEN / 255] = function (r, g, b) { return ((b - r) / _chroma + 2) * 60 }
-      // cases[self._BLUE  / 255] = function (r, g, b) { return ((r - g) / _chroma + 4) * 60 }
-      // return cases[_max].apply(null, $rgb)
     })()
 
     /**
@@ -126,67 +119,49 @@ module.exports = (function () {
    * Get the red component of this color.
    * @return {number} the red component of this color
    */
-  Color.prototype.red = function red() {
-    return this._RED
-  }
+  Color.prototype.red = function red() { return this._RED }
   /**
    * Get the green component of this color.
    * @return {number} the green component of this color
    */
-  Color.prototype.green = function green() {
-    return this._GREEN
-  }
+  Color.prototype.green = function green() { return this._GREEN }
   /**
    * Get the blue component of this color.
    * @return {number} the blue component of this color
    */
-  Color.prototype.blue = function blue() {
-    return this._BLUE
-  }
+  Color.prototype.blue = function blue() { return this._BLUE }
 
   /**
    * Get the hsv-hue of this color.
    * @return {number} the hsv-hue of this color
    */
-  Color.prototype.hsvHue = function hsvHue() {
-    return this._HSV_HUE
-  }
+  Color.prototype.hsvHue = function hsvHue() { return this._HSV_HUE }
   /**
    * Get the hsv-saturation of this color.
    * @return {number} the hsv-saturation of this color
    */
-  Color.prototype.hsvSat = function hsvSat() {
-    return this._HSV_SAT
-  }
+  Color.prototype.hsvSat = function hsvSat() { return this._HSV_SAT }
   /**
    * Get the hsv-value of this color.
    * @return {number} the hsv-value of this color
    */
-  Color.prototype.hsvVal = function hsvVal() {
-    return this._HSV_VAL
-  }
+  Color.prototype.hsvVal = function hsvVal() { return this._HSV_VAL }
 
   /**
    * Get the hsl-hue of this color.
    * @return {number} the hsl-hue of this color
    */
-  Color.prototype.hslHue = function hslHue() {
-    return this._HSL_HUE
-  }
+  Color.prototype.hslHue = function hslHue() { return this._HSL_HUE }
   /**
    * Get the hsl-saturation of this color.
    * @return {number} the hsl-saturation of this color
    */
-  Color.prototype.hslSat = function hslSat() {
-    return this._HSL_SAT
-  }
+  Color.prototype.hslSat = function hslSat() { return this._HSL_SAT }
   /**
    * Get the hsl-luminosity of this color.
    * @return {number} the hsl-luminosity of this color
    */
-  Color.prototype.hslLum = function hslLum() {
-    return this._HSL_LUM
-  }
+  Color.prototype.hslLum = function hslLum() { return this._HSL_LUM }
 
   // Convenience getter functions.
   /**
@@ -217,15 +192,6 @@ module.exports = (function () {
   }
 
   /**
-   * Return a new color that is the inverse of this color.
-   * The inverse of a color is that color with a hue rotation of 180 degrees.
-   * @return {Color} a new Color object that corresponds to this color’s inverse
-   */
-  Color.prototype.invert = function invert() {
-    return this.rotate(180)
-  }
-
-  /**
    * Return a new color that is a hue-rotation of this color.
    * @param  {number} a the number of degrees to rotate
    * @return {Color} a new color corresponding to this color rotated by `a` degrees
@@ -233,6 +199,15 @@ module.exports = (function () {
   Color.prototype.rotate = function rotate(a) {
     var newhue = (this.hsvHue() + a) % 360
     return Color.fromHSV(newhue, this.hsvSat(), this.hsvVal())
+  }
+
+  /**
+   * Return a new color that is the inverse of this color.
+   * The inverse of a color is that color with a hue rotation of 180 degrees.
+   * @return {Color} a new Color object that corresponds to this color’s inverse
+   */
+  Color.prototype.invert = function invert() {
+    return this.rotate(180)
   }
 
   /**
@@ -313,8 +288,8 @@ module.exports = (function () {
       return (a * (1-w)) + (b * w)
     }
     var r = Math.round(average(this.red(),   $color.red(),   w))
-      , g = Math.round(average(this.green(), $color.green(), w))
-      , b = Math.round(average(this.blue(),  $color.blue(),  w))
+    var g = Math.round(average(this.green(), $color.green(), w))
+    var b = Math.round(average(this.blue(),  $color.blue(),  w))
     return new Color(r, g, b)
   }
 
@@ -355,7 +330,6 @@ module.exports = (function () {
            + 0.7152*coef(c.green()/255)
            + 0.0722*coef(c.blue() /255)
     }
-    var x = [1,2,3]
     var both = [luma(this), luma($color)]
     return (Math.max.apply(null, both) + 0.05) / (Math.min.apply(null, both) + 0.05)
   }
@@ -382,6 +356,11 @@ module.exports = (function () {
     if (space === 'hsv') return 'hsv(' + this.hsvHue()  + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ')'
     if (space === 'hsl') return 'hsl(' + this.hslHue()  + ', ' + this.hslSat() + ', ' + this.hslLum() + ')'
                          return 'rgb(' + this.red()     + ', ' + this.green()  + ', ' + this.blue()   + ')'
+    // CHANGED ES6
+    // if (space === 'hex') return `#${toHex(this.red())}${toHex(this.green())}${toHex(this.blue())}`
+    // if (space === 'hsv') return `hsv(${this.hsvHue()}, ${this.hsvSat()}, ${this.hsvVal()})`
+    // if (space === 'hsl') return `hsl(${this.hslHue()}, ${this.hslSat()}, ${this.hslLum()})`
+    //                      return `rgb(${this.red()   }, ${this.green() }, ${this.blue()  })`
   }
 
 
@@ -406,8 +385,8 @@ module.exports = (function () {
    */
   Color.fromHex = function fromHex(hex_string) {
     var r_hex = hex_string.slice(1,3)
-      , g_hex = hex_string.slice(3,5)
-      , b_hex = hex_string.slice(5,7)
+    var g_hex = hex_string.slice(3,5)
+    var b_hex = hex_string.slice(5,7)
     /**
      * Converts a hexadecimal number (as a string) to a decimal number.
      * @param  {string} n a number in base 16
@@ -415,7 +394,7 @@ module.exports = (function () {
      */
     function toDec(x) {
       var tens = 0
-        , ones = 0
+      var ones = 0
       for (var i = 0; i < 16; i++) {
         if ('0123456789abcdef'.charAt(i) === x.slice(0,1)) tens = i*16
         if ('0123456789abcdef'.charAt(i) === x.slice(1,2)) ones = i
