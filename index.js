@@ -5,18 +5,19 @@
 module.exports = (function () {
   // CONSTRUCTOR
   /**
-   * Construct a Color object.
+   * Construct a Color object, given three arguments (RGB), one argument (grayscale),
+   * or zero arguments (black, `#000000`).
    * @constructor
-   * @param {number=0} red a non-negative integer ≤ 255; the red   component of this color
-   * @param {number=0} grn a non-negative integer ≤ 255; the green component of this color
-   * @param {number=0} blu a non-negative integer ≤ 255; the blue  component of this color
+   * @param {number=0} red an integer in [0, 255]; the red component of this color
+   * @param {number=red} grn an integer in [0, 255]; the green component of this color
+   * @param {number=red} blu an integer in [0, 255]; the blue component of this color
    */
   function Color(red, grn, blu) {
     var self = this
 
     self._RED   = +red || 0
-    self._GREEN = +grn || 0
-    self._BLUE  = +blu || 0
+    self._GREEN = +grn || self._RED
+    self._BLUE  = +blu || self._RED
 
     var _max = Math.max(self._RED, self._GREEN, self._BLUE) / 255
     var _min = Math.min(self._RED, self._GREEN, self._BLUE) / 255
@@ -332,6 +333,16 @@ module.exports = (function () {
     }
     var both = [luma(this), luma($color)]
     return (Math.max.apply(null, both) + 0.05) / (Math.min.apply(null, both) + 0.05)
+  }
+
+  /**
+   * Tests whether this color is gray.
+   * A color is gray if and only if its red, green, and blue compoenents are equal,
+   * or equivalently, if its saturation (in HSV or HSL) is zero.
+   * @return {boolean} true if this color’s saturation equals 0
+   */
+  Color.prototype.isGrayscale = function isGrayscale() {
+    return this.hsvSat() === 0
   }
 
   /**
