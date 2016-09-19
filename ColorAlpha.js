@@ -4,6 +4,7 @@ var Color = require('./index.js')
  * A 256-bit color that can be displayed in a pixel, given three primary color components
  * and a transparency component.
  * @type {ColorAlpha}
+ * @extends Color
  */
 module.exports = (function () {
   // CONSTRUCTOR
@@ -15,25 +16,26 @@ module.exports = (function () {
    * one argument (black w/ alpha || a Color), or
    * zero arguments (transparent)
    * @constructor
-   * @param {(Color|number=0)} red an integer in [0, 255]; the red component of this color
+   * @param {(Color|number=0)} red an integer in [0, 255]; the red component of this color || a Color object
    * @param {number=red} grn an integer in [0, 255]; the green component of this color
    * @param {number=red} blu an integer in [0, 255]; the blue component of this color
    * @param {number=0} alpha a number in [0, 1]; the alpha, or opacity, of this color
    */
   function ColorAlpha(red, grn, blu, alpha) {
+    var self = this
     if (arguments.length >= 3) {
       Color.call(self, red, grn, blu)
       self._ALPHA = alpha || 0
     } else if (arguments.length === 2) {
       if (red instanceof Color) {
-        Color.call(self, red.red(), red.green(), red.blue())
+        Color.call(self, red.rgb())
       } else {
         Color.call(self, red)
       }
       self._ALPHA = grn
     } else {
       if (red instanceof Color) {
-        Color.call(self, red.red(), red.green(), red.blue())
+        Color.call(self, red.rgb())
         self._ALPHA = 0
       } else {
         Color.call(self)
@@ -50,7 +52,7 @@ module.exports = (function () {
    * Get the opaque base color of this color.
    * @return {Color} the base color
    */
-  ColorAlpha.prototype.color = function color() { return new Color(this.red(), this.green(), this.blue()) }
+  ColorAlpha.prototype.color = function color() { return new Color(this.rgb()) }
   /**
    * Get the alpha (opacity) of this color.
    * @return {number} the alpha of this color
@@ -175,8 +177,8 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object constructed from the given rgba string
    */
   ColorAlpha.fromRGBA = function fromRGBA(rgba_string) {
-    var splitted = rgba_string.slice(5, -1).split(',')
-    return new ColorAlpha(+splitted[0], +splitted[1], +splitted[2], +splitted[3])
+    var splitted = rgba_string.slice(5, -1).split(',').map(function (el) { return +el })
+    return new ColorAlpha(new Color(splitted), splitted[3])
   }
 
   /**
