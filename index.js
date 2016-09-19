@@ -5,8 +5,10 @@
 module.exports = (function () {
   // CONSTRUCTOR
   /**
-   * Construct a Color object, given three arguments (RGB), one argument (grayscale),
-   * or zero arguments (black, `#000000`).
+   * Construct a Color object, given
+   * three arguments (RGB),
+   * one argument (grayscale), or
+   * zero arguments (black, `#000000`).
    * @constructor
    * @param {number=0} red an integer in [0, 255]; the red component of this color
    * @param {number=red} grn an integer in [0, 255]; the green component of this color
@@ -14,10 +16,9 @@ module.exports = (function () {
    */
   function Color(red, grn, blu) {
     var self = this
-
-    self._RED   = +red || 0
-    self._GREEN = +grn || self._RED
-    self._BLUE  = +blu || self._RED
+    self._RED   = red || 0
+    self._GREEN = grn || self._RED
+    self._BLUE  = blu || self._RED
 
     var _max = Math.max(self._RED, self._GREEN, self._BLUE) / 255
     var _min = Math.min(self._RED, self._GREEN, self._BLUE) / 255
@@ -195,7 +196,7 @@ module.exports = (function () {
   /**
    * Return a new color that is a hue-rotation of this color.
    * @param  {number} a the number of degrees to rotate
-   * @return {Color} a new color corresponding to this color rotated by `a` degrees
+   * @return {Color} a new Color object corresponding to this color rotated by `a` degrees
    */
   Color.prototype.rotate = function rotate(a) {
     var newhue = (this.hsvHue() + a) % 360
@@ -301,9 +302,9 @@ module.exports = (function () {
    * @return {boolean} true if the argument is the same color as this color
    */
   Color.prototype.equals = function equals($color) {
-    return (this.red()   === $color.red())
-      &&   (this.green() === $color.green())
-      &&   (this.blue()  === $color.blue())
+    return this.red()   === $color.red()
+      &&   this.green() === $color.green()
+      &&   this.blue()  === $color.blue()
   }
   /**
    * Return the *contrast ratio* between two colors.
