@@ -1,4 +1,4 @@
-var Color = require('./index.js')
+var Color = require('./Color.class.js')
 
 /**
  * A 32-bit color that can be displayed in a pixel, given three primary color components
