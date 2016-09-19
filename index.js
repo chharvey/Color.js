@@ -1,22 +1,34 @@
 /**
- * A 256-bit color that can be displayed in a pixel, given three primary color components.
+ * A 24-bit color (“True Color”) that can be displayed in a pixel, given three primary color components.
  * @type {Color}
  */
 module.exports = (function () {
   // CONSTRUCTOR
   /**
    * Construct a Color object.
+   * Valid parameters:
+   * - new Color([60, 120, 240]) // [red, green, blue]
+   * - new Color([192])          // [grayscale]
+   * - new Color()               // (black, rgb(0,0,0))
+   * The RGB array may be an array of length 3 or 1, containing integers 0–255.
+   * If array length is 3, the components are red, green, and blue, in that order.
+   * If the length is 1, the red, green, and blue components are equal to that number,
+   * which will produce a grayscale color.
+   * If no argument is given, the color will be black (#000000).
    * @constructor
-   * @param {number=0} red a non-negative integer ≤ 255; the red   component of this color
-   * @param {number=0} grn a non-negative integer ≤ 255; the green component of this color
-   * @param {number=0} blu a non-negative integer ≤ 255; the blue  component of this color
+   * @param {Array<number>=[0]} $rgb an array of 1 or 3 integers in [0,255]
    */
-  function Color(red, grn, blu) {
+  function Color($rgb) {
     var self = this
-
-    self._RED   = +red || 0
-    self._GREEN = +grn || 0
-    self._BLUE  = +blu || 0
+    if ($rgb && $rgb.length >= 3) {
+      self._RED   = $rgb[0]
+      self._GREEN = $rgb[1]
+      self._BLUE  = $rgb[2]
+    } else if ($rgb && $rgb.length >= 1) {
+      Color.call(self, [$rgb[0], $rgb[0], $rgb[0]]); return
+    } else {
+      Color.call(self, [0]); return
+    }
 
     var _max = Math.max(self._RED, self._GREEN, self._BLUE) / 255
     var _min = Math.min(self._RED, self._GREEN, self._BLUE) / 255
@@ -33,18 +45,16 @@ module.exports = (function () {
      */
     self._HSV_HUE = (function () {
       if (_chroma === 0) return 0
-
-      var $rgb = [
+      var rgb_norm = [
         self._RED   / 255
       , self._GREEN / 255
       , self._BLUE  / 255
       ]
-
       return [
         function (r, g, b) { return ((g - b) / _chroma % 6) * 60 }
       , function (r, g, b) { return ((b - r) / _chroma + 2) * 60 }
       , function (r, g, b) { return ((r - g) / _chroma + 4) * 60 }
-      ][$rgb.indexOf(_max)].apply(null, $rgb)
+      ][rgb_norm.indexOf(_max)].apply(null, rgb_norm)
     })()
 
     /**
@@ -188,13 +198,17 @@ module.exports = (function () {
    * @return {Color} a new Color object that corresponds to this color’s complement
    */
   Color.prototype.complement = function complement() {
-    return new Color(255 - this.red(), 255 - this.green(), 255 - this.blue())
+    return new Color([
+      255 - this.red()
+    , 255 - this.green()
+    , 255 - this.blue()
+    ])
   }
 
   /**
    * Return a new color that is a hue-rotation of this color.
    * @param  {number} a the number of degrees to rotate
-   * @return {Color} a new color corresponding to this color rotated by `a` degrees
+   * @return {Color} a new Color object corresponding to this color rotated by `a` degrees
    */
   Color.prototype.rotate = function rotate(a) {
     var newhue = (this.hsvHue() + a) % 360
@@ -287,10 +301,11 @@ module.exports = (function () {
     function average(a, b, w) {
       return (a * (1-w)) + (b * w)
     }
-    var r = Math.round(average(this.red(),   $color.red(),   w))
-    var g = Math.round(average(this.green(), $color.green(), w))
-    var b = Math.round(average(this.blue(),  $color.blue(),  w))
-    return new Color(r, g, b)
+    return new Color([
+      Math.round(average(this.red(),   $color.red(),   w))
+    , Math.round(average(this.green(), $color.green(), w))
+    , Math.round(average(this.blue(),  $color.blue(),  w))
+    ])
   }
 
   /**
@@ -300,9 +315,12 @@ module.exports = (function () {
    * @return {boolean} true if the argument is the same color as this color
    */
   Color.prototype.equals = function equals($color) {
-    return (this.red()   === $color.red())
-      &&   (this.green() === $color.green())
-      &&   (this.blue()  === $color.blue())
+    return (this.isGrayscale() && $color.isGrayscale() && (this.hsvVal() === $color.hsvVal())) // NOTE speedy
+      || (
+         (this.red()   === $color.red())
+      && (this.green() === $color.green())
+      && (this.blue()  === $color.blue())
+      )
   }
   /**
    * Return the *contrast ratio* between two colors.
@@ -335,11 +353,22 @@ module.exports = (function () {
   }
 
   /**
+   * Tests whether this color is gray.
+   * A color is gray if and only if its red, green, and blue compoenents are equal,
+   * or equivalently, if its saturation (in HSV or HSL) is zero.
+   * @return {boolean} true if this color’s saturation equals 0
+   */
+  Color.prototype.isGrayscale = function isGrayscale() {
+    return this.hsvSat() === 0
+  }
+
+  /**
    * Return a string representation of this color.
    * If `space === 'hsv'`, return `hsv(h, s, v)`
    * If `space === 'hsl'`, return `hsl(h, s, l)`
    * If `space === 'hex'`, return `#rrggbb`
    * If `space === 'rgb'` (default), return `rgb(r, g, b)`
+   * IDEA may change the default to 'hex' instead of 'rgb'
    * @param {string='rgb'} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
@@ -372,8 +401,7 @@ module.exports = (function () {
    * @return {Color} a new Color object constructed from the given rgb string
    */
   Color.fromRGB = function fromRGB(rgb_string) {
-    var splitted = rgb_string.slice(4, -1).split(',')
-    return new Color(+splitted[0], +splitted[1], +splitted[2])
+    return new Color(rgb_string.slice(4, -1).split(',').map(function (el) { return +el }))
   }
 
   /**
@@ -384,24 +412,25 @@ module.exports = (function () {
    * @return {Color} a new Color object constructed from the given hex string
    */
   Color.fromHex = function fromHex(hex_string) {
-    var r_hex = hex_string.slice(1,3)
-    var g_hex = hex_string.slice(3,5)
-    var b_hex = hex_string.slice(5,7)
     /**
      * Converts a hexadecimal number (as a string) to a decimal number.
      * @param  {string} n a number in base 16
      * @return {number} a number in base 10
      */
-    function toDec(x) {
+    function toDec(n) {
       var tens = 0
       var ones = 0
       for (var i = 0; i < 16; i++) {
-        if ('0123456789abcdef'.charAt(i) === x.slice(0,1)) tens = i*16
-        if ('0123456789abcdef'.charAt(i) === x.slice(1,2)) ones = i
+        if ('0123456789abcdef'.charAt(i) === n.slice(0,1)) tens = i*16
+        if ('0123456789abcdef'.charAt(i) === n.slice(1,2)) ones = i
       }
       return tens + ones
     }
-    return new Color(toDec(r_hex), toDec(g_hex), toDec(b_hex))
+    return new Color([
+      hex_string.slice(1,3)
+    , hex_string.slice(3,5)
+    , hex_string.slice(5,7)
+    ].map(toDec))
   }
 
   /**
@@ -433,8 +462,7 @@ module.exports = (function () {
     else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
     else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
-    rgb = rgb.map(function (el) { return Math.round((el + m) * 255) })
-    return new Color(rgb[0], rgb[1], rgb[2])
+    return new Color(rgb.map(function (el) { return Math.round((el + m) * 255) }))
     // XXX ILLEGAL setting immutable properties
     // returned._HSV_HUE = hue
     // returned._HSV_SAT = sat
@@ -459,34 +487,35 @@ module.exports = (function () {
     else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
     else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
-    rgb = rgb.map(function (el) { return Math.round((el + m) * 255) })
-    return new Color(rgb[0], rgb[1], rgb[2])
+    return new Color(rgb.map(function (el) { return Math.round((el + m) * 255) }))
     // XXX ILLEGAL setting immutable properties
     // returned._HSL_HUE = hue
     // returned._HSL_SAT = sat
     // returned._HSL_LUM = lum
   }
 
-  /**
-   * Checks the type of an argument, and converts it to a color.
-   * @param  {unknown} arg any argument
-   * @return {Color} a new Color object constructed from the given argument
-   */
-  Color.typeCheck = function typeCheck(arg) {
-    if (arg instanceof Color) return arg
-    if (typeof arg === 'string') {
-      if (arg.slice(0,1) === '#')    return Color.fromHex(arg)
-      if (arg.slice(0,4) === 'rgb(') return Color.fromRGB(arg)
-      if (arg.slice(0,4) === 'hsv(') return Color.fromHSV(arg)
-      if (arg.slice(0,4) === 'hsl(') return Color.fromHSL(arg)
-                                     return new Color()
-    }
-    if (typeof arg === 'number') {
-      var graytone = Math.min(Math.max(0, arg), 255) // bound(arg, 0, 255)
-      return new Color(+graytone, +graytone, +graytone)
-    }
-    return new Color()
-  }
+  // /**
+  //  * Checks the type of an argument, and converts it to a color.
+  //  * @param  {unknown} arg any argument
+  //  * @return {Color} a new Color object constructed from the given argument
+  //  */
+  // Color.typeCheck = function typeCheck(arg) {
+  //   if (arg instanceof Color) return arg
+  //   if (typeof arg === 'string') {
+  //     if (arg.slice(0,1) === '#')    return Color.fromHex(arg)
+  //     if (arg.slice(0,4) === 'rgb(') return Color.fromRGB(arg)
+  //     if (arg.slice(0,4) === 'hsv(') return Color.fromHSV(arg)
+  //     if (arg.slice(0,4) === 'hsl(') return Color.fromHSL(arg)
+  //     if (arg.slice(0,5) === 'rgba(') return ColorAlpha.fromRGBA(arg)
+  //     if (arg.slice(0,5) === 'hsva(') return ColorAlpha.fromHSVA(arg)
+  //     if (arg.slice(0,5) === 'hsla(') return ColorAlpha.fromHSLA(arg)
+  //                                    return new Color()
+  //   }
+  //   if (typeof arg === 'number') {
+  //     return new Color([Math.min(Math.max(0, arg), 255)]) // bound(arg, 0, 255)
+  //   }
+  //   return new Color()
+  // }
 
   return Color
 })()
