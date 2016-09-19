@@ -1,7 +1,7 @@
 var Color = require('./index.js')
 
 /**
- * A 256-bit color that can be displayed in a pixel, given three primary color components
+ * A 32-bit color that can be displayed in a pixel, given three primary color components
  * and a transparency component.
  * @type {ColorAlpha}
  * @extends Color
@@ -9,38 +9,42 @@ var Color = require('./index.js')
 module.exports = (function () {
   // CONSTRUCTOR
   /**
-   * Construct a ColorAlpha object, given
-   * four arguments (RGB & alpha),
-   * three arguments (RGB),
-   * two arguments (grayscale & alpha || a Color & alpha),
-   * one argument (black w/ alpha || a Color), or
-   * zero arguments (transparent)
+   * Construct a ColorAlpha object.
+   * Valid parameters:
+   * - new ColorAlpha([60, 120, 240], 0.7) // [red, green, blue], alpha (translucent, rgba(r, g, b, alpha))
+   * - new ColorAlpha([192], 0.7)          // [grayscale], alpha        (translucent, rgba(r, r, r, alpha))
+   * - new ColorAlpha([60, 120, 240])      // [red, green, blue]        (opaque, rgba(r, g, b, 1.0))
+   * - new ColorAlpha([192])               // [grayscale]               (opaque, rgba(r, r, r, 1.0))
+   * - new ColorAlpha(0.7)                 // alpha                     (rgba(0, 0, 0, alpha), translucent black)
+   * - new ColorAlpha()                    //                           (rgba(0, 0, 0, 0.0), transparent)
+   * You may pass both an RGB array and an alpha, or either one, or neither.
+   * See {@see Color} for specs on the RGB array. The alpha must be a (decimal) number 0–1.
+   * If RGB is given, alpha defaults to 1.0 (opaque).
+   * If no RGB is given, alpha defaults to 0.0 (transparent).
    * @constructor
-   * @param {(Color|number=0)} red an integer in [0, 255]; the red component of this color || a Color object
-   * @param {number=red} grn an integer in [0, 255]; the green component of this color
-   * @param {number=red} blu an integer in [0, 255]; the blue component of this color
-   * @param {number=0} alpha a number in [0, 1]; the alpha, or opacity, of this color
+   * @param {Array<number>=[0]} $rgb an array of 1 or 3 integers in [0,255]
+   * @param {number=(1|0)} alpha a number in [0,1]; the alpha, or opacity, of this color
    */
-  function ColorAlpha(red, grn, blu, alpha) {
+  function ColorAlpha($rgb, alpha) {
     var self = this
-    if (arguments.length >= 3) {
-      Color.call(self, red, grn, blu)
-      self._ALPHA = alpha || 0
-    } else if (arguments.length === 2) {
-      if (red instanceof Color) {
-        Color.call(self, red.rgb())
+    if (arguments.length >= 2) {
+      if ($rgb && $rgb.length >= 3) {
+        if (alpha !== 0) { Color.call(self, $rgb) }
+        else             { Color.call(self) }
+        self._ALPHA = alpha
+      } else if ($rgb && $rgb.length >= 1) {
+        ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha); return
       } else {
-        Color.call(self, red)
+        ColorAlpha.call(self, [0], alpha); return
       }
-      self._ALPHA = grn
+    } else if (arguments.length >= 1) {
+      if ($rgb instanceof Array) {
+        ColorAlpha.call(self, $rgb, 1); return
+      } else {
+        ColorAlpha.call(self, [0], $rgb); return
+      }
     } else {
-      if (red instanceof Color) {
-        Color.call(self, red.rgb())
-        self._ALPHA = 0
-      } else {
-        Color.call(self)
-        self._ALPHA = red || 0
-      }
+      ColorAlpha.call(self, 0); return
     }
   }
   ColorAlpha.prototype = Object.create(Color.prototype)
@@ -85,7 +89,7 @@ module.exports = (function () {
    * @return {ColorAlpha} the complement of this color
    */
   ColorAlpha.prototype.complement = function complement() {
-    return new ColorAlpha(Color.prototype.complement.call(this), this.alpha())
+    return new ColorAlpha(Color.prototype.complement.call(this).rgb(), this.alpha())
   }
 
   /**
@@ -94,7 +98,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a new color corresponding to this color rotated by `a` degrees
    */
   ColorAlpha.prototype.rotate = function rotate(a) {
-    return new ColorAlpha(Color.prototype.rotate.call(this), this.alpha())
+    return new ColorAlpha(Color.prototype.rotate.call(this).rgb(), this.alpha())
   }
 
   /**
@@ -104,7 +108,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color saturated by `p`
    */
   ColorAlpha.prototype.saturate = function saturate(p, relative) {
-    return new ColorAlpha(Color.prototype.saturate.call(this), this.alpha())
+    return new ColorAlpha(Color.prototype.saturate.call(this).rgb(), this.alpha())
   }
 
   /**
@@ -114,7 +118,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color brightened by `p`
    */
   ColorAlpha.prototype.brighten = function brighten(p, relative) {
-    return new ColorAlpha(Color.prototype.brighten.call(this), this.alpha())
+    return new ColorAlpha(Color.prototype.brighten.call(this).rgb(), this.alpha())
   }
 
   /**
@@ -123,7 +127,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object with the same color but complemented alpha
    */
   Color.prototype.negative = function negative() {
-    return new ColorAlpha(this.color(), 1 - this.alpha())
+    return new ColorAlpha(this.rgb(), 1 - this.alpha())
   }
 
   /**
@@ -133,9 +137,9 @@ module.exports = (function () {
    * @return {ColorAlpha} a mix of the two given colors
    */
   ColorAlpha.prototype.mix = function mix($colorAlpha, w) {
-    var newColor = Color.prototype.mix.call(this, $colorAlpha.color())
+    var newColor = Color.prototype.mix.call(this, $colorAlpha, w)
     var newAlpha // TODO calculate this
-    return new ColorAlpha(newColor, newAlpha)
+    return new ColorAlpha(newColor.rgb(), newAlpha)
   }
 
   /**
@@ -178,7 +182,7 @@ module.exports = (function () {
    */
   ColorAlpha.fromRGBA = function fromRGBA(rgba_string) {
     var splitted = rgba_string.slice(5, -1).split(',').map(function (el) { return +el })
-    return new ColorAlpha(new Color(splitted), splitted[3])
+    return new ColorAlpha(new Color(splitted).rgb(), splitted[3])
   }
 
   /**
@@ -191,7 +195,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object with hsva(hue, sat, val, alpha)
    */
   ColorAlpha.fromHSVA = function fromHSVA(hue, sat, val, alpha) {
-    return new ColorAlpha(Color.fromHSV(hue, sat, val), alpha)
+    return new ColorAlpha(Color.fromHSV(hue, sat, val).rgb(), alpha)
   }
 
   /**
@@ -204,7 +208,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object with hsla(hue, sat, lum, alpha)
    */
   ColorAlpha.fromHSLA = function fromHSLA(hue, sat, lum, alpha) {
-    return new ColorAlpha(Color.fromHSL(hue, sat, lum), alpha)
+    return new ColorAlpha(Color.fromHSL(hue, sat, lum).rgb(), alpha)
   }
 
   return Color
