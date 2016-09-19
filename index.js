@@ -490,6 +490,9 @@ module.exports = (function () {
       if (arg.slice(0,4) === 'rgb(') return Color.fromRGB(arg)
       if (arg.slice(0,4) === 'hsv(') return Color.fromHSV(arg)
       if (arg.slice(0,4) === 'hsl(') return Color.fromHSL(arg)
+      if (arg.slice(0,5) === 'rgba(') return ColorAlpha.fromRGBA(arg)
+      if (arg.slice(0,5) === 'hsva(') return ColorAlpha.fromHSVA(arg)
+      if (arg.slice(0,5) === 'hsla(') return ColorAlpha.fromHSLA(arg)
                                      return new Color()
     }
     if (typeof arg === 'number') {
