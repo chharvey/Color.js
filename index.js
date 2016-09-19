@@ -188,6 +188,23 @@ module.exports = (function () {
     return this._HSL_LUM
   }
 
+  // Convenience getter functions.
+  /**
+   * Return an array of RGB components (in that order).
+   * @return {Array<number>} an array of RGB components
+   */
+  Color.prototype.rgb = function rgb() { return [this.red(), this.green(), this.blue()] }
+  /**
+   * Return an array of HSV components (in that order).
+   * @return {Array<number>} an array of HSV components
+   */
+  Color.prototype.hsv = function hsv() { return [this.hsvHue(), this.hsvSat(), this.hsvVal()] }
+  /**
+   * Return an array of HSL components (in that order).
+   * @return {Array<number>} an array of HSL components
+   */
+  Color.prototype.hsl = function hsl() { return [this.hslHue(), this.hslSat(), this.hslLum()] }
+
 
   // METHODS
   /**
@@ -301,6 +318,17 @@ module.exports = (function () {
     return new Color(r, g, b)
   }
 
+  /**
+   * Compare this color with another color.
+   * Return `true` if they are the same color.
+   * @param  {Color} $color a Color object
+   * @return {boolean} true if the argument is the same color as this color
+   */
+  Color.prototype.equals = function equals($color) {
+    return (this.red()   === $color.red())
+      &&   (this.green() === $color.green())
+      &&   (this.blue()  === $color.blue())
+  }
   /**
    * Return the *contrast ratio* between two colors.
    * More info can be found at
