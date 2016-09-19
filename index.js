@@ -45,15 +45,16 @@ module.exports = (function () {
      */
     self._HSV_HUE = (function () {
       if (_chroma === 0) return 0
+      var rgb_norm = [
+        self._RED   / 255
+      , self._GREEN / 255
+      , self._BLUE  / 255
+      ]
       return [
         function (r, g, b) { return ((g - b) / _chroma % 6) * 60 }
       , function (r, g, b) { return ((b - r) / _chroma + 2) * 60 }
       , function (r, g, b) { return ((r - g) / _chroma + 4) * 60 }
-      ][rgb.indexOf(_max)].apply(null, [
-        self._RED   / 255
-      , self._GREEN / 255
-      , self._BLUE  / 255
-      ])
+      ][rgb_norm.indexOf(_max)].apply(null, rgb_norm)
     })()
 
     /**
