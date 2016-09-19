@@ -368,6 +368,7 @@ module.exports = (function () {
    * If `space === 'hsl'`, return `hsl(h, s, l)`
    * If `space === 'hex'`, return `#rrggbb`
    * If `space === 'rgb'` (default), return `rgb(r, g, b)`
+   * IDEA may change the default to 'hex' instead of 'rgb'
    * @param {string='rgb'} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
@@ -493,28 +494,28 @@ module.exports = (function () {
     // returned._HSL_LUM = lum
   }
 
-  /**
-   * Checks the type of an argument, and converts it to a color.
-   * @param  {unknown} arg any argument
-   * @return {Color} a new Color object constructed from the given argument
-   */
-  Color.typeCheck = function typeCheck(arg) {
-    if (arg instanceof Color) return arg
-    if (typeof arg === 'string') {
-      if (arg.slice(0,1) === '#')    return Color.fromHex(arg)
-      if (arg.slice(0,4) === 'rgb(') return Color.fromRGB(arg)
-      if (arg.slice(0,4) === 'hsv(') return Color.fromHSV(arg)
-      if (arg.slice(0,4) === 'hsl(') return Color.fromHSL(arg)
-      if (arg.slice(0,5) === 'rgba(') return ColorAlpha.fromRGBA(arg)
-      if (arg.slice(0,5) === 'hsva(') return ColorAlpha.fromHSVA(arg)
-      if (arg.slice(0,5) === 'hsla(') return ColorAlpha.fromHSLA(arg)
-                                     return new Color()
-    }
-    if (typeof arg === 'number') {
-      return new Color([Math.min(Math.max(0, arg), 255)]) // bound(arg, 0, 255)
-    }
-    return new Color()
-  }
+  // /**
+  //  * Checks the type of an argument, and converts it to a color.
+  //  * @param  {unknown} arg any argument
+  //  * @return {Color} a new Color object constructed from the given argument
+  //  */
+  // Color.typeCheck = function typeCheck(arg) {
+  //   if (arg instanceof Color) return arg
+  //   if (typeof arg === 'string') {
+  //     if (arg.slice(0,1) === '#')    return Color.fromHex(arg)
+  //     if (arg.slice(0,4) === 'rgb(') return Color.fromRGB(arg)
+  //     if (arg.slice(0,4) === 'hsv(') return Color.fromHSV(arg)
+  //     if (arg.slice(0,4) === 'hsl(') return Color.fromHSL(arg)
+  //     if (arg.slice(0,5) === 'rgba(') return ColorAlpha.fromRGBA(arg)
+  //     if (arg.slice(0,5) === 'hsva(') return ColorAlpha.fromHSVA(arg)
+  //     if (arg.slice(0,5) === 'hsla(') return ColorAlpha.fromHSLA(arg)
+  //                                    return new Color()
+  //   }
+  //   if (typeof arg === 'number') {
+  //     return new Color([Math.min(Math.max(0, arg), 255)]) // bound(arg, 0, 255)
+  //   }
+  //   return new Color()
+  // }
 
   return Color
 })()
