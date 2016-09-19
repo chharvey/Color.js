@@ -208,7 +208,7 @@ module.exports = (function () {
   /**
    * Return a new color that is a hue-rotation of this color.
    * @param  {number} a the number of degrees to rotate
-   * @return {Color} a new color corresponding to this color rotated by `a` degrees
+   * @return {Color} a new Color object corresponding to this color rotated by `a` degrees
    */
   Color.prototype.rotate = function rotate(a) {
     var newhue = (this.hsvHue() + a) % 360
