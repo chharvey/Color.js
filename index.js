@@ -416,49 +416,48 @@ module.exports = (function () {
    * @return {Color} a new Color object with hsv(hue, sat, val)
    */
   Color.fromHSV = function fromHSV(hue, sat, val) {
-    var red, grn, blu
-    if (sat === 0) {
-      // achromatic (gray)
-      red = grn = blu = val
-    } else {
-      ;(function () {
-        var h = hue / 60 // sector 0 to 5
-        var i = Math.floor(h)
-        var f = h - i // factorial part of h
-        var p = val * (1 - sat)
-        var q = val * (1 - sat * f)
-        var t = val * (1 - sat * (1 - f))
-        ;({
-          0 : function () { red = val; grn = t;   blu = p;   }
-        , 1 : function () { red = q;   grn = val; blu = p;   }
-        , 2 : function () { red = p;   grn = val; blu = t;   }
-        , 3 : function () { red = p;   grn = q;   blu = val; }
-        , 4 : function () { red = t;   grn = p;   blu = val; }
-        , 5 : function () { red = val; grn = p;   blu = q;   }
-        })[i]()
-      })()
-    }
-
-    red = Math.round(red * 255)
-    grn = Math.round(grn * 255)
-    blu = Math.round(blu * 255)
-
-    var returned = new Color(red, grn, blu)
-    // returned._HSV_HUE = hue // XXX ILLEGAL setting immutable property
-    // returned._HSV_SAT = sat // XXX ILLEGAL setting immutable property
-    // returned._HSV_VAL = val // XXX ILLEGAL setting immutable property
-    return returned
+    var c = sat * val
+    var x = c * (1 - Math.abs(hue/60 % 2 - 1))
+    var m = val - c
+    var rgb;
+         if (  0 <= hue && hue <  60) { rgb = [c, x, 0] }
+    else if ( 60 <= hue && hue < 120) { rgb = [x, c, 0] }
+    else if (120 <= hue && hue < 180) { rgb = [0, c, x] }
+    else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
+    else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
+    else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
+    rgb = rgb.map(function (el) { return Math.round((el + m) * 255) })
+    return new Color(rgb[0], rgb[1], rgb[2])
+    // XXX ILLEGAL setting immutable properties
+    // returned._HSV_HUE = hue
+    // returned._HSV_SAT = sat
+    // returned._HSV_VAL = val
   }
 
   /**
    * Return a new Color object, given hue, saturation, and luminosity.
-   * @param {number} hue must be between 0 and 360; same as the `hue` in HSV-space
+   * @param {number} hue must be between 0 and 360; hue in HSL-space (same as hue in HSV-space)
    * @param {number} sat must be between 0.0 and 1.0; saturation in HSL-space
    * @param {number} lum must be between 0.0 and 1.0; luminosity in HSL-space
    * @return {Color} a new Color object with hsl(hue, sat, lum)
    */
   Color.fromHSL = function fromHSL(hue, sat, lum) {
-    return new Color() // FIXME
+    var c = sat * (1 - Math.abs(2*lum - 1))
+    var x = c * (1 - Math.abs(hue/60 % 2 - 1))
+    var m = lum - c/2
+    var rgb;
+         if (  0 <= hue && hue <  60) { rgb = [c, x, 0] }
+    else if ( 60 <= hue && hue < 120) { rgb = [x, c, 0] }
+    else if (120 <= hue && hue < 180) { rgb = [0, c, x] }
+    else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
+    else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
+    else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
+    rgb = rgb.map(function (el) { return Math.round((el + m) * 255) })
+    return new Color(rgb[0], rgb[1], rgb[2])
+    // XXX ILLEGAL setting immutable properties
+    // returned._HSL_HUE = hue
+    // returned._HSL_SAT = sat
+    // returned._HSL_LUM = lum
   }
 
   /**
@@ -471,6 +470,8 @@ module.exports = (function () {
     if (typeof arg === 'string') {
       if (arg.slice(0,1) === '#')    return Color.fromHex(arg)
       if (arg.slice(0,4) === 'rgb(') return Color.fromRGB(arg)
+      if (arg.slice(0,4) === 'hsv(') return Color.fromHSV(arg)
+      if (arg.slice(0,4) === 'hsl(') return Color.fromHSL(arg)
                                      return new Color()
     }
     if (typeof arg === 'number') {
