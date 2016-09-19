@@ -19,12 +19,16 @@ module.exports = (function () {
    * @param {Array<number>=[0]} $rgb an array of 1 or 3 integers in [0,255]
    */
   function Color($rgb) {
-    if (!arguments.length) $rgb = $rgb || [0]
-
     var self = this
-    self._RED   = $rgb[0]
-    self._GREEN = $rgb[1] || $rgb[0]
-    self._BLUE  = $rgb[2] || $rgb[0]
+    if ($rgb && $rgb.length >= 3) {
+      self._RED   = $rgb[0]
+      self._GREEN = $rgb[1]
+      self._BLUE  = $rgb[2]
+    } else if ($rgb && $rgb.length >= 1) {
+      Color.call(self, [$rgb[0], $rgb[0], $rgb[0]]); return
+    } else {
+      Color.call(self, [0]); return
+    }
 
     var _max = Math.max(self._RED, self._GREEN, self._BLUE) / 255
     var _min = Math.min(self._RED, self._GREEN, self._BLUE) / 255
@@ -193,7 +197,11 @@ module.exports = (function () {
    * @return {Color} a new Color object that corresponds to this color’s complement
    */
   Color.prototype.complement = function complement() {
-    return new Color(255 - this.red(), 255 - this.green(), 255 - this.blue())
+    return new Color([
+      255 - this.red()
+    , 255 - this.green()
+    , 255 - this.blue()
+    ])
   }
 
   /**
@@ -499,7 +507,7 @@ module.exports = (function () {
                                      return new Color()
     }
     if (typeof arg === 'number') {
-      return new Color(Math.min(Math.max(0, arg), 255)) // bound(arg, 0, 255)
+      return new Color([Math.min(Math.max(0, arg), 255)]) // bound(arg, 0, 255)
     }
     return new Color()
   }
