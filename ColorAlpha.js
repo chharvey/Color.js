@@ -132,7 +132,9 @@ module.exports = (function () {
    */
   ColorAlpha.prototype.mix = function mix($colorAlpha, w) {
     var newColor = Color.prototype.mix.call(this, $colorAlpha, w)
-    var newAlpha // TODO calculate this
+    var newAlpha = (function compoundOpacity(a, b) {
+      return 1 - ( (1-a) * (1-b) )
+    })(this.alpha(), $colorAlpha.alpha())
     return new ColorAlpha(newColor.rgb(), newAlpha)
   }
 
