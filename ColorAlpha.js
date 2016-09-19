@@ -53,16 +53,10 @@ module.exports = (function () {
 
   // ACCESSOR FUNCTIONS
   /**
-   * Get the opaque base color of this color.
-   * @return {Color} the base color
-   */
-  ColorAlpha.prototype.color = function color() { return new Color(this.rgb()) }
-  /**
    * Get the alpha (opacity) of this color.
    * @return {number} the alpha of this color
    */
   ColorAlpha.prototype.alpha = function alpha() { return this._ALPHA }
-
 
   // Convenience getter functions.
   /**
@@ -148,8 +142,17 @@ module.exports = (function () {
    * @return {boolean} true if the argument is the same color as this color
    */
   ColorAlpha.prototype.equals = function equals($colorAlpha) {
-    return Color.prototype.equals.call(this)
-      && this.alpha() === $color.alpha()
+    var sameAlphas = (this.alpha() === $color.alpha()) // NOTE speedy
+    return sameAlphas && (this.isTransparent() || Color.prototype.equals.call(this, $colorAlpha))
+  }
+
+  /**
+   * Tests whether this color is transparent.
+   * A color is transparent if and only if its alpha is zero.
+   * @return {boolean} true if this color’s alpha equals 0
+   */
+  ColorAlpha.prototype.isTransparent = function isTransparent() {
+    return this.alpha() === 0
   }
 
   /**

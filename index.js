@@ -314,9 +314,12 @@ module.exports = (function () {
    * @return {boolean} true if the argument is the same color as this color
    */
   Color.prototype.equals = function equals($color) {
-    return (this.red()   === $color.red())
-      &&   (this.green() === $color.green())
-      &&   (this.blue()  === $color.blue())
+    return (this.isGrayscale() && $color.isGrayscale() && (this.hsvVal() === $color.hsvVal())) // NOTE speedy
+      || (
+         (this.red()   === $color.red())
+      && (this.green() === $color.green())
+      && (this.blue()  === $color.blue())
+      )
   }
   /**
    * Return the *contrast ratio* between two colors.
