@@ -436,17 +436,6 @@ module.exports = (function () {
 
   /**
    * Return a new Color object, given hue, saturation, and value in HSV-space.
-   *
-   * Takes HSV-components as number arguments and returns a new Color object with
-   * RGB-components, each a base-10 number from 0 to 255.
-   *
-   * Photoshop, etc. represents the saturation and "brightness" (value) values from 0 to 100,
-   * however, the saturation and value are calculated from a range of 0 to 1. Make that conversion
-   * before calling this method.
-   *
-   * Ported from the excellent java algorithm by Eugene Vishnevsky at:
-   * {@link http://www.cs.rit.edu/~ncs/color/t_convert.html}
-   *
    * @param {number} hue must be between 0 and 360; hue in HSV-space
    * @param {number} sat must be between 0.0 and 1.0; saturation in HSV-space
    * @param {number} val must be between 0.0 and 1.0; brightness in HSV-space
@@ -464,10 +453,6 @@ module.exports = (function () {
     else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
     return new Color(rgb.map(function (el) { return Math.round((el + m) * 255) }))
-    // XXX ILLEGAL setting immutable properties
-    // returned._HSV_HUE = hue
-    // returned._HSV_SAT = sat
-    // returned._HSV_VAL = val
   }
 
   /**
@@ -489,10 +474,6 @@ module.exports = (function () {
     else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
     return new Color(rgb.map(function (el) { return Math.round((el + m) * 255) }))
-    // XXX ILLEGAL setting immutable properties
-    // returned._HSL_HUE = hue
-    // returned._HSL_SAT = sat
-    // returned._HSL_LUM = lum
   }
 
   // /**
