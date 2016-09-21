@@ -179,18 +179,6 @@ module.exports = (function () {
 
   // STATIC MEMBERS
   /**
-   * Return a new ColorAlpha object, given a string of the form `rgba(r,g,b,a)` or `rgba(r, g, b, a)`,
-   * where `r`, `g`, and `b` are decimal RGB components (in base 10, out of 255),
-   * and `a` is the alpha component (a base 10 decimal between 0.0 and 1.0).
-   * @param {string} rgba_string a string of the form `rgba(r,g,b,a)` or `rgba(r, g, b, a)`
-   * @return {ColorAlpha} a new ColorAlpha object constructed from the given rgba string
-   */
-  ColorAlpha.fromRGBA = function fromRGBA(rgba_string) {
-    var splitted = rgba_string.slice(5, -1).split(',').map(function (el) { return +el })
-    return new ColorAlpha(new Color(splitted).rgb(), splitted[3])
-  }
-
-  /**
    * Return a new ColorAlpha object, given hue, saturation, and value in HSV-space,
    * and an alpha channel.
    * @param {number} hue must be between 0 and 360; hue in HSV-space
@@ -214,6 +202,57 @@ module.exports = (function () {
    */
   ColorAlpha.fromHSLA = function fromHSLA(hue, sat, lum, alpha) {
     return new ColorAlpha(Color.fromHSL(hue, sat, lum).rgb(), alpha)
+  }
+
+  /**
+   * Return a new Color object, given a string.
+   * The string may have any of the formats described in
+   * {@link Color.fromString}, or
+   * it may have either of the following formats, with
+   * the alpha component as a base 10 decimal between 0.0 and 1.0.
+   * 1. `rgba(r,g,b,a)` or `rgba(r, g, b, a)`, where `a` is alpha
+   * 2. `hsva(h,s,v,a)` or `hsva(h, s, v, a)`, where `a` is alpha
+   * 3. `hsla(h,s,l,a)` or `hsla(h, s, l, a)`, where `a` is alpha
+   * @see Color.fromString
+   * @param {string} str a string of one of the forms described
+   * @param {function} callback a function to call if all else fails
+   * @return {ColorAlpha} a new ColorAlpha object constructed from the given string
+   */
+  ColorAlpha.fromString = function fromString(str) {
+    /**
+     * Return an array of comma-separated numbers extracted from a string.
+     * The string must be of the form `xxx(a, b, c, ...)` or `xxx(a,b,c,...)`, where
+     * `a`, `b`, and `c`, etc. are numbers, and `xxx` is any `n-1` number of characters
+     * (if n===4 then `xxx` must be 3 characters).
+     * Any number of prefixed characters and comma-separated numbers may be given. Spaces are optional.
+     * Examples:
+     * ```
+     * components(4, 'rgb(20, 32,044)') === [20, 32, 44]
+     * components(5, 'hsva(310,0.7, .3, 1/2)') === [310, 0.7, 0.3, 0.5]
+     * ```
+     * @param  {number} n the starting point of extraction
+     * @param  {string} s the string to dissect
+     * @return {Array<number>} an array of numbers
+     */
+    function components(n, s) {
+      return s.slice(n, -1).split(',').map(function (el) { return +el })
+    }
+
+    var is_opaque = Color.fromString(str)
+    if (is_opaque) {
+      return new ColorAlpha(is_opaque.rgb())
+    }
+    if (str.slice(0,5) === 'rgba(') {
+      var comps = components(5, str)
+      return new ColorAlpha(comps.slice(0,3), comps[3])
+    }
+    if (arg.slice(0,5) === 'hsva(') {
+      return ColorAlpha.fromHSVA.apply(null, components(5, str))
+    }
+    if (arg.slice(0,5) === 'hsla(') {
+      return ColorAlpha.fromHSLA.apply(null, components(5, str))
+    }
+    return null
   }
 
   return Color
