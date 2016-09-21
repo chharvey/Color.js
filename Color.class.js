@@ -51,9 +51,9 @@ module.exports = (function () {
       , self._BLUE  / 255
       ]
       return [
-        function (r, g, b) { return ((g - b) / _chroma % 6) * 60 }
-      , function (r, g, b) { return ((b - r) / _chroma + 2) * 60 }
-      , function (r, g, b) { return ((r - g) / _chroma + 4) * 60 }
+        function (r, g, b) { return ((g - b) / _chroma + 6) % 6 * 60 }
+      , function (r, g, b) { return ((b - r) / _chroma + 2)     * 60 }
+      , function (r, g, b) { return ((r - g) / _chroma + 4)     * 60 }
       ][rgb_norm.indexOf(_max)].apply(null, rgb_norm)
     })()
 
@@ -291,13 +291,14 @@ module.exports = (function () {
    * If `w == 0.0`, return exactly this color.
    * `w == 1.0` return exactly the other color.
    * `w == 0.5` (default if omitted) return a perfectly even mix.
+   * In other words, `w` is "how much of the other color you want."
    * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
    * @param {Color} $color the second color
    * @param {number=0.5} w between 0.0 and 1.0; the weight favoring the other color
    * @return {Color} a mix of the two given colors
    */
   Color.prototype.mix = function mix($color, w) {
-    if (w !== 0) w = +w || 0.5
+    if (arguments.length < 2) w = 0.5
     function average(a, b, w) {
       return (a * (1-w)) + (b * w)
     }
