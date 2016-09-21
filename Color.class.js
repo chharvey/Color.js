@@ -367,21 +367,21 @@ module.exports = (function () {
 
   /**
    * Return a string representation of this color.
+   * If `space === 'hex'`, return `#rrggbb`
    * If `space === 'hsv'`, return `hsv(h, s, v)`
    * If `space === 'hsl'`, return `hsl(h, s, l)`
-   * If `space === 'hex'`, return `#rrggbb`
    * If `space === 'rgb'` (default), return `rgb(r, g, b)`
-   * IDEA may change the default to 'hex' instead of 'rgb'
+   * IDEA may change the default to 'hex' instead of 'rgb' // no because browsers don’t support ColorAlpha hex (#aarrggbb)
    * @param {string='rgb'} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
   Color.prototype.toString = function toString(space) {
     if (space === 'hex') return '#' + Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue())
-    if (space === 'hsv') return 'hsv(' + this.hsvHue()  + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ')'
-    if (space === 'hsl') return 'hsl(' + this.hslHue()  + ', ' + this.hslSat() + ', ' + this.hslLum() + ')'
-                         return 'rgb(' + this.red()     + ', ' + this.green()  + ', ' + this.blue()   + ')'
+    if (space === 'hsv') return 'hsv(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ')'
+    if (space === 'hsl') return 'hsl(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ')'
+                         return 'rgb(' + this.red()    + ', ' + this.green()  + ', ' + this.blue()   + ')'
     // CHANGED ES6
-    // if (space === 'hex') return `#${toHex(this.red())}${toHex(this.green())}${toHex(this.blue())}`
+    // if (space === 'hex') return `#${Util.toHex(this.red())}${Util.toHex(this.green())}${Util.toHex(this.blue())}`
     // if (space === 'hsv') return `hsv(${this.hsvHue()}, ${this.hsvSat()}, ${this.hsvVal()})`
     // if (space === 'hsl') return `hsl(${this.hslHue()}, ${this.hslSat()}, ${this.hslLum()})`
     //                      return `rgb(${this.red()   }, ${this.green() }, ${this.blue()  })`
