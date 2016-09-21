@@ -1,3 +1,4 @@
+var Util = require('./Util.class.js')
 var Color = require('./Color.class.js')
 
 /**
@@ -219,38 +220,19 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object constructed from the given string
    */
   ColorAlpha.fromString = function fromString(str) {
-    /**
-     * Return an array of comma-separated numbers extracted from a string.
-     * The string must be of the form `xxx(a, b, c, ...)` or `xxx(a,b,c,...)`, where
-     * `a`, `b`, and `c`, etc. are numbers, and `xxx` is any `n-1` number of characters
-     * (if n===4 then `xxx` must be 3 characters).
-     * Any number of prefixed characters and comma-separated numbers may be given. Spaces are optional.
-     * Examples:
-     * ```
-     * components(4, 'rgb(20, 32,044)') === [20, 32, 44]
-     * components(5, 'hsva(310,0.7, .3, 1/2)') === [310, 0.7, 0.3, 0.5]
-     * ```
-     * @param  {number} n the starting point of extraction
-     * @param  {string} s the string to dissect
-     * @return {Array<number>} an array of numbers
-     */
-    function components(n, s) {
-      return s.slice(n, -1).split(',').map(function (el) { return +el })
-    }
-
     var is_opaque = Color.fromString(str)
     if (is_opaque) {
       return new ColorAlpha(is_opaque.rgb())
     }
     if (str.slice(0,5) === 'rgba(') {
-      var comps = components(5, str)
+      var comps = Util.components(5, str)
       return new ColorAlpha(comps.slice(0,3), comps[3])
     }
     if (arg.slice(0,5) === 'hsva(') {
-      return ColorAlpha.fromHSVA.apply(null, components(5, str))
+      return ColorAlpha.fromHSVA.apply(null, Util.components(5, str))
     }
     if (arg.slice(0,5) === 'hsla(') {
-      return ColorAlpha.fromHSLA.apply(null, components(5, str))
+      return ColorAlpha.fromHSLA.apply(null, Util.components(5, str))
     }
     return null
   }
