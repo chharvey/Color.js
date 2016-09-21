@@ -1,3 +1,4 @@
+var Util = require('./Util.class.js')
 var Color = require('./Color.class.js')
 
 /**
@@ -159,6 +160,7 @@ module.exports = (function () {
 
   /**
    * Return a string representation of this color.
+   * If `space === 'hexa'`, return `#aarrggbb`
    * If `space === 'hsva'`, return `hsva(h, s, v, a)`
    * If `space === 'hsla'`, return `hsla(h, s, l, a)`
    * If `space === 'rgba'` (default), return `rgba(r, g, b, a)`
@@ -167,10 +169,12 @@ module.exports = (function () {
    * @return {string} a string representing this color.
    */
   ColorAlpha.prototype.toString = function toString(space) {
-    if (space === 'hsva') return 'hsva(' + this.hsvHue()  + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ', ' + this.alpha() + ')'
-    if (space === 'hsla') return 'hsla(' + this.hslHue()  + ', ' + this.hslSat() + ', ' + this.hslLum() + ', ' + this.alpha() + ')'
-                          return 'rgba(' + this.red()     + ', ' + this.green()  + ', ' + this.blue()   + ', ' + this.alpha() + ')'
+    if (space === 'hexa') return '#' + Util.toHex(this.alpha()*255) + Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue())
+    if (space === 'hsva') return 'hsva(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ', ' + this.alpha() + ')'
+    if (space === 'hsla') return 'hsla(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ', ' + this.alpha() + ')'
+                          return 'rgba(' + this.red()    + ', ' + this.green()  + ', ' + this.blue()   + ', ' + this.alpha() + ')'
     // CHANGED ES6
+    // if (space === 'hexa') return `#${Util.toHex(this.alpha()*255)}${Util.toHex(this.red())}${Util.toHex(this.green())}${Util.toHex(this.blue())}`
     // if (space === 'hsva') return `hsva(${this.hsvHue()}, ${this.hsvSat()}, ${this.hsvVal()}, ${this.alpha()})`
     // if (space === 'hsla') return `hsla(${this.hslHue()}, ${this.hslSat()}, ${this.hslLum()}, ${this.alpha()})`
     //                       return `rgba(${this.red()   }, ${this.green() }, ${this.blue()  }, ${this.alpha()})`
@@ -178,18 +182,6 @@ module.exports = (function () {
 
 
   // STATIC MEMBERS
-  /**
-   * Return a new ColorAlpha object, given a string of the form `rgba(r,g,b,a)` or `rgba(r, g, b, a)`,
-   * where `r`, `g`, and `b` are decimal RGB components (in base 10, out of 255),
-   * and `a` is the alpha component (a base 10 decimal between 0.0 and 1.0).
-   * @param {string} rgba_string a string of the form `rgba(r,g,b,a)` or `rgba(r, g, b, a)`
-   * @return {ColorAlpha} a new ColorAlpha object constructed from the given rgba string
-   */
-  ColorAlpha.fromRGBA = function fromRGBA(rgba_string) {
-    var splitted = rgba_string.slice(5, -1).split(',').map(function (el) { return +el })
-    return new ColorAlpha(new Color(splitted).rgb(), splitted[3])
-  }
-
   /**
    * Return a new ColorAlpha object, given hue, saturation, and value in HSV-space,
    * and an alpha channel.
@@ -214,6 +206,46 @@ module.exports = (function () {
    */
   ColorAlpha.fromHSLA = function fromHSLA(hue, sat, lum, alpha) {
     return new ColorAlpha(Color.fromHSL(hue, sat, lum).rgb(), alpha)
+  }
+
+  /**
+   * Return a new Color object, given a string.
+   * The string may have any of the formats described in
+   * {@link Color.fromString}, or
+   * it may have either of the following formats, with
+   * the alpha component as a base 10 decimal between 0.0 and 1.0.
+   * 1. `#aarrggbb`, where `aa` is alpha
+   * 2. `rgba(r,g,b,a)` or `rgba(r, g, b, a)`, where `a` is alpha
+   * 3. `hsva(h,s,v,a)` or `hsva(h, s, v, a)`, where `a` is alpha
+   * 4. `hsla(h,s,l,a)` or `hsla(h, s, l, a)`, where `a` is alpha
+   * @see Color.fromString
+   * @param {string} str a string of one of the forms described
+   * @param {function} callback a function to call if all else fails
+   * @return {ColorAlpha} a new ColorAlpha object constructed from the given string
+   */
+  ColorAlpha.fromString = function fromString(str) {
+    var is_opaque = Color.fromString(str)
+    if (is_opaque) {
+      return new ColorAlpha(is_opaque.rgb())
+    }
+    if (str.slice(0,1) === '#' && str.length === 9) {
+      return new ColorAlpha([
+        str.slice(3,5)
+      , str.slice(5,7)
+      , str.slice(7,9)
+      ].map(Util.toDec), Util.toDec(str.slice(1,3))/255)
+    }
+    if (str.slice(0,5) === 'rgba(') {
+      var comps = Util.components(5, str)
+      return new ColorAlpha(comps.slice(0,3), comps[3])
+    }
+    if (arg.slice(0,5) === 'hsva(') {
+      return ColorAlpha.fromHSVA.apply(null, Util.components(5, str))
+    }
+    if (arg.slice(0,5) === 'hsla(') {
+      return ColorAlpha.fromHSLA.apply(null, Util.components(5, str))
+    }
+    return null
   }
 
   return Color

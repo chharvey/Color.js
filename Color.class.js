@@ -1,3 +1,5 @@
+var Util = require('./Util.class.js')
+
 /**
  * A 24-bit color (“True Color”) that can be displayed in a pixel, given three primary color components.
  * @type {Color}
@@ -365,29 +367,21 @@ module.exports = (function () {
 
   /**
    * Return a string representation of this color.
+   * If `space === 'hex'`, return `#rrggbb`
    * If `space === 'hsv'`, return `hsv(h, s, v)`
    * If `space === 'hsl'`, return `hsl(h, s, l)`
-   * If `space === 'hex'`, return `#rrggbb`
    * If `space === 'rgb'` (default), return `rgb(r, g, b)`
-   * IDEA may change the default to 'hex' instead of 'rgb'
+   * IDEA may change the default to 'hex' instead of 'rgb' // no because browsers don’t support ColorAlpha hex (#aarrggbb)
    * @param {string='rgb'} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
   Color.prototype.toString = function toString(space) {
-    /**
-     * Converts a decimal number to a hexadecimal number, as a string.
-     * @param  {number} n a number in base 10
-     * @return {string} a number in base 16
-     */
-    function toHex(n) {
-      return '0123456789abcdef'.charAt((n - n % 16) / 16) + '0123456789abcdef'.charAt(n % 16)
-    }
-    if (space === 'hex') return '#' + toHex(this.red()) + toHex(this.green())  + toHex(this.blue())
-    if (space === 'hsv') return 'hsv(' + this.hsvHue()  + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ')'
-    if (space === 'hsl') return 'hsl(' + this.hslHue()  + ', ' + this.hslSat() + ', ' + this.hslLum() + ')'
-                         return 'rgb(' + this.red()     + ', ' + this.green()  + ', ' + this.blue()   + ')'
+    if (space === 'hex') return '#' + Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue())
+    if (space === 'hsv') return 'hsv(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ')'
+    if (space === 'hsl') return 'hsl(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ')'
+                         return 'rgb(' + this.red()    + ', ' + this.green()  + ', ' + this.blue()   + ')'
     // CHANGED ES6
-    // if (space === 'hex') return `#${toHex(this.red())}${toHex(this.green())}${toHex(this.blue())}`
+    // if (space === 'hex') return `#${Util.toHex(this.red())}${Util.toHex(this.green())}${Util.toHex(this.blue())}`
     // if (space === 'hsv') return `hsv(${this.hsvHue()}, ${this.hsvSat()}, ${this.hsvVal()})`
     // if (space === 'hsl') return `hsl(${this.hslHue()}, ${this.hslSat()}, ${this.hslLum()})`
     //                      return `rgb(${this.red()   }, ${this.green() }, ${this.blue()  })`
@@ -395,45 +389,6 @@ module.exports = (function () {
 
 
   // STATIC MEMBERS
-  /**
-   * Return a new Color object, given a string of the form `rgb(r,g,b)` or `rgb(r, g, b)`,
-   * where `r`, `g`, and `b` are decimal RGB components (in base 10, out of 255).
-   * @param {string} rgb_string a string of the form `rgb(r,g,b)` or `rgb(r, g, b)`
-   * @return {Color} a new Color object constructed from the given rgb string
-   */
-  Color.fromRGB = function fromRGB(rgb_string) {
-    return new Color(rgb_string.slice(4, -1).split(',').map(function (el) { return +el }))
-  }
-
-  /**
-   * Return a new Color object, given a string of the form `#rrggbb`,
-   * where `rr`, `gg`, and `bb` are hexadecimal RGB components (in base 16, out of ff, lowercase).
-   * The `#` must be included.
-   * @param {string} hex_string a string of the form `#rrggbb` (lowercase)
-   * @return {Color} a new Color object constructed from the given hex string
-   */
-  Color.fromHex = function fromHex(hex_string) {
-    /**
-     * Converts a hexadecimal number (as a string) to a decimal number.
-     * @param  {string} n a number in base 16
-     * @return {number} a number in base 10
-     */
-    function toDec(n) {
-      var tens = 0
-      var ones = 0
-      for (var i = 0; i < 16; i++) {
-        if ('0123456789abcdef'.charAt(i) === n.slice(0,1)) tens = i*16
-        if ('0123456789abcdef'.charAt(i) === n.slice(1,2)) ones = i
-      }
-      return tens + ones
-    }
-    return new Color([
-      hex_string.slice(1,3)
-    , hex_string.slice(3,5)
-    , hex_string.slice(5,7)
-    ].map(toDec))
-  }
-
   /**
    * Return a new Color object, given hue, saturation, and value in HSV-space.
    * @param {number} hue must be between 0 and 360; hue in HSV-space
@@ -476,28 +431,40 @@ module.exports = (function () {
     return new Color(rgb.map(function (el) { return Math.round((el + m) * 255) }))
   }
 
-  // /**
-  //  * Checks the type of an argument, and converts it to a color.
-  //  * @param  {unknown} arg any argument
-  //  * @return {Color} a new Color object constructed from the given argument
-  //  */
-  // Color.typeCheck = function typeCheck(arg) {
-  //   if (arg instanceof Color) return arg
-  //   if (typeof arg === 'string') {
-  //     if (arg.slice(0,1) === '#')    return Color.fromHex(arg)
-  //     if (arg.slice(0,4) === 'rgb(') return Color.fromRGB(arg)
-  //     if (arg.slice(0,4) === 'hsv(') return Color.fromHSV(arg)
-  //     if (arg.slice(0,4) === 'hsl(') return Color.fromHSL(arg)
-  //     if (arg.slice(0,5) === 'rgba(') return ColorAlpha.fromRGBA(arg)
-  //     if (arg.slice(0,5) === 'hsva(') return ColorAlpha.fromHSVA(arg)
-  //     if (arg.slice(0,5) === 'hsla(') return ColorAlpha.fromHSLA(arg)
-  //                                    return new Color()
-  //   }
-  //   if (typeof arg === 'number') {
-  //     return new Color([Math.min(Math.max(0, arg), 255)]) // bound(arg, 0, 255)
-  //   }
-  //   return new Color()
-  // }
+  /**
+   * Return a new Color object, given a string.
+   * The string may have either of the following formats:
+   * 1. `#rrggbb`, where
+   *    `rr`, `gg`, and `bb` are hexadecimal RGB components (in base 16, out of ff, lowercase).
+   *    The `#` must be included.
+   * 2. `rgb(r,g,b)` or `rgb(r, g, b)`, where
+   *    `r`, `g`, and `b` are integer RGB components (in base 10, out of 255).
+   * 3. `hsv(h,s,v)` or `hsv(h, s, v)`, where
+   *    `h`, `s`, and `v` are decimal HSV components (in base 10).
+   * 4. `hsl(h,s,l)` or `hsl(h, s, l)`, where
+   *    `h`, `s`, and `l` are decimal HSL components (in base 10).
+   * @param {string} str a string of one of the forms described
+   * @return {Color} a new Color object constructed from the given string
+   */
+  Color.fromString = function fromString(str) {
+    if (str.slice(0,1) === '#' && str.length === 7) {
+      return new Color([
+        str.slice(1,3)
+      , str.slice(3,5)
+      , str.slice(5,7)
+      ].map(Util.toDec))
+    }
+    if (str.slice(0,4) === 'rgb(') {
+      return new Color(Util.components(4, str))
+    }
+    if (arg.slice(0,4) === 'hsv(') {
+      return Color.fromHSV.apply(null, Util.components(4, str))
+    }
+    if (arg.slice(0,4) === 'hsl(') {
+      return Color.fromHSL.apply(null, Util.components(4, str))
+    }
+    return null
+  }
 
   return Color
 })()
