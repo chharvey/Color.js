@@ -1,7 +1,7 @@
 var Util = require('./Util.class.js')
 
 /**
- * A 24-bit color (“True Color”) that can be displayed in a pixel, given three primary color components.
+ * A 24-bit color ("True Color") that can be displayed in a pixel, given three primary color components.
  * @type {Color}
  */
 module.exports = (function () {
@@ -39,10 +39,6 @@ module.exports = (function () {
     /**
      * The HSV-space hue of this color, or what "color" this color is.
      * A number bound by [0, 360).
-     *
-     * Exercise: prove:
-     * _HSV_HUE === Math.atan2(Math.sqrt(3) * (g - b), 2*r - g - b)
-     *
      * @type {number}
      */
     self._HSV_HUE = (function () {
@@ -57,6 +53,10 @@ module.exports = (function () {
       , function (r, g, b) { return ((b - r) / _chroma + 2)     * 60 }
       , function (r, g, b) { return ((r - g) / _chroma + 4)     * 60 }
       ][rgb_norm.indexOf(_max)].apply(null, rgb_norm)
+      /*
+       * Exercise: prove:
+       * _HSV_HUE === Math.atan2(Math.sqrt(3) * (g - b), 2*r - g - b)
+       */
     })()
 
     /**
@@ -104,24 +104,24 @@ module.exports = (function () {
      * The amount of "color" in the color. A lower saturation means the color is more grayer,
      * a higher saturation means the color is more colorful.
      * A number bound by [0, 1].
-     *
-     * Exercise: prove:
-     * _HSL_SAT === _chroma / (1 - Math.abs(2*self._HSL_LUM - 1))
-     * Proof:
-     * denom == (function (x) {
-     *   if (x <= 0.5) return 2x
-     *   else          return 2 - 2x
-     * })(_HSL_LUM)
-     * Part A. Let x <= 0.5. Then 2x - 1 <= 0, and |2x - 1| == -(2x - 1).
-     * Then 1 - |2x - 1| == 1 + (2x - 1) = 2x. //
-     * Part B. Let 0.5 < x. Then 1 < 2x - 1, and |2x - 1| == 2x - 1.
-     * Then 1 - |2x - 1| == 1 - (2x - 1) = 2 - 2x. //
-     *
      * @type {number}
      */
     self._HSL_SAT = (function () {
       if (_chroma === 0) return 0 // covers the cases (self._HSL_LUM === 0) || (self._HSL_LUM === 1)
       return _chroma / ((self._HSL_LUM <= 0.5)  ?  2*self._HSL_LUM  :  (2 - 2*self._HSL_LUM))
+      /*
+       * Exercise: prove:
+       * _HSL_SAT === _chroma / (1 - Math.abs(2*self._HSL_LUM - 1))
+       * Proof:
+       * denom == (function (x) {
+       *   if (x <= 0.5) return 2x
+       *   else          return 2 - 2x
+       * })(_HSL_LUM)
+       * Part A. Let x <= 0.5. Then 2x - 1 <= 0, and |2x - 1| == -(2x - 1).
+       * Then 1 - |2x - 1| == 1 + (2x - 1) = 2x. //
+       * Part B. Let 0.5 < x. Then 1 < 2x - 1, and |2x - 1| == 2x - 1.
+       * Then 1 - |2x - 1| == 1 - (2x - 1) = 2 - 2x. //
+       */
     })();
   }
 
@@ -424,15 +424,10 @@ module.exports = (function () {
   /**
    * Return a new Color object, given a string.
    * The string may have either of the following formats:
-   * 1. `#rrggbb`, where
-   *    `rr`, `gg`, and `bb` are hexadecimal RGB components (in base 16, out of ff, lowercase).
-   *    The `#` must be included.
-   * 2. `rgb(r,g,b)` or `rgb(r, g, b)`, where
-   *    `r`, `g`, and `b` are integer RGB components (in base 10, out of 255).
-   * 3. `hsv(h,s,v)` or `hsv(h, s, v)`, where
-   *    `h`, `s`, and `v` are decimal HSV components (in base 10).
-   * 4. `hsl(h,s,l)` or `hsl(h, s, l)`, where
-   *    `h`, `s`, and `l` are decimal HSL components (in base 10).
+   * 1. `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase). The `#` must be included.
+   * 2. `rgb(r,g,b)` or `rgb(r, g, b)`, with integer RGB components (in base 10, out of 255).
+   * 3. `hsv(h,s,v)` or `hsv(h, s, v)`, with decimal HSV components (in base 10).
+   * 4. `hsl(h,s,l)` or `hsl(h, s, l)`, with decimal HSL components (in base 10).
    * @param {string} str a string of one of the forms described
    * @return {Color} a new Color object constructed from the given string
    */

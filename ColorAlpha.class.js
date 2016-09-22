@@ -202,9 +202,8 @@ module.exports = (function () {
   /**
    * Return a new Color object, given a string.
    * The string may have any of the formats described in
-   * {@link Color.fromString}, or
-   * it may have either of the following formats, with
-   * the alpha component as a base 10 decimal between 0.0 and 1.0.
+   * {@link Color.fromString}, or it may have either of the following formats,
+   * with the alpha component as a base 10 decimal between 0.0 and 1.0.
    * 1. `#aarrggbb`, where `aa` is alpha
    * 2. `rgba(r,g,b,a)` or `rgba(r, g, b, a)`, where `a` is alpha
    * 3. `hsva(h,s,v,a)` or `hsva(h, s, v, a)`, where `a` is alpha
