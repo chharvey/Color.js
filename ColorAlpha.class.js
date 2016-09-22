@@ -146,16 +146,7 @@ module.exports = (function () {
    */
   ColorAlpha.prototype.equals = function equals($colorAlpha) {
     var sameAlphas = (this.alpha() === $color.alpha()) // NOTE speedy
-    return sameAlphas && (this.isTransparent() || Color.prototype.equals.call(this, $colorAlpha))
-  }
-
-  /**
-   * Tests whether this color is transparent.
-   * A color is transparent if and only if its alpha is zero.
-   * @return {boolean} true if this color’s alpha equals 0
-   */
-  ColorAlpha.prototype.isTransparent = function isTransparent() {
-    return this.alpha() === 0
+    return sameAlphas && (this.alpha()===0 || Color.prototype.equals.call(this, $colorAlpha))
   }
 
   /**

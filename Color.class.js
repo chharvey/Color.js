@@ -318,7 +318,7 @@ module.exports = (function () {
    * @return {boolean} true if the argument is the same color as this color
    */
   Color.prototype.equals = function equals($color) {
-    return (this.isGrayscale() && $color.isGrayscale() && (this.hsvVal() === $color.hsvVal())) // NOTE speedy
+    return (this.hsvSat()===0 && $color.hsvSat()===0 && (this.hsvVal() === $color.hsvVal())) // NOTE speedy
       || (
          (this.red()   === $color.red())
       && (this.green() === $color.green())
@@ -353,16 +353,6 @@ module.exports = (function () {
     }
     var both = [luma(this), luma($color)]
     return (Math.max.apply(null, both) + 0.05) / (Math.min.apply(null, both) + 0.05)
-  }
-
-  /**
-   * Tests whether this color is gray.
-   * A color is gray if and only if its red, green, and blue compoenents are equal,
-   * or equivalently, if its saturation (in HSV or HSL) is zero.
-   * @return {boolean} true if this color’s saturation equals 0
-   */
-  Color.prototype.isGrayscale = function isGrayscale() {
-    return this.hsvSat() === 0
   }
 
   /**
