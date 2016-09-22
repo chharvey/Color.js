@@ -361,7 +361,8 @@ module.exports = (function () {
    * If `space === 'hsv'`, return `hsv(h, s, v)`
    * If `space === 'hsl'`, return `hsl(h, s, l)`
    * If `space === 'rgb'` (default), return `rgb(r, g, b)`
-   * IDEA may change the default to 'hex' instead of 'rgb' // no because browsers don’t support ColorAlpha hex (#aarrggbb)
+   * IDEA may change the default to 'hex' instead of 'rgb', once browsers support ColorAlpha hex (#rrggbbaa)
+   * https://drafts.csswg.org/css-color/#hex-notation
    * @param {string='rgb'} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
