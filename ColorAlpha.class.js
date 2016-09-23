@@ -151,7 +151,7 @@ module.exports = (function () {
 
   /**
    * Return a string representation of this color.
-   * If `space === 'hex'`,  return `#rrggbbaa`
+   * If `space === 'hex'` , return `#rrggbbaa`
    * If `space === 'hsva'`, return `hsva(h, s, v, a)`
    * If `space === 'hsla'`, return `hsla(h, s, l, a)`
    * If `space === 'rgba'` (default), return `rgba(r, g, b, a)`
@@ -162,13 +162,12 @@ module.exports = (function () {
    * @return {string} a string representing this color.
    */
   ColorAlpha.prototype.toString = function toString(space) {
-    // CHANGED v2 remove 'hexa'
-    if (space === 'hex' || space==='hexa')  return '#' + Util.toHex(Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue() + this.alpha()*255))
+    if (space === 'hex' ) return '#' + Util.toHex(Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue() + this.alpha()*255))
     if (space === 'hsva') return 'hsva(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ', ' + this.alpha() + ')'
     if (space === 'hsla') return 'hsla(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ', ' + this.alpha() + ')'
                           return 'rgba(' + this.red()    + ', ' + this.green()  + ', ' + this.blue()   + ', ' + this.alpha() + ')'
     // CHANGED ES6
-    // if (space === 'hex')  return `#${Util.toHex(this.red())}${Util.toHex(this.green())}${Util.toHex(this.blue())}${Util.toHex(this.alpha()*255)}`
+    // if (space === 'hex' ) return `#${Util.toHex(this.red())}${Util.toHex(this.green())}${Util.toHex(this.blue())}${Util.toHex(this.alpha()*255)}`
     // if (space === 'hsva') return `hsva(${this.hsvHue()}, ${this.hsvSat()}, ${this.hsvVal()}, ${this.alpha()})`
     // if (space === 'hsla') return `hsla(${this.hslHue()}, ${this.hslSat()}, ${this.hslLum()}, ${this.alpha()})`
     //                       return `rgba(${this.red()   }, ${this.green() }, ${this.blue()  }, ${this.alpha()})`
