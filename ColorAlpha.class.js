@@ -112,10 +112,6 @@ module.exports = (function () {
    * @param {boolean=} relative true if the luminosity added is relative
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color lightened by `p`
    */
-  // CHANGED DEPRECATED v2 remove
-  ColorAlpha.prototype.brighten = function brighten(p, relative) {
-    return this.lighten(p, relative)
-  }
   ColorAlpha.prototype.lighten = function lighten(p, relative) {
     return new ColorAlpha(Color.prototype.lighten.call(this, p, relative).rgb(), this.alpha())
   }

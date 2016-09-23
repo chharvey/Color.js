@@ -269,10 +269,6 @@ module.exports = (function () {
    * @param {boolean=} relative true if the luminosity added is relative
    * @return {Color} a new Color object that corresponds to this color lightened by `p`
    */
-  // CHANGED DEPRECATED v2 remove
-  Color.prototype.brighten = function brighten(p, relative) {
-    return this.lighten(p, relative)
-  }
   Color.prototype.lighten = function lighten(p, relative) {
     var newlum = this.hslLum() + (relative ? (this.hslLum() * p) : p)
     newlum = Math.min(Math.max(0, newlum), 1)
