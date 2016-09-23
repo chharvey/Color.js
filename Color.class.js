@@ -23,8 +23,20 @@ module.exports = (function () {
   function Color($rgb) {
     var self = this
     if ($rgb && $rgb.length >= 3) {
+      /**
+       * The red component of this color. An integer in [0,255].
+       * @type {number}
+       */
       self._RED   = $rgb[0]
+      /**
+       * The green component of this color. An integer in [0,255].
+       * @type {number}
+       */
       self._GREEN = $rgb[1]
+      /**
+       * The blue component of this color. An integer in [0,255].
+       * @type {number}
+       */
       self._BLUE  = $rgb[2]
     } else if ($rgb && $rgb.length >= 1) {
       Color.call(self, [$rgb[0], $rgb[0], $rgb[0]]); return

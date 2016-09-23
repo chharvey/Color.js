@@ -32,6 +32,10 @@ module.exports = (function () {
       if ($rgb && $rgb.length >= 3) {
         if (alpha !== 0) { Color.call(self, $rgb) }
         else             { Color.call(self) }
+        /**
+         * The alpha component of this color. An number in [0,1].
+         * @type {number}
+         */
         self._ALPHA = alpha
       } else if ($rgb && $rgb.length >= 1) {
         ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha); return
