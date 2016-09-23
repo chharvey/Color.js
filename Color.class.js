@@ -302,6 +302,13 @@ module.exports = (function () {
    */
   Color.prototype.mix = function mix($color, w) {
     if (arguments.length < 2) w = 0.5
+    /**
+     * Helper function. Average two numbers, with a weight favoring the 2nd number.
+     * @param  {number} a 1st number
+     * @param  {number} b 2nd number
+     * @param  {number} w number between [0,1]; weight of 2nd number
+     * @return {number} the weighted average of `a` and `b`
+     */
     function average(a, b, w) {
       return (a * (1-w)) + (b * w)
     }
@@ -339,7 +346,7 @@ module.exports = (function () {
      * @param  {Color} c a Color object
      * @return {number} the relative lumance of the color
      */
-    function luma(c, b) {
+    function luma(c) {
       /**
        * A helper function.
        * @param  {number} p a decimal representation of an rgb component of a color

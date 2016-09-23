@@ -121,7 +121,7 @@ module.exports = (function () {
    * An alpha of, for example, 0.7, complemented, is 0.3 (the complement with 1.0).
    * @return {ColorAlpha} a new ColorAlpha object with the same color but complemented alpha
    */
-  Color.prototype.negative = function negative() {
+  ColorAlpha.prototype.negative = function negative() {
     return new ColorAlpha(this.rgb(), 1 - this.alpha())
   }
 
