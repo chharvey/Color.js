@@ -110,10 +110,14 @@ module.exports = (function () {
    * @override
    * @param {number} p must be between -1.0 and 1.0; the amount by which to lighten this color
    * @param {boolean=} relative true if the luminosity added is relative
-   * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color brightened by `p`
+   * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color lightened by `p`
    */
+  // CHANGED DEPRECATED v2 remove
   ColorAlpha.prototype.brighten = function brighten(p, relative) {
-    return new ColorAlpha(Color.prototype.brighten.call(this).rgb(), this.alpha())
+    return this.lighten(p, relative)
+  }
+  ColorAlpha.prototype.lighten = function lighten(p, relative) {
+    return new ColorAlpha(Color.prototype.lighten.call(this).rgb(), this.alpha())
   }
 
   /**
@@ -162,7 +166,7 @@ module.exports = (function () {
    * @return {string} a string representing this color.
    */
   ColorAlpha.prototype.toString = function toString(space) {
-    // CHANGED TODO v2 remove 'hexa'
+    // CHANGED v2 remove 'hexa'
     if (space === 'hex' || space==='hexa')  return '#' + Util.toHex(Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue() + this.alpha()*255))
     if (space === 'hsva') return 'hsva(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ', ' + this.alpha() + ')'
     if (space === 'hsla') return 'hsla(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ', ' + this.alpha() + ')'

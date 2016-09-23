@@ -62,8 +62,6 @@ module.exports = (function () {
     /**
      * The brightness of this color. A lower value means the color is closer to black, a higher
      * value means the color is more true to its hue.
-     * The HSV-space value ("brightness") of this color is equivalent to the ratio of the
-     * brightest RGB-component’s value to 255, as a percentage.
      * A number bound by [0, 1].
      * @type {number}
      */
@@ -254,23 +252,27 @@ module.exports = (function () {
   }
 
   /**
-   * Return a new color that is a brighter version of this color by a percentage.
+   * Return a new color that is a lighter version of this color by a percentage.
    * This method calculates with luminosity in the HSL space.
    * A parameter of 1.0 returns white (#fff), and 0.0 returns an identical color.
    * A negative parameter will {@link Color.darken()|darken} this color.
    *
-   * Set `relative = true` to specify the amount as relative to the color’s current brightness.
-   * For example, if `$color` has an HSL-lum of 0.5, then calling `$color.brighten(0.5)` will return
+   * Set `relative = true` to specify the amount as relative to the color’s current luminosity.
+   * For example, if `$color` has an HSL-lum of 0.5, then calling `$color.lighten(0.5)` will return
    * a new color with an HSL-lum of 1.0, because the argument 0.5 is simply added to the color’s luminosity.
-   * However, calling `$color.brighten(0.5, true)` will return a new color with an HSL-lum of 0.75,
+   * However, calling `$color.lighten(0.5, true)` will return a new color with an HSL-lum of 0.75,
    * because the argument 0.5, relative to the color’s current luminosity of 0.5, results in
    * an added luminosity of 0.25.
    *
    * @param {number} p must be between -1.0 and 1.0; the amount by which to lighten this color
    * @param {boolean=} relative true if the luminosity added is relative
-   * @return {Color} a new Color object that corresponds to this color brightened by `p`
+   * @return {Color} a new Color object that corresponds to this color lightened by `p`
    */
+  // CHANGED DEPRECATED v2 remove
   Color.prototype.brighten = function brighten(p, relative) {
+    return this.lighten(p, relative)
+  }
+  Color.prototype.lighten = function lighten(p, relative) {
     var newlum = this.hslLum() + (relative ? (this.hslLum() * p) : p)
     newlum = Math.min(Math.max(0, newlum), 1)
     return Color.fromHSL(this.hslHue(), this.hslSat(), newlum)
@@ -279,13 +281,13 @@ module.exports = (function () {
   /**
    * Return a new color that is a darker version of this color by a percentage.
    * A parameter of 1.0 returns black (#000), and 0.0 returns an identical color.
-   * @see Color.brighten()
+   * @see Color.lighten()
    * @param {number} p must be between -1.0 and 1.0; the amount by which to darken this color
    * @param {boolean=} relative true if the luminosity subtracted is relative
    * @return {Color} a new Color object that corresponds to this color darkened by `p`
    */
   Color.prototype.darken = function darken(p, relative) {
-    return this.brighten(-p, relative)
+    return this.lighten(-p, relative)
   }
 
   /**
