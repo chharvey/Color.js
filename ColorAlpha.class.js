@@ -93,7 +93,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a new color corresponding to this color rotated by `a` degrees
    */
   ColorAlpha.prototype.rotate = function rotate(a) {
-    return new ColorAlpha(Color.prototype.rotate.call(this).rgb(), this.alpha())
+    return new ColorAlpha(Color.prototype.rotate.call(this, a).rgb(), this.alpha())
   }
 
   /**
@@ -103,7 +103,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color saturated by `p`
    */
   ColorAlpha.prototype.saturate = function saturate(p, relative) {
-    return new ColorAlpha(Color.prototype.saturate.call(this).rgb(), this.alpha())
+    return new ColorAlpha(Color.prototype.saturate.call(this, p, relative).rgb(), this.alpha())
   }
 
   /**
@@ -113,7 +113,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color brightened by `p`
    */
   ColorAlpha.prototype.brighten = function brighten(p, relative) {
-    return new ColorAlpha(Color.prototype.brighten.call(this).rgb(), this.alpha())
+    return new ColorAlpha(Color.prototype.brighten.call(this, p, relative).rgb(), this.alpha())
   }
 
   /**
