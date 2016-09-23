@@ -78,6 +78,7 @@ module.exports = (function () {
      * @type {number}
      */
     self._HSV_SAT = (function () {
+      if (_chroma === 0) return 0 // avoid div by 0
       return _chroma / self._HSV_VAL
     })()
 
@@ -107,7 +108,7 @@ module.exports = (function () {
      * @type {number}
      */
     self._HSL_SAT = (function () {
-      if (_chroma === 0) return 0 // covers the cases (self._HSL_LUM === 0) || (self._HSL_LUM === 1)
+      if (_chroma === 0) return 0 // avoid div by 0
       return _chroma / ((self._HSL_LUM <= 0.5)  ?  2*self._HSL_LUM  :  (2 - 2*self._HSL_LUM))
       /*
        * Exercise: prove:
