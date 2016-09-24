@@ -371,21 +371,43 @@ module.exports = (function () {
    * If `space === 'hsv'`, return `hsv(h, s, v)`
    * If `space === 'hsl'`, return `hsl(h, s, l)`
    * If `space === 'rgb'` (default), return `rgb(r, g, b)`
+   * The format of the numbers returned will be as follows:
+   * - all HEX values will be base 16 integers in [00,FF], two digits
+   * - HSV/HSL-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
+   * - HSV/HSL-sat/val/lum values will be base 10 decimals in [0,1] rounded to the nearest 0.01
+   * - all RGB values will be base 10 integers in [0,255], one to three digits
    * IDEA may change the default to 'hex' instead of 'rgb', once browsers support ColorAlpha hex (#rrggbbaa)
    * https://drafts.csswg.org/css-color/#hex-notation
    * @param {string='rgb'} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
   Color.prototype.toString = function toString(space) {
-    if (space === 'hex') return '#' + Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue())
-    if (space === 'hsv') return 'hsv(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ')'
-    if (space === 'hsl') return 'hsl(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ')'
-                         return 'rgb(' + this.red()    + ', ' + this.green()  + ', ' + this.blue()   + ')'
-    // CHANGED ES6
-    // if (space === 'hex') return `#${Util.toHex(this.red())}${Util.toHex(this.green())}${Util.toHex(this.blue())}`
-    // if (space === 'hsv') return `hsv(${this.hsvHue()}, ${this.hsvSat()}, ${this.hsvVal()})`
-    // if (space === 'hsl') return `hsl(${this.hslHue()}, ${this.hslSat()}, ${this.hslLum()})`
-    //                      return `rgb(${this.red()   }, ${this.green() }, ${this.blue()  })`
+    if (space === 'hex') {
+      var r = Util.toHex(this.red())
+      var g = Util.toHex(this.green())
+      var b = Util.toHex(this.blue())
+      return '#' + r + g + b
+      // return `#${r}${g}${b}` // CHANGED ES6
+    }
+    if (space === 'hsv') {
+      var h = Math.round(this.hsvHue() *  10) /  10
+      var s = Math.round(this.hsvSat() * 100) / 100
+      var v = Math.round(this.hsvVal() * 100) / 100
+      return 'hsv(' + h + ', ' + s + ', ' + v + ')'
+      // return `hsv(${h}, ${s}, ${v})` // CHANGED ES6
+    }
+    if (space === 'hsl') {
+      var h = Math.round(this.hslHue() *  10) /  10
+      var s = Math.round(this.hslSat() * 100) / 100
+      var l = Math.round(this.hslLum() * 100) / 100
+      return 'hsl(' + h + ', ' + s + ', ' + l + ')'
+      // return `hsl(${h}, ${s}, ${l})` // CHANGED ES6
+    }
+    var r = this.red()
+    var g = this.green()
+    var b = this.blue()
+    return 'rgb(' + r + ', ' + g + ', ' + b + ')'
+    // return `rgb(${r}, ${g}, ${b})` // CHANGED ES6
   }
 
 

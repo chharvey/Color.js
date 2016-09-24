@@ -159,6 +159,10 @@ module.exports = (function () {
    * If `space === 'hsva'`, return `hsva(h, s, v, a)`
    * If `space === 'hsla'`, return `hsla(h, s, l, a)`
    * If `space === 'rgba'` (default), return `rgba(r, g, b, a)`
+   * The format of the numbers returned will be as follows:
+   * - all HEX values for RGB, and hue/sat/val/lum will be of the same format as described in
+   *   {@link Color#toString}
+   * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
    * IDEA may change the default to 'hex' instead of 'rgba', once browsers support ColorAlpha hex (#rrggbbaa)
    * https://drafts.csswg.org/css-color/#hex-notation
    * @override
@@ -166,16 +170,21 @@ module.exports = (function () {
    * @return {string} a string representing this color.
    */
   ColorAlpha.prototype.toString = function toString(space) {
+    var a = Math.round(this.alpha() * 1000) / 1000
     // CHANGED v2 remove 'hexa'
-    if (space === 'hex' || space==='hexa')  return '#' + Util.toHex(Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue() + this.alpha()*255))
-    if (space === 'hsva') return 'hsva(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ', ' + this.alpha() + ')'
-    if (space === 'hsla') return 'hsla(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ', ' + this.alpha() + ')'
-                          return 'rgba(' + this.red()    + ', ' + this.green()  + ', ' + this.blue()   + ', ' + this.alpha() + ')'
-    // CHANGED ES6
-    // if (space === 'hex')  return `#${Util.toHex(this.red())}${Util.toHex(this.green())}${Util.toHex(this.blue())}${Util.toHex(this.alpha()*255)}`
-    // if (space === 'hsva') return `hsva(${this.hsvHue()}, ${this.hsvSat()}, ${this.hsvVal()}, ${this.alpha()})`
-    // if (space === 'hsla') return `hsla(${this.hslHue()}, ${this.hslSat()}, ${this.hslLum()}, ${this.alpha()})`
-    //                       return `rgba(${this.red()   }, ${this.green() }, ${this.blue()  }, ${this.alpha()})`
+    if (space === 'hex' || space==='hexa') {
+      return Color.prototype.toString.call(this, 'hex') + Util.toHex(this.alpha()*255)
+    }
+    if (space === 'hsva') {
+      return Color.prototype.toString.call(this,' hsv').slice(0, -1) + ', ' + a + ')'
+      // return `${Color.prototype.toString.call(this, 'hsv').slice(0, -1)}, ${a})` // CHANGED ES6
+    }
+    if (space === 'hsla') {
+      return Color.prototype.toString.call(this, 'hsl').slice(0, -1) + ', ' + a + ')'
+      // return `${Color.prototype.toString.call(this, 'hsl').slice(0, -1)}, ${a})` // CHANGED ES6
+    }
+    return Color.prototype.toString.call(this, 'rgb').slice(0, -1) + ', ' + a + ')'
+    // return `${Color.prototype.toString.call(this, 'rgb').slice(0, -1)}, ${a})` // CHANGED ES6
   }
 
 
