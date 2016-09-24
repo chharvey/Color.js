@@ -22,7 +22,8 @@ module.exports = (function () {
    */
   function Color($rgb) {
     var self = this
-    if ($rgb && $rgb.length >= 3) {
+    if (arguments.length) {
+      if ($rgb.length >= 3) {
       /**
        * The red component of this color. An integer in [0,255].
        * @type {number}
@@ -38,8 +39,9 @@ module.exports = (function () {
        * @type {number}
        */
       self._BLUE  = $rgb[2]
-    } else if ($rgb && $rgb.length >= 1) {
-      return Color.call(self, [$rgb[0], $rgb[0], $rgb[0]])
+      } else /* if ($rgb.length >= 1) */ {
+      return Color.call(self, [ $rgb[0], $rgb[0], $rgb[0] ])
+      }
     } else {
       return Color.call(self, [0])
     }
@@ -313,7 +315,7 @@ module.exports = (function () {
    * @return {Color} a mix of the two given colors
    */
   Color.prototype.mix = function mix($color, w) {
-    if (arguments.length < 2) w = 0.5
+    if (arguments.length >= 2) {
     /**
      * Helper function. Average two numbers, with a weight favoring the 2nd number.
      * @param  {number} a 1st number
@@ -329,6 +331,7 @@ module.exports = (function () {
     , Math.round(average(this.green(), $color.green(), w))
     , Math.round(average(this.blue(),  $color.blue(),  w))
     ])
+    } else return this.mix($color, 0.5)
   }
 
   /**

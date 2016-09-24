@@ -29,7 +29,7 @@ module.exports = (function () {
   function ColorAlpha($rgb, alpha) {
     var self = this
     if (arguments.length >= 2) {
-      if ($rgb && $rgb.length >= 3) {
+      if ($rgb.length >= 3) {
         if (alpha !== 0) { Color.call(self, $rgb) }
         else             { Color.call(self) }
         /**
@@ -37,15 +37,15 @@ module.exports = (function () {
          * @type {number}
          */
         self._ALPHA = alpha
-      } else if ($rgb && $rgb.length >= 1) {
+      } else /* if ($rgb.length >= 1) */ {
         return ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha)
-      } else {
-        return ColorAlpha.call(self, [0], alpha)
+      // } else {
+      //   return ColorAlpha.call(self, [0], alpha)
       }
     } else if (arguments.length >= 1) {
       if ($rgb instanceof Array) {
         return ColorAlpha.call(self, $rgb, 1)
-      } else {
+      } else /* if (typeof $rgb === 'number') */ {
         return ColorAlpha.call(self, [0], $rgb)
       }
     } else {
