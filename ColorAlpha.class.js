@@ -167,7 +167,7 @@ module.exports = (function () {
    */
   ColorAlpha.prototype.toString = function toString(space) {
     // CHANGED TODO v2 remove 'hexa'
-    if (space === 'hex' || space==='hexa')  return '#' + Util.toHex(Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue() + this.alpha()*255))
+    if (space === 'hex' || space==='hexa')  return '#' + Util.toHex(this.red()) + Util.toHex(this.green()) + Util.toHex(this.blue()) + Util.toHex(this.alpha()*255)
     if (space === 'hsva') return 'hsva(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ', ' + this.alpha() + ')'
     if (space === 'hsla') return 'hsla(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ', ' + this.alpha() + ')'
                           return 'rgba(' + this.red()    + ', ' + this.green()  + ', ' + this.blue()   + ', ' + this.alpha() + ')'
