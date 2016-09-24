@@ -39,9 +39,9 @@ module.exports = (function () {
        */
       self._BLUE  = $rgb[2]
     } else if ($rgb && $rgb.length >= 1) {
-      Color.call(self, [$rgb[0], $rgb[0], $rgb[0]]); return
+      return Color.call(self, [$rgb[0], $rgb[0], $rgb[0]])
     } else {
-      Color.call(self, [0]); return
+      return Color.call(self, [0])
     }
 
     var _max = Math.max(self._RED, self._GREEN, self._BLUE) / 255
@@ -135,7 +135,7 @@ module.exports = (function () {
        * Part B. Let 0.5 < x. Then 1 < 2x - 1, and |2x - 1| == 2x - 1.
        * Then 1 - |2x - 1| == 1 - (2x - 1) = 2 - 2x. //
        */
-    })();
+    })()
   }
 
 

@@ -38,18 +38,18 @@ module.exports = (function () {
          */
         self._ALPHA = alpha
       } else if ($rgb && $rgb.length >= 1) {
-        ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha); return
+        return ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha)
       } else {
-        ColorAlpha.call(self, [0], alpha); return
+        return ColorAlpha.call(self, [0], alpha)
       }
     } else if (arguments.length >= 1) {
       if ($rgb instanceof Array) {
-        ColorAlpha.call(self, $rgb, 1); return
+        return ColorAlpha.call(self, $rgb, 1)
       } else {
-        ColorAlpha.call(self, [0], $rgb); return
+        return ColorAlpha.call(self, [0], $rgb)
       }
     } else {
-      ColorAlpha.call(self, 0); return
+      return ColorAlpha.call(self, 0)
     }
   }
   ColorAlpha.prototype = Object.create(Color.prototype)
