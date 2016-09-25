@@ -23,26 +23,28 @@ module.exports = (function () {
   function Color($rgb) {
     var self = this
     if (arguments.length >= 1 && $rgb.length >= 3) {
-      /**
-       * The red component of this color. An integer in [0,255].
-       * @type {number}
-       */
-      self._RED   = $rgb[0]
-      /**
-       * The green component of this color. An integer in [0,255].
-       * @type {number}
-       */
-      self._GREEN = $rgb[1]
-      /**
-       * The blue component of this color. An integer in [0,255].
-       * @type {number}
-       */
-      self._BLUE  = $rgb[2]
-    } else if (arguments.length >= 1 && $rgb.length >= 1) {
+      ;
+    } else if (arguments.length >= 1) {
       return Color.call(self, [ $rgb[0], $rgb[0], $rgb[0] ])
     } else /* if (arguments.length < 1) */ {
       return Color.call(self, [0])
     }
+
+    /**
+     * The red component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._RED = $rgb[0]
+    /**
+     * The green component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._GREEN = $rgb[1]
+    /**
+     * The blue component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._BLUE = $rgb[2]
 
     var _max = Math.max(self._RED, self._GREEN, self._BLUE) / 255
     var _min = Math.min(self._RED, self._GREEN, self._BLUE) / 255
@@ -314,6 +316,8 @@ module.exports = (function () {
    */
   Color.prototype.mix = function mix($color, w) {
     if (arguments.length >= 2) {
+      ;
+    } else return this.mix($color, 0.5)
     /**
      * Helper function. Average two numbers, with a weight favoring the 2nd number.
      * @param  {number} a 1st number
@@ -329,7 +333,6 @@ module.exports = (function () {
     , Math.round(average(this.green(), $color.green(), w))
     , Math.round(average(this.blue(),  $color.blue(),  w))
     ])
-    } else return this.mix($color, 0.5)
   }
 
   /**
