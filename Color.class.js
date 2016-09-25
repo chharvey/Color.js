@@ -22,15 +22,29 @@ module.exports = (function () {
    */
   function Color($rgb) {
     var self = this
-    if ($rgb && $rgb.length >= 3) {
-      self._RED   = $rgb[0]
-      self._GREEN = $rgb[1]
-      self._BLUE  = $rgb[2]
-    } else if ($rgb && $rgb.length >= 1) {
-      Color.call(self, [$rgb[0], $rgb[0], $rgb[0]]); return
-    } else {
-      Color.call(self, [0]); return
+    if (arguments.length >= 1 && $rgb.length >= 3) {
+      ;
+    } else if (arguments.length >= 1) {
+      return Color.call(self, [ $rgb[0], $rgb[0], $rgb[0] ])
+    } else /* if (arguments.length < 1) */ {
+      return Color.call(self, [0])
     }
+
+    /**
+     * The red component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._RED = $rgb[0]
+    /**
+     * The green component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._GREEN = $rgb[1]
+    /**
+     * The blue component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._BLUE = $rgb[2]
 
     var _max = Math.max(self._RED, self._GREEN, self._BLUE) / 255
     var _min = Math.min(self._RED, self._GREEN, self._BLUE) / 255
@@ -121,7 +135,7 @@ module.exports = (function () {
        * Part B. Let 0.5 < x. Then 1 < 2x - 1, and |2x - 1| == 2x - 1.
        * Then 1 - |2x - 1| == 1 - (2x - 1) = 2 - 2x. //
        */
-    })();
+    })()
   }
 
 
@@ -303,7 +317,9 @@ module.exports = (function () {
    * @return {Color} a mix of the two given colors
    */
   Color.prototype.mix = function mix($color, w) {
-    if (arguments.length < 2) w = 0.5
+    if (arguments.length >= 2) {
+      ;
+    } else return this.mix($color, 0.5)
     /**
      * Helper function. Average two numbers, with a weight favoring the 2nd number.
      * @param  {number} a 1st number

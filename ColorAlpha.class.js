@@ -28,25 +28,26 @@ module.exports = (function () {
    */
   function ColorAlpha($rgb, alpha) {
     var self = this
-    if (arguments.length >= 2) {
-      if ($rgb && $rgb.length >= 3) {
-        if (alpha !== 0) { Color.call(self, $rgb) }
-        else             { Color.call(self) }
-        self._ALPHA = alpha
-      } else if ($rgb && $rgb.length >= 1) {
-        ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha); return
-      } else {
-        ColorAlpha.call(self, [0], alpha); return
-      }
+    if (arguments.length >= 2 && $rgb.length >= 3) {
+      ;
+    } else if (arguments.length >= 2) {
+        return ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha)
+    } else if (arguments.length >= 1 && $rgb instanceof Array) {
+        return ColorAlpha.call(self, $rgb, 1)
     } else if (arguments.length >= 1) {
-      if ($rgb instanceof Array) {
-        ColorAlpha.call(self, $rgb, 1); return
-      } else {
-        ColorAlpha.call(self, [0], $rgb); return
-      }
-    } else {
-      ColorAlpha.call(self, 0); return
+        return ColorAlpha.call(self, [0], $rgb)
+    } else /* if (arguments.length < 1) */ {
+      return ColorAlpha.call(self, 0)
     }
+
+    // call the super. if alpha===0 then this color’s rgb will be [0,0,0].
+    if (alpha !== 0) { Color.call(self, $rgb) }
+    else             { Color.call(self) }
+    /**
+     * The alpha component of this color. An number in [0,1].
+     * @type {number}
+     */
+    self._ALPHA = alpha
   }
   ColorAlpha.prototype = Object.create(Color.prototype)
   ColorAlpha.prototype.constructor = ColorAlpha
