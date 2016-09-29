@@ -246,10 +246,10 @@ module.exports = (function () {
       var comps = Util.components(5, str)
       return new ColorAlpha(comps.slice(0,3), comps[3])
     }
-    if (arg.slice(0,5) === 'hsva(') {
+    if (str.slice(0,5) === 'hsva(') {
       return ColorAlpha.fromHSVA.apply(null, Util.components(5, str))
     }
-    if (arg.slice(0,5) === 'hsla(') {
+    if (str.slice(0,5) === 'hsla(') {
       return ColorAlpha.fromHSLA.apply(null, Util.components(5, str))
     }
     return null

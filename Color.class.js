@@ -491,10 +491,10 @@ module.exports = (function () {
     if (str.slice(0,4) === 'rgb(') {
       return new Color(Util.components(4, str))
     }
-    if (arg.slice(0,4) === 'hsv(') {
+    if (str.slice(0,4) === 'hsv(') {
       return Color.fromHSV.apply(null, Util.components(4, str))
     }
-    if (arg.slice(0,4) === 'hsl(') {
+    if (str.slice(0,4) === 'hsl(') {
       return Color.fromHSL.apply(null, Util.components(4, str))
     }
     return null
