@@ -322,6 +322,7 @@ module.exports = (function () {
     } else return this.mix($color, 0.5)
     /**
      * Helper function. Average two numbers, with a weight favoring the 2nd number.
+     * The result will always be between the two numbers.
      * @param  {number} a 1st number
      * @param  {number} b 2nd number
      * @param  {number} w number between [0,1]; weight of 2nd number

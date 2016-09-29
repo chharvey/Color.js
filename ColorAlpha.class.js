@@ -41,8 +41,8 @@ module.exports = (function () {
     }
 
     // call the super. if alpha===0 then this color’s rgb will be [0,0,0].
-    if (alpha !== 0) { Color.call(self, $rgb) }
-    else             { Color.call(self) }
+    if (alpha !== 0) Color.call(self, $rgb)
+    else             Color.call(self)
     /**
      * The alpha component of this color. An number in [0,1].
      * @type {number}
