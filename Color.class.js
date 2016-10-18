@@ -152,7 +152,7 @@ module.exports = (function () {
      * @type {number}
      */
     self._HWB_WHT = (function () {
-      return 0 // FIXME
+      return _min
     })()
     /**
      * The amount of Black in this color. A higher black means the color is closer to #000,
@@ -161,7 +161,7 @@ module.exports = (function () {
      * @type {number}
      */
     self._HWB_BLK = (function () {
-      return 0 // FIXME
+      return 1 - _max
     })()
   }
 
@@ -536,12 +536,16 @@ module.exports = (function () {
    * @return {Color} a new Color object with hwb(hue, wht, blk)
    */
   Color.fromHWB = function fromHWB(hue, wht, blk) {
+    return Color.fromHSV(hue, 1 - wht / (1 - blk), 1 - blk)
+    // HWB -> RGB:
+    /*
     var rgb = Color.fromHSL(hue, 1, 0.5).rgb().map(function (el) { return el / 255 })
     for (var i = 0; i < 3; i++) {
       rgb[i] *= (1 - white - black);
       rgb[i] += white;
     }
     return new Color(rgb.map(function (el) { return Math.round(el * 255) }))
+     */
   }
 
   /**
