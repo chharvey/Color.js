@@ -31,11 +31,11 @@ module.exports = (function () {
     if (arguments.length >= 2 && $rgb.length >= 3) {
       ;
     } else if (arguments.length >= 2) {
-        return ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha)
+      return ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha)
     } else if (arguments.length >= 1 && $rgb instanceof Array) {
-        return ColorAlpha.call(self, $rgb, 1)
+      return ColorAlpha.call(self, $rgb, 1)
     } else if (arguments.length >= 1) {
-        return ColorAlpha.call(self, [0], $rgb)
+      return ColorAlpha.call(self, [0], $rgb)
     } else /* if (arguments.length < 1) */ {
       return ColorAlpha.call(self, 0)
     }
@@ -43,6 +43,7 @@ module.exports = (function () {
     // call the super. if alpha===0 then this color’s rgb will be [0,0,0].
     if (alpha !== 0) Color.call(self, $rgb)
     else             Color.call(self)
+
     /**
      * The alpha component of this color. An number in [0,1].
      * @type {number}
@@ -159,7 +160,7 @@ module.exports = (function () {
    * If `space === 'hex'`,  return `#rrggbbaa`
    * If `space === 'hsva'`, return `hsva(h, s, v, a)`
    * If `space === 'hsla'`, return `hsla(h, s, l, a)`
-   * If `space === 'rgba'` (default), return `rgba(r, g, b, a)`
+   * If `space === 'rgba'`, return `rgba(r, g, b, a)` (default)
    * The format of the numbers returned will be as follows:
    * - all HEX values for RGB, and hue/sat/val/lum will be of the same format as described in
    *   {@link Color#toString}
@@ -204,7 +205,7 @@ module.exports = (function () {
   }
 
   /**
-   * Return a new Color object, given hue, saturation, and luminosity in HSL-space,
+   * Return a new ColorAlpha object, given hue, saturation, and luminosity in HSL-space,
    * and an alpha channel.
    * @param {number} hue must be between 0 and 360; hue in HSL-space (same as hue in HSV-space)
    * @param {number} sat must be between 0.0 and 1.0; saturation in HSL-space
@@ -217,7 +218,7 @@ module.exports = (function () {
   }
 
   /**
-   * Return a new Color object, given a string.
+   * Return a new ColorAlpha object, given a string.
    * The string may have any of the formats described in
    * {@link Color.fromString}, or it may have either of the following formats,
    * with the alpha component as a base 10 decimal between 0.0 and 1.0.
@@ -227,7 +228,6 @@ module.exports = (function () {
    * 4. `hsla(h,s,l,a)` or `hsla(h, s, l, a)`, where `a` is alpha
    * @see Color.fromString
    * @param {string} str a string of one of the forms described
-   * @param {function} callback a function to call if all else fails
    * @return {ColorAlpha} a new ColorAlpha object constructed from the given string
    */
   ColorAlpha.fromString = function fromString(str) {

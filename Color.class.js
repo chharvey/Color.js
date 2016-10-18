@@ -387,7 +387,7 @@ module.exports = (function () {
    * If `space === 'hex'`, return `#rrggbb`
    * If `space === 'hsv'`, return `hsv(h, s, v)`
    * If `space === 'hsl'`, return `hsl(h, s, l)`
-   * If `space === 'rgb'` (default), return `rgb(r, g, b)`
+   * If `space === 'rgb'`, return `rgb(r, g, b)` (default)
    * The format of the numbers returned will be as follows:
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
