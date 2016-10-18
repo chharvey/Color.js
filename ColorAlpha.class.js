@@ -178,15 +178,15 @@ module.exports = (function () {
       return Color.prototype.toString.call(this, 'hex') + Util.toHex(this.alpha()*255)
     }
     if (space === 'hsva') {
-      return Color.prototype.toString.call(this,' hsv').slice(0, -1) + ', ' + a + ')'
-      // return `${Color.prototype.toString.call(this, 'hsv').slice(0, -1)}, ${a})` // CHANGED ES6
+      return 'hsva(' + Color.prototype.toString.call(this, 'hsv').slice(4, -1) + ', ' + a + ')'
+      // return `hsva(${Color.prototype.toString.call(this, 'hsv').slice(4, -1)}, ${a})` // CHANGED ES6
     }
     if (space === 'hsla') {
-      return Color.prototype.toString.call(this, 'hsl').slice(0, -1) + ', ' + a + ')'
-      // return `${Color.prototype.toString.call(this, 'hsl').slice(0, -1)}, ${a})` // CHANGED ES6
+      return 'hsla(' + Color.prototype.toString.call(this, 'hsl').slice(4, -1) + ', ' + a + ')'
+      // return `hsla(${Color.prototype.toString.call(this, 'hsl').slice(4, -1)}, ${a})` // CHANGED ES6
     }
-    return Color.prototype.toString.call(this, 'rgb').slice(0, -1) + ', ' + a + ')'
-    // return `${Color.prototype.toString.call(this, 'rgb').slice(0, -1)}, ${a})` // CHANGED ES6
+    return 'rgba(' + Color.prototype.toString.call(this, 'rgb').slice(4, -1) + ', ' + a + ')'
+    // return `rgba(${Color.prototype.toString.call(this, 'rgb').slice(4, -1)}, ${a})` // CHANGED ES6
   }
 
 
