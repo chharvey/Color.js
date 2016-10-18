@@ -529,13 +529,19 @@ module.exports = (function () {
 
   /**
    * Return a new Color object, given hue, white, and black.
+   * Credit is due to https://drafts.csswg.org/css-color/#hwb-to-rgb
    * @param {number} hue must be between 0 and 360; hue in HWB-space (same as hue in HSV-space)
    * @param {number} wht must be between 0.0 and 1.0; white in HWB-space
    * @param {number} blk must be between 0.0 and 1.0; black in HWB-space
    * @return {Color} a new Color object with hwb(hue, wht, blk)
    */
   Color.fromHWB = function fromHWB(hue, wht, blk) {
-    return new Color() // FIXME
+    var rgb = Color.fromHSL(hue, 1, 0.5).rgb().map(function (el) { return el / 255 })
+    for (var i = 0; i < 3; i++) {
+      rgb[i] *= (1 - white - black);
+      rgb[i] += white;
+    }
+    return new Color(rgb.map(function (el) { return Math.round(el * 255) }))
   }
 
   /**
