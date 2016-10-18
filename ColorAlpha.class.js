@@ -28,25 +28,27 @@ module.exports = (function () {
    */
   function ColorAlpha($rgb, alpha) {
     var self = this
-    if (arguments.length >= 2) {
-      if ($rgb && $rgb.length >= 3) {
-        if (alpha !== 0) { Color.call(self, $rgb) }
-        else             { Color.call(self) }
-        self._ALPHA = alpha
-      } else if ($rgb && $rgb.length >= 1) {
-        ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha); return
-      } else {
-        ColorAlpha.call(self, [0], alpha); return
-      }
+    if (arguments.length >= 2 && $rgb.length >= 3) {
+      ;
+    } else if (arguments.length >= 2) {
+      return ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha)
+    } else if (arguments.length >= 1 && $rgb instanceof Array) {
+      return ColorAlpha.call(self, $rgb, 1)
     } else if (arguments.length >= 1) {
-      if ($rgb instanceof Array) {
-        ColorAlpha.call(self, $rgb, 1); return
-      } else {
-        ColorAlpha.call(self, [0], $rgb); return
-      }
-    } else {
-      ColorAlpha.call(self, 0); return
+      return ColorAlpha.call(self, [0], $rgb)
+    } else /* if (arguments.length < 1) */ {
+      return ColorAlpha.call(self, 0)
     }
+
+    // call the super. if alpha===0 then this color’s rgb will be [0,0,0].
+    if (alpha !== 0) Color.call(self, $rgb)
+    else             Color.call(self)
+
+    /**
+     * The alpha component of this color. An number in [0,1].
+     * @type {number}
+     */
+    self._ALPHA = alpha
   }
   ColorAlpha.prototype = Object.create(Color.prototype)
   ColorAlpha.prototype.constructor = ColorAlpha
@@ -93,7 +95,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a new color corresponding to this color rotated by `a` degrees
    */
   ColorAlpha.prototype.rotate = function rotate(a) {
-    return new ColorAlpha(Color.prototype.rotate.call(this).rgb(), this.alpha())
+    return new ColorAlpha(Color.prototype.rotate.call(this, a).rgb(), this.alpha())
   }
 
   /**
@@ -103,17 +105,21 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color saturated by `p`
    */
   ColorAlpha.prototype.saturate = function saturate(p, relative) {
-    return new ColorAlpha(Color.prototype.saturate.call(this).rgb(), this.alpha())
+    return new ColorAlpha(Color.prototype.saturate.call(this, p, relative).rgb(), this.alpha())
   }
 
   /**
    * @override
    * @param {number} p must be between -1.0 and 1.0; the amount by which to lighten this color
    * @param {boolean=} relative true if the luminosity added is relative
-   * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color brightened by `p`
+   * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color lightened by `p`
    */
+  // CHANGED DEPRECATED v2 remove
   ColorAlpha.prototype.brighten = function brighten(p, relative) {
-    return new ColorAlpha(Color.prototype.brighten.call(this).rgb(), this.alpha())
+    return this.lighten(p, relative)
+  }
+  ColorAlpha.prototype.lighten = function lighten(p, relative) {
+    return new ColorAlpha(Color.prototype.lighten.call(this, p, relative).rgb(), this.alpha())
   }
 
   /**
@@ -121,7 +127,7 @@ module.exports = (function () {
    * An alpha of, for example, 0.7, complemented, is 0.3 (the complement with 1.0).
    * @return {ColorAlpha} a new ColorAlpha object with the same color but complemented alpha
    */
-  Color.prototype.negative = function negative() {
+  ColorAlpha.prototype.negative = function negative() {
     return new ColorAlpha(this.rgb(), 1 - this.alpha())
   }
 
@@ -151,24 +157,36 @@ module.exports = (function () {
 
   /**
    * Return a string representation of this color.
-   * If `space === 'hexa'`, return `#aarrggbb`
+   * If `space === 'hex'`,  return `#rrggbbaa`
    * If `space === 'hsva'`, return `hsva(h, s, v, a)`
    * If `space === 'hsla'`, return `hsla(h, s, l, a)`
-   * If `space === 'rgba'` (default), return `rgba(r, g, b, a)`
+   * If `space === 'rgba'`, return `rgba(r, g, b, a)` (default)
+   * The format of the numbers returned will be as follows:
+   * - all HEX values for RGB, and hue/sat/val/lum will be of the same format as described in
+   *   {@link Color#toString}
+   * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
+   * IDEA may change the default to 'hex' instead of 'rgba', once browsers support ColorAlpha hex (#rrggbbaa)
+   * https://drafts.csswg.org/css-color/#hex-notation
    * @override
    * @param {string='rgba'} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
   ColorAlpha.prototype.toString = function toString(space) {
-    if (space === 'hexa') return '#' + Util.toHex(this.alpha()*255) + Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue())
-    if (space === 'hsva') return 'hsva(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ', ' + this.alpha() + ')'
-    if (space === 'hsla') return 'hsla(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ', ' + this.alpha() + ')'
-                          return 'rgba(' + this.red()    + ', ' + this.green()  + ', ' + this.blue()   + ', ' + this.alpha() + ')'
-    // CHANGED ES6
-    // if (space === 'hexa') return `#${Util.toHex(this.alpha()*255)}${Util.toHex(this.red())}${Util.toHex(this.green())}${Util.toHex(this.blue())}`
-    // if (space === 'hsva') return `hsva(${this.hsvHue()}, ${this.hsvSat()}, ${this.hsvVal()}, ${this.alpha()})`
-    // if (space === 'hsla') return `hsla(${this.hslHue()}, ${this.hslSat()}, ${this.hslLum()}, ${this.alpha()})`
-    //                       return `rgba(${this.red()   }, ${this.green() }, ${this.blue()  }, ${this.alpha()})`
+    var a = Math.round(this.alpha() * 1000) / 1000
+    // CHANGED v2 remove 'hexa'
+    if (space === 'hex' || space==='hexa') {
+      return Color.prototype.toString.call(this, 'hex') + Util.toHex(this.alpha()*255)
+    }
+    if (space === 'hsva') {
+      return 'hsva(' + Color.prototype.toString.call(this, 'hsv').slice(4, -1) + ', ' + a + ')'
+      // return `hsva(${Color.prototype.toString.call(this, 'hsv').slice(4, -1)}, ${a})` // CHANGED ES6
+    }
+    if (space === 'hsla') {
+      return 'hsla(' + Color.prototype.toString.call(this, 'hsl').slice(4, -1) + ', ' + a + ')'
+      // return `hsla(${Color.prototype.toString.call(this, 'hsl').slice(4, -1)}, ${a})` // CHANGED ES6
+    }
+    return 'rgba(' + Color.prototype.toString.call(this, 'rgb').slice(4, -1) + ', ' + a + ')'
+    // return `rgba(${Color.prototype.toString.call(this, 'rgb').slice(4, -1)}, ${a})` // CHANGED ES6
   }
 
 
@@ -187,7 +205,7 @@ module.exports = (function () {
   }
 
   /**
-   * Return a new Color object, given hue, saturation, and luminosity in HSL-space,
+   * Return a new ColorAlpha object, given hue, saturation, and luminosity in HSL-space,
    * and an alpha channel.
    * @param {number} hue must be between 0 and 360; hue in HSL-space (same as hue in HSV-space)
    * @param {number} sat must be between 0.0 and 1.0; saturation in HSL-space
@@ -200,18 +218,16 @@ module.exports = (function () {
   }
 
   /**
-   * Return a new Color object, given a string.
+   * Return a new ColorAlpha object, given a string.
    * The string may have any of the formats described in
-   * {@link Color.fromString}, or
-   * it may have either of the following formats, with
-   * the alpha component as a base 10 decimal between 0.0 and 1.0.
-   * 1. `#aarrggbb`, where `aa` is alpha
+   * {@link Color.fromString}, or it may have either of the following formats,
+   * with the alpha component as a base 10 decimal between 0.0 and 1.0.
+   * 1. `#rrggbbaa`, where `aa` is alpha
    * 2. `rgba(r,g,b,a)` or `rgba(r, g, b, a)`, where `a` is alpha
    * 3. `hsva(h,s,v,a)` or `hsva(h, s, v, a)`, where `a` is alpha
    * 4. `hsla(h,s,l,a)` or `hsla(h, s, l, a)`, where `a` is alpha
    * @see Color.fromString
    * @param {string} str a string of one of the forms described
-   * @param {function} callback a function to call if all else fails
    * @return {ColorAlpha} a new ColorAlpha object constructed from the given string
    */
   ColorAlpha.fromString = function fromString(str) {
@@ -221,19 +237,19 @@ module.exports = (function () {
     }
     if (str.slice(0,1) === '#' && str.length === 9) {
       return new ColorAlpha([
-        str.slice(3,5)
+        str.slice(1,3)
+      , str.slice(3,5)
       , str.slice(5,7)
-      , str.slice(7,9)
-      ].map(Util.toDec), Util.toDec(str.slice(1,3))/255)
+      ].map(Util.toDec), Util.toDec(str.slice(7,9))/255)
     }
     if (str.slice(0,5) === 'rgba(') {
       var comps = Util.components(5, str)
       return new ColorAlpha(comps.slice(0,3), comps[3])
     }
-    if (arg.slice(0,5) === 'hsva(') {
+    if (str.slice(0,5) === 'hsva(') {
       return ColorAlpha.fromHSVA.apply(null, Util.components(5, str))
     }
-    if (arg.slice(0,5) === 'hsla(') {
+    if (str.slice(0,5) === 'hsla(') {
       return ColorAlpha.fromHSLA.apply(null, Util.components(5, str))
     }
     return null

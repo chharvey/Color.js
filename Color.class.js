@@ -1,7 +1,7 @@
 var Util = require('./Util.class.js')
 
 /**
- * A 24-bit color (“True Color”) that can be displayed in a pixel, given three primary color components.
+ * A 24-bit color ("True Color") that can be displayed in a pixel, given three primary color components.
  * @type {Color}
  */
 module.exports = (function () {
@@ -22,15 +22,29 @@ module.exports = (function () {
    */
   function Color($rgb) {
     var self = this
-    if ($rgb && $rgb.length >= 3) {
-      self._RED   = $rgb[0]
-      self._GREEN = $rgb[1]
-      self._BLUE  = $rgb[2]
-    } else if ($rgb && $rgb.length >= 1) {
-      Color.call(self, [$rgb[0], $rgb[0], $rgb[0]]); return
-    } else {
-      Color.call(self, [0]); return
+    if (arguments.length >= 1 && $rgb.length >= 3) {
+      ;
+    } else if (arguments.length >= 1) {
+      return Color.call(self, [ $rgb[0], $rgb[0], $rgb[0] ])
+    } else /* if (arguments.length < 1) */ {
+      return Color.call(self, [0])
     }
+
+    /**
+     * The red component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._RED = $rgb[0]
+    /**
+     * The green component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._GREEN = $rgb[1]
+    /**
+     * The blue component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._BLUE = $rgb[2]
 
     var _max = Math.max(self._RED, self._GREEN, self._BLUE) / 255
     var _min = Math.min(self._RED, self._GREEN, self._BLUE) / 255
@@ -39,10 +53,6 @@ module.exports = (function () {
     /**
      * The HSV-space hue of this color, or what "color" this color is.
      * A number bound by [0, 360).
-     *
-     * Exercise: prove:
-     * _HSV_HUE === Math.atan2(Math.sqrt(3) * (g - b), 2*r - g - b)
-     *
      * @type {number}
      */
     self._HSV_HUE = (function () {
@@ -57,13 +67,15 @@ module.exports = (function () {
       , function (r, g, b) { return ((b - r) / _chroma + 2)     * 60 }
       , function (r, g, b) { return ((r - g) / _chroma + 4)     * 60 }
       ][rgb_norm.indexOf(_max)].apply(null, rgb_norm)
+      /*
+       * Exercise: prove:
+       * _HSV_HUE === Math.atan2(Math.sqrt(3) * (g - b), 2*r - g - b)
+       */
     })()
 
     /**
      * The brightness of this color. A lower value means the color is closer to black, a higher
      * value means the color is more true to its hue.
-     * The HSV-space value ("brightness") of this color is equivalent to the ratio of the
-     * brightest RGB-component’s value to 255, as a percentage.
      * A number bound by [0, 1].
      * @type {number}
      */
@@ -78,6 +90,7 @@ module.exports = (function () {
      * @type {number}
      */
     self._HSV_SAT = (function () {
+      if (_chroma === 0) return 0 // avoid div by 0
       return _chroma / self._HSV_VAL
     })()
 
@@ -104,25 +117,25 @@ module.exports = (function () {
      * The amount of "color" in the color. A lower saturation means the color is more grayer,
      * a higher saturation means the color is more colorful.
      * A number bound by [0, 1].
-     *
-     * Exercise: prove:
-     * _HSL_SAT === _chroma / (1 - Math.abs(2*self._HSL_LUM - 1))
-     * Proof:
-     * denom == (function (x) {
-     *   if (x <= 0.5) return 2x
-     *   else          return 2 - 2x
-     * })(_HSL_LUM)
-     * Part A. Let x <= 0.5. Then 2x - 1 <= 0, and |2x - 1| == -(2x - 1).
-     * Then 1 - |2x - 1| == 1 + (2x - 1) = 2x. //
-     * Part B. Let 0.5 < x. Then 1 < 2x - 1, and |2x - 1| == 2x - 1.
-     * Then 1 - |2x - 1| == 1 - (2x - 1) = 2 - 2x. //
-     *
      * @type {number}
      */
     self._HSL_SAT = (function () {
-      if (_chroma === 0) return 0 // covers the cases (self._HSL_LUM === 0) || (self._HSL_LUM === 1)
+      if (_chroma === 0) return 0 // avoid div by 0
       return _chroma / ((self._HSL_LUM <= 0.5)  ?  2*self._HSL_LUM  :  (2 - 2*self._HSL_LUM))
-    })();
+      /*
+       * Exercise: prove:
+       * _HSL_SAT === _chroma / (1 - Math.abs(2*self._HSL_LUM - 1))
+       * Proof:
+       * denom == (function (x) {
+       *   if (x <= 0.5) return 2x
+       *   else          return 2 - 2x
+       * })(_HSL_LUM)
+       * Part A. Let x <= 0.5. Then 2x - 1 <= 0, and |2x - 1| == -(2x - 1).
+       * Then 1 - |2x - 1| == 1 + (2x - 1) = 2x. //
+       * Part B. Let 0.5 < x. Then 1 < 2x - 1, and |2x - 1| == 2x - 1.
+       * Then 1 - |2x - 1| == 1 - (2x - 1) = 2 - 2x. //
+       */
+    })()
   }
 
 
@@ -254,23 +267,27 @@ module.exports = (function () {
   }
 
   /**
-   * Return a new color that is a brighter version of this color by a percentage.
+   * Return a new color that is a lighter version of this color by a percentage.
    * This method calculates with luminosity in the HSL space.
    * A parameter of 1.0 returns white (#fff), and 0.0 returns an identical color.
    * A negative parameter will {@link Color.darken()|darken} this color.
    *
-   * Set `relative = true` to specify the amount as relative to the color’s current brightness.
-   * For example, if `$color` has an HSL-lum of 0.5, then calling `$color.brighten(0.5)` will return
+   * Set `relative = true` to specify the amount as relative to the color’s current luminosity.
+   * For example, if `$color` has an HSL-lum of 0.5, then calling `$color.lighten(0.5)` will return
    * a new color with an HSL-lum of 1.0, because the argument 0.5 is simply added to the color’s luminosity.
-   * However, calling `$color.brighten(0.5, true)` will return a new color with an HSL-lum of 0.75,
+   * However, calling `$color.lighten(0.5, true)` will return a new color with an HSL-lum of 0.75,
    * because the argument 0.5, relative to the color’s current luminosity of 0.5, results in
    * an added luminosity of 0.25.
    *
    * @param {number} p must be between -1.0 and 1.0; the amount by which to lighten this color
    * @param {boolean=} relative true if the luminosity added is relative
-   * @return {Color} a new Color object that corresponds to this color brightened by `p`
+   * @return {Color} a new Color object that corresponds to this color lightened by `p`
    */
+  // CHANGED DEPRECATED v2 remove
   Color.prototype.brighten = function brighten(p, relative) {
+    return this.lighten(p, relative)
+  }
+  Color.prototype.lighten = function lighten(p, relative) {
     var newlum = this.hslLum() + (relative ? (this.hslLum() * p) : p)
     newlum = Math.min(Math.max(0, newlum), 1)
     return Color.fromHSL(this.hslHue(), this.hslSat(), newlum)
@@ -279,13 +296,13 @@ module.exports = (function () {
   /**
    * Return a new color that is a darker version of this color by a percentage.
    * A parameter of 1.0 returns black (#000), and 0.0 returns an identical color.
-   * @see Color.brighten()
+   * @see Color.lighten()
    * @param {number} p must be between -1.0 and 1.0; the amount by which to darken this color
    * @param {boolean=} relative true if the luminosity subtracted is relative
    * @return {Color} a new Color object that corresponds to this color darkened by `p`
    */
   Color.prototype.darken = function darken(p, relative) {
-    return this.brighten(-p, relative)
+    return this.lighten(-p, relative)
   }
 
   /**
@@ -300,7 +317,17 @@ module.exports = (function () {
    * @return {Color} a mix of the two given colors
    */
   Color.prototype.mix = function mix($color, w) {
-    if (arguments.length < 2) w = 0.5
+    if (arguments.length >= 2) {
+      ;
+    } else return this.mix($color, 0.5)
+    /**
+     * Helper function. Average two numbers, with a weight favoring the 2nd number.
+     * The result will always be between the two numbers.
+     * @param  {number} a 1st number
+     * @param  {number} b 2nd number
+     * @param  {number} w number between [0,1]; weight of 2nd number
+     * @return {number} the weighted average of `a` and `b`
+     */
     function average(a, b, w) {
       return (a * (1-w)) + (b * w)
     }
@@ -338,7 +365,7 @@ module.exports = (function () {
      * @param  {Color} c a Color object
      * @return {number} the relative lumance of the color
      */
-    function luma(c, b) {
+    function luma(c) {
       /**
        * A helper function.
        * @param  {number} p a decimal representation of an rgb component of a color
@@ -360,21 +387,44 @@ module.exports = (function () {
    * If `space === 'hex'`, return `#rrggbb`
    * If `space === 'hsv'`, return `hsv(h, s, v)`
    * If `space === 'hsl'`, return `hsl(h, s, l)`
-   * If `space === 'rgb'` (default), return `rgb(r, g, b)`
-   * IDEA may change the default to 'hex' instead of 'rgb' // no because browsers don’t support ColorAlpha hex (#aarrggbb)
+   * If `space === 'rgb'`, return `rgb(r, g, b)` (default)
+   * The format of the numbers returned will be as follows:
+   * - all HEX values will be base 16 integers in [00,FF], two digits
+   * - HSV/HSL-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
+   * - HSV/HSL-sat/val/lum values will be base 10 decimals in [0,1] rounded to the nearest 0.01
+   * - all RGB values will be base 10 integers in [0,255], one to three digits
+   * IDEA may change the default to 'hex' instead of 'rgb', once browsers support ColorAlpha hex (#rrggbbaa)
+   * https://drafts.csswg.org/css-color/#hex-notation
    * @param {string='rgb'} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
   Color.prototype.toString = function toString(space) {
-    if (space === 'hex') return '#' + Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue())
-    if (space === 'hsv') return 'hsv(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ')'
-    if (space === 'hsl') return 'hsl(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ')'
-                         return 'rgb(' + this.red()    + ', ' + this.green()  + ', ' + this.blue()   + ')'
-    // CHANGED ES6
-    // if (space === 'hex') return `#${Util.toHex(this.red())}${Util.toHex(this.green())}${Util.toHex(this.blue())}`
-    // if (space === 'hsv') return `hsv(${this.hsvHue()}, ${this.hsvSat()}, ${this.hsvVal()})`
-    // if (space === 'hsl') return `hsl(${this.hslHue()}, ${this.hslSat()}, ${this.hslLum()})`
-    //                      return `rgb(${this.red()   }, ${this.green() }, ${this.blue()  })`
+    if (space === 'hex') {
+      var r = Util.toHex(this.red())
+      var g = Util.toHex(this.green())
+      var b = Util.toHex(this.blue())
+      return '#' + r + g + b
+      // return `#${r}${g}${b}` // CHANGED ES6
+    }
+    if (space === 'hsv') {
+      var h = Math.round(this.hsvHue() *  10) /  10
+      var s = Math.round(this.hsvSat() * 100) / 100
+      var v = Math.round(this.hsvVal() * 100) / 100
+      return 'hsv(' + h + ', ' + s + ', ' + v + ')'
+      // return `hsv(${h}, ${s}, ${v})` // CHANGED ES6
+    }
+    if (space === 'hsl') {
+      var h = Math.round(this.hslHue() *  10) /  10
+      var s = Math.round(this.hslSat() * 100) / 100
+      var l = Math.round(this.hslLum() * 100) / 100
+      return 'hsl(' + h + ', ' + s + ', ' + l + ')'
+      // return `hsl(${h}, ${s}, ${l})` // CHANGED ES6
+    }
+    var r = this.red()
+    var g = this.green()
+    var b = this.blue()
+    return 'rgb(' + r + ', ' + g + ', ' + b + ')'
+    // return `rgb(${r}, ${g}, ${b})` // CHANGED ES6
   }
 
 
@@ -424,15 +474,10 @@ module.exports = (function () {
   /**
    * Return a new Color object, given a string.
    * The string may have either of the following formats:
-   * 1. `#rrggbb`, where
-   *    `rr`, `gg`, and `bb` are hexadecimal RGB components (in base 16, out of ff, lowercase).
-   *    The `#` must be included.
-   * 2. `rgb(r,g,b)` or `rgb(r, g, b)`, where
-   *    `r`, `g`, and `b` are integer RGB components (in base 10, out of 255).
-   * 3. `hsv(h,s,v)` or `hsv(h, s, v)`, where
-   *    `h`, `s`, and `v` are decimal HSV components (in base 10).
-   * 4. `hsl(h,s,l)` or `hsl(h, s, l)`, where
-   *    `h`, `s`, and `l` are decimal HSL components (in base 10).
+   * 1. `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase). The `#` must be included.
+   * 2. `rgb(r,g,b)` or `rgb(r, g, b)`, with integer RGB components (in base 10, out of 255).
+   * 3. `hsv(h,s,v)` or `hsv(h, s, v)`, with decimal HSV components (in base 10).
+   * 4. `hsl(h,s,l)` or `hsl(h, s, l)`, with decimal HSL components (in base 10).
    * @param {string} str a string of one of the forms described
    * @return {Color} a new Color object constructed from the given string
    */
@@ -447,10 +492,10 @@ module.exports = (function () {
     if (str.slice(0,4) === 'rgb(') {
       return new Color(Util.components(4, str))
     }
-    if (arg.slice(0,4) === 'hsv(') {
+    if (str.slice(0,4) === 'hsv(') {
       return Color.fromHSV.apply(null, Util.components(4, str))
     }
-    if (arg.slice(0,4) === 'hsl(') {
+    if (str.slice(0,4) === 'hsl(') {
       return Color.fromHSL.apply(null, Util.components(4, str))
     }
     return null
