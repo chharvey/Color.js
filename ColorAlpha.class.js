@@ -77,6 +77,11 @@ module.exports = (function () {
    * @return {Array<number>} an array of HSLA components
    */
   ColorAlpha.prototype.hsla = function hsla() { return this.hsl().concat(this.alpha()) }
+  /**
+   * Return an array of HWBA components (in that order).
+   * @return {Array<number>} an array of HWBA components
+   */
+  ColorAlpha.prototype.hwba = function hwba() { return this.hwb().concat(this.alpha()) }
 
 
   // METHODS
@@ -160,6 +165,7 @@ module.exports = (function () {
    * If `space === 'hex'`,  return `#rrggbbaa`
    * If `space === 'hsva'`, return `hsva(h, s, v, a)`
    * If `space === 'hsla'`, return `hsla(h, s, l, a)`
+   * If `space === 'hwba'`, return `hwba(h, w, b, a)` // NOTE not supported yet
    * If `space === 'rgba'`, return `rgba(r, g, b, a)` (default)
    * The format of the numbers returned will be as follows:
    * - all HEX values for RGB, and hue/sat/val/lum will be of the same format as described in
@@ -184,6 +190,10 @@ module.exports = (function () {
     if (space === 'hsla') {
       return Color.prototype.toString.call(this, 'hsl').slice(0, -1) + ', ' + a + ')'
       // return `${Color.prototype.toString.call(this, 'hsl').slice(0, -1)}, ${a})` // CHANGED ES6
+    }
+    if (space === 'hwba') {
+      return 'hwba(' + Color.prototype.toString.call(this, 'hwb').slice(4, -1) + ', ' + a + ')'
+      // return `hwba(${Color.prototype.toString.call(this, 'hwb').slice(4, -1)}, ${a})` // CHANGED ES6
     }
     return Color.prototype.toString.call(this, 'rgb').slice(0, -1) + ', ' + a + ')'
     // return `${Color.prototype.toString.call(this, 'rgb').slice(0, -1)}, ${a})` // CHANGED ES6
@@ -218,6 +228,19 @@ module.exports = (function () {
   }
 
   /**
+   * Return a new ColorAlpha object, given hue, white, and black in HWB-space,
+   * and an alpha channel.
+   * @param {number} hue must be between 0 and 360; hue in HSL-space (same as hue in HSV-space)
+   * @param {number} wht must be between 0.0 and 1.0; white in HWB-space
+   * @param {number} blk must be between 0.0 and 1.0; black in HWB-space
+   * @param {number} alpha must be between 0.0 and 1.0; alpha (opacity)
+   * @return {ColorAlpha} a new ColorAlpha object with hwba(hue, wht, blk, alpha)
+   */
+  ColorAlpha.fromHWBA = function fromHWBA(hue, wht, blk, alpha) {
+    return new ColorAlpha(Color.fromHWB(hue, wht, blk).rgb(), alpha)
+  }
+
+  /**
    * Return a new ColorAlpha object, given a string.
    * The string may have any of the formats described in
    * {@link Color.fromString}, or it may have either of the following formats,
@@ -226,6 +249,7 @@ module.exports = (function () {
    * 2. `rgba(r,g,b,a)` or `rgba(r, g, b, a)`, where `a` is alpha
    * 3. `hsva(h,s,v,a)` or `hsva(h, s, v, a)`, where `a` is alpha
    * 4. `hsla(h,s,l,a)` or `hsla(h, s, l, a)`, where `a` is alpha
+   * 4. `hwba(h,w,b,a)` or `hwba(h, w, b, a)`, where `a` is alpha
    * @see Color.fromString
    * @param {string} str a string of one of the forms described
    * @return {ColorAlpha} a new ColorAlpha object constructed from the given string
@@ -251,6 +275,9 @@ module.exports = (function () {
     }
     if (str.slice(0,5) === 'hsla(') {
       return ColorAlpha.fromHSLA.apply(null, Util.components(5, str))
+    }
+    if (str.slice(0,5) === 'hwba(') {
+      return ColorAlpha.fromHWBA.apply(null, Util.components(5, str))
     }
     return null
   }
