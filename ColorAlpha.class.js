@@ -201,20 +201,13 @@ module.exports = (function () {
    * and an alpha component.
    * The alpha must be between 0.0 and 1.0.
    * The first argument must be an array of these three values in order.
-   * Or, you may pass 3 values as the first 3 arguments.
-   * CHANGED DEPRECATED starting in v2, first argument must be Array<number>(3)
    * @see Color.fromHSV
-   * @param {(number|Array<number>)} hue must be between 0 and 360; hue in HSV-space || an Array of HSV components
-   * @param {number} sat must be between 0.0 and 1.0; saturation in HSV-space || alpha (opacity)
-   * @param {number=} val must be between 0.0 and 1.0; brightness in HSV-space
-   * @param {number=} alpha must be between 0.0 and 1.0; alpha (opacity)
+   * @param {Array<number>} $hsv an Array of HSV components
+   * @param {number} alpha the opacity
    * @return {ColorAlpha} a new ColorAlpha object with hsva(hue, sat, val, alpha)
    */
-  ColorAlpha.fromHSVA = function fromHSVA(hue, sat, val, alpha) {
-    if (Array.isArray(hue)) {
-      return Color.fromHSVA(hue[0], hue[1], hue[2], sat)
-    }
-    return new ColorAlpha(Color.fromHSV([hue, sat, val]).rgb(), alpha)
+  ColorAlpha.fromHSVA = function fromHSVA($hsv, alpha) {
+    return new ColorAlpha(Color.fromHSV($hsv).rgb(), alpha)
   }
 
   /**
@@ -222,20 +215,13 @@ module.exports = (function () {
    * and an alpha component.
    * The alpha must be between 0.0 and 1.0.
    * The first argument must be an array of these three values in order.
-   * Or, you may pass 3 values as the first 3 arguments.
-   * CHANGED DEPRECATED starting in v2, first argument must be Array<number>(3)
    * @see Color.fromHSL
-   * @param {(number|Array<number>)} hue must be between 0 and 360; hue in HSL-space || an Array of HSL components
-   * @param {number} sat must be between 0.0 and 1.0; saturation in HSL-space || alpha (opacity)
-   * @param {number=} lum must be between 0.0 and 1.0; luminosity in HSL-space
-   * @param {number=} alpha must be between 0.0 and 1.0; alpha (opacity)
+   * @param {Array<number>} $hsl an Array of HSL components
+   * @param {number} alpha the opacity
    * @return {ColorAlpha} a new ColorAlpha object with hsla(hue, sat, lum, alpha)
    */
-  ColorAlpha.fromHSLA = function fromHSLA(hue, sat, lum, alpha) {
-    if (Array.isArray(hue)) {
-      return Color.fromHSVA(hue[0], hue[1], hue[2], sat)
-    }
-    return new ColorAlpha(Color.fromHSL([hue, sat, lum]).rgb(), alpha)
+  ColorAlpha.fromHSLA = function fromHSLA($hsl, alpha) {
+    return new ColorAlpha(Color.fromHSL($hsl).rgb(), alpha)
   }
 
   /**
@@ -243,20 +229,13 @@ module.exports = (function () {
    * and an alpha component.
    * The alpha must be between 0.0 and 1.0.
    * The first argument must be an array of these three values in order.
-   * Or, you may pass 3 values as the first 3 arguments.
-   * CHANGED DEPRECATED starting in v2, first argument must be Array<number>(3)
    * @see Color.fromHWB
-   * @param {(number|Array<number>)} hue must be between 0 and 360; hue in HWB-space || an Array of HWB components
-   * @param {number} wht must be between 0.0 and 1.0; white in HWB-space || alpha (opacity)
-   * @param {number=} blk must be between 0.0 and 1.0; black in HWB-space
-   * @param {number=} alpha must be between 0.0 and 1.0; alpha (opacity)
+   * @param {Array<number>} $hwb an Array of HWB components
+   * @param {number} alpha the opacity
    * @return {ColorAlpha} a new ColorAlpha object with hwba(hue, wht, blk, alpha)
    */
-  ColorAlpha.fromHWBA = function fromHWBA(hue, wht, blk, alpha) {
-    if (Array.isArray(hue)) {
-      return Color.fromHSVA(hue[0], hue[1], hue[2], wht)
-    }
-    return new ColorAlpha(Color.fromHWB([hue, wht, blk]).rgb(), alpha)
+  ColorAlpha.fromHWBA = function fromHWBA($hwb, alpha) {
+    return new ColorAlpha(Color.fromHWB($hwb).rgb(), alpha)
   }
 
   /**
