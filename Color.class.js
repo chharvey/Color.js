@@ -22,15 +22,29 @@ module.exports = (function () {
    */
   function Color($rgb) {
     var self = this
-    if ($rgb && $rgb.length >= 3) {
-      self._RED   = $rgb[0]
-      self._GREEN = $rgb[1]
-      self._BLUE  = $rgb[2]
-    } else if ($rgb && $rgb.length >= 1) {
-      Color.call(self, [$rgb[0], $rgb[0], $rgb[0]]); return
-    } else {
-      Color.call(self, [0]); return
+    if (arguments.length >= 1 && $rgb.length >= 3) {
+      ;
+    } else if (arguments.length >= 1) {
+      return Color.call(self, [ $rgb[0], $rgb[0], $rgb[0] ])
+    } else /* if (arguments.length < 1) */ {
+      return Color.call(self, [0])
     }
+
+    /**
+     * The red component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._RED = $rgb[0]
+    /**
+     * The green component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._GREEN = $rgb[1]
+    /**
+     * The blue component of this color. An integer in [0,255].
+     * @type {number}
+     */
+    self._BLUE = $rgb[2]
 
     var _max = Math.max(self._RED, self._GREEN, self._BLUE) / 255
     var _min = Math.min(self._RED, self._GREEN, self._BLUE) / 255
@@ -121,7 +135,34 @@ module.exports = (function () {
        * Part B. Let 0.5 < x. Then 1 < 2x - 1, and |2x - 1| == 2x - 1.
        * Then 1 - |2x - 1| == 1 - (2x - 1) = 2 - 2x. //
        */
-    })();
+    })()
+
+    /**
+     * The Hue of this color. Identical to `this._HSV_HUE`.
+     * A number bound by [0, 360).
+     * @type {number}
+     */
+    self._HWB_HUE = (function () {
+      return self._HSV_HUE
+    })()
+    /**
+     * The amount of White in this color. A higher white means the color is closer to #fff,
+     * a lower white means the color has a true hue (more colorful).
+     * A number bound by [0, 1].
+     * @type {number}
+     */
+    self._HWB_WHT = (function () {
+      return _min
+    })()
+    /**
+     * The amount of Black in this color. A higher black means the color is closer to #000,
+     * a lower black means the color has a true hue (more colorful).
+     * A number bound by [0, 1].
+     * @type {number}
+     */
+    self._HWB_BLK = (function () {
+      return 1 - _max
+    })()
   }
 
 
@@ -174,6 +215,22 @@ module.exports = (function () {
    */
   Color.prototype.hslLum = function hslLum() { return this._HSL_LUM }
 
+  /**
+   * Get the hwb-hue of this color.
+   * @return {number} the hwb-hue of this color
+   */
+  Color.prototype.hwbHue = function hwbHue() { return this._HWB_HUE }
+  /**
+   * Get the hwb-white of this color.
+   * @return {number} the hwb-white of this color
+   */
+  Color.prototype.hwbWht = function hwbWht() { return this._HWB_WHT }
+  /**
+   * Get the hwb-black of this color.
+   * @return {number} the hwb-black of this color
+   */
+  Color.prototype.hwbBlk = function hwbBlk() { return this._HWB_BLK }
+
   // Convenience getter functions.
   /**
    * Return an array of RGB components (in that order).
@@ -190,6 +247,11 @@ module.exports = (function () {
    * @return {Array<number>} an array of HSL components
    */
   Color.prototype.hsl = function hsl() { return [this.hslHue(), this.hslSat(), this.hslLum()] }
+  /**
+   * Return an array of HWB components (in that order).
+   * @return {Array<number>} an array of HWB components
+   */
+  Color.prototype.hwb = function hwb() { return [this.hwbHue(), this.hwbWht(), this.hwbBlk()] }
 
 
   // METHODS
@@ -299,9 +361,12 @@ module.exports = (function () {
    * @return {Color} a mix of the two given colors
    */
   Color.prototype.mix = function mix($color, w) {
-    if (arguments.length < 2) w = 0.5
+    if (arguments.length >= 2) {
+      ;
+    } else return this.mix($color, 0.5)
     /**
      * Helper function. Average two numbers, with a weight favoring the 2nd number.
+     * The result will always be between the two numbers.
      * @param  {number} a 1st number
      * @param  {number} b 2nd number
      * @param  {number} w number between [0,1]; weight of 2nd number
@@ -366,34 +431,73 @@ module.exports = (function () {
    * If `space === 'hex'`, return `#rrggbb`
    * If `space === 'hsv'`, return `hsv(h, s, v)`
    * If `space === 'hsl'`, return `hsl(h, s, l)`
-   * If `space === 'rgb'` (default), return `rgb(r, g, b)`
+   * If `space === 'hwb'`, return `hwb(h, w, b)`
+   * If `space === 'rgb'`, return `rgb(r, g, b)` (default)
+   * The format of the numbers returned will be as follows:
+   * - all HEX values will be base 16 integers in [00,FF], two digits
+   * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
+   * - HSV/HSL-sat/val/lum and HWB-wht/blk values will be base 10 decimals in [0,1] rounded to the nearest 0.01
+   * - all RGB values will be base 10 integers in [0,255], one to three digits
    * IDEA may change the default to 'hex' instead of 'rgb', once browsers support ColorAlpha hex (#rrggbbaa)
    * https://drafts.csswg.org/css-color/#hex-notation
    * @param {string='rgb'} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
   Color.prototype.toString = function toString(space) {
-    if (space === 'hex') return '#' + Util.toHex(this.red()) + Util.toHex(this.green())  + Util.toHex(this.blue())
-    if (space === 'hsv') return 'hsv(' + this.hsvHue() + ', ' + this.hsvSat() + ', ' + this.hsvVal() + ')'
-    if (space === 'hsl') return 'hsl(' + this.hslHue() + ', ' + this.hslSat() + ', ' + this.hslLum() + ')'
-                         return 'rgb(' + this.red()    + ', ' + this.green()  + ', ' + this.blue()   + ')'
-    // CHANGED ES6
-    // if (space === 'hex') return `#${Util.toHex(this.red())}${Util.toHex(this.green())}${Util.toHex(this.blue())}`
-    // if (space === 'hsv') return `hsv(${this.hsvHue()}, ${this.hsvSat()}, ${this.hsvVal()})`
-    // if (space === 'hsl') return `hsl(${this.hslHue()}, ${this.hslSat()}, ${this.hslLum()})`
-    //                      return `rgb(${this.red()   }, ${this.green() }, ${this.blue()  })`
+    if (space === 'hex') {
+      var r = Util.toHex(this.red())
+      var g = Util.toHex(this.green())
+      var b = Util.toHex(this.blue())
+      return '#' + r + g + b
+      // return `#${r}${g}${b}` // CHANGED ES6
+    }
+    if (space === 'hsv') {
+      var h = Math.round(this.hsvHue() *  10) /  10
+      var s = Math.round(this.hsvSat() * 100) / 100
+      var v = Math.round(this.hsvVal() * 100) / 100
+      return 'hsv(' + h + ', ' + s + ', ' + v + ')'
+      // return `hsv(${h}, ${s}, ${v})` // CHANGED ES6
+    }
+    if (space === 'hsl') {
+      var h = Math.round(this.hslHue() *  10) /  10
+      var s = Math.round(this.hslSat() * 100) / 100
+      var l = Math.round(this.hslLum() * 100) / 100
+      return 'hsl(' + h + ', ' + s + ', ' + l + ')'
+      // return `hsl(${h}, ${s}, ${l})` // CHANGED ES6
+    }
+    if (space === 'hwb') {
+      var h = Math.round(this.hwbHue() *  10) /  10
+      var w = Math.round(this.hwbWht() * 100) / 100
+      var b = Math.round(this.hwbBlk() * 100) / 100
+      return 'hwb(' + h + ', ' + w + ', ' + b + ')'
+      // return `hwb(${h}, ${w}, ${b})` // CHANGED ES6
+    }
+    var r = this.red()
+    var g = this.green()
+    var b = this.blue()
+    return 'rgb(' + r + ', ' + g + ', ' + b + ')'
+    // return `rgb(${r}, ${g}, ${b})` // CHANGED ES6
   }
 
 
   // STATIC MEMBERS
   /**
    * Return a new Color object, given hue, saturation, and value in HSV-space.
-   * @param {number} hue must be between 0 and 360; hue in HSV-space
-   * @param {number} sat must be between 0.0 and 1.0; saturation in HSV-space
-   * @param {number} val must be between 0.0 and 1.0; brightness in HSV-space
+   * The HSV-hue must be between 0 and 360.
+   * The HSV-saturation must be between 0.0 and 1.0.
+   * The HSV-value must be between 0.0 and 1.0.
+   * The given argument must be an array of these three values in order.
+   * Or, you may pass 3 values as 3 separate arguments.
+   * CHANGED DEPRECATED starting in v2, argument must be Array<number>(3)
+   * @param {(number|Array<number>)} hue must be between 0 and 360; hue in HSV-space || an Array of HSV components
+   * @param {number=} sat must be between 0.0 and 1.0; saturation in HSV-space
+   * @param {number=} val must be between 0.0 and 1.0; brightness in HSV-space
    * @return {Color} a new Color object with hsv(hue, sat, val)
    */
   Color.fromHSV = function fromHSV(hue, sat, val) {
+    if (Array.isArray(hue)) {
+      return Color.fromHSV(hue[0], hue[1], hue[2])
+    }
     var c = sat * val
     var x = c * (1 - Math.abs(hue/60 % 2 - 1))
     var m = val - c
@@ -408,13 +512,22 @@ module.exports = (function () {
   }
 
   /**
-   * Return a new Color object, given hue, saturation, and luminosity.
-   * @param {number} hue must be between 0 and 360; hue in HSL-space (same as hue in HSV-space)
-   * @param {number} sat must be between 0.0 and 1.0; saturation in HSL-space
-   * @param {number} lum must be between 0.0 and 1.0; luminosity in HSL-space
+   * Return a new Color object, given hue, saturation, and luminosity in HSL-space.
+   * The HSL-hue must be between 0 and 360.
+   * The HSL-saturation must be between 0.0 and 1.0.
+   * The HSL-luminosity must be between 0.0 and 1.0.
+   * The given argument must be an array of these three values in order.
+   * Or, you may pass 3 values as 3 separate arguments.
+   * CHANGED DEPRECATED starting in v2, argument must be Array<number>(3)
+   * @param {(number|Array<number>)} hue must be between 0 and 360; hue in HSL-space || an Array of HSL components
+   * @param {number=} sat must be between 0.0 and 1.0; saturation in HSL-space
+   * @param {number=} lum must be between 0.0 and 1.0; luminosity in HSL-space
    * @return {Color} a new Color object with hsl(hue, sat, lum)
    */
   Color.fromHSL = function fromHSL(hue, sat, lum) {
+    if (Array.isArray(hue)) {
+      return Color.fromHSL(hue[0], hue[1], hue[2])
+    }
     var c = sat * (1 - Math.abs(2*lum - 1))
     var x = c * (1 - Math.abs(hue/60 % 2 - 1))
     var m = lum - c/2
@@ -429,12 +542,43 @@ module.exports = (function () {
   }
 
   /**
+   * Return a new Color object, given hue, white, and black in HWB-space.
+   * Credit for formula is due to https://drafts.csswg.org/css-color/#hwb-to-rgb
+   * The HWB-hue must be between 0 and 360.
+   * The HWB-white must be between 0.0 and 1.0.
+   * The HWB-black must be between 0.0 and 1.0.
+   * The given argument must be an array of these three values in order.
+   * Or, you may pass 3 values as 3 separate arguments.
+   * CHANGED DEPRECATED starting in v2, argument must be Array<number>(3)
+   * @param {(number|Array<number>)} hue must be between 0 and 360; hue in HWB-space || an Array of HWB components
+   * @param {number=} wht must be between 0.0 and 1.0; white in HWB-space
+   * @param {number=} blk must be between 0.0 and 1.0; black in HWB-space
+   * @return {Color} a new Color object with hwb(hue, wht, blk)
+   */
+  Color.fromHWB = function fromHWB(hue, wht, blk) {
+    if (Array.isArray(hue)) {
+      return Color.fromHWB(hue[0], hue[1], hue[2])
+    }
+    return Color.fromHSV(hue, 1 - wht / (1 - blk), 1 - blk)
+    // HWB -> RGB:
+    /*
+    var rgb = Color.fromHSL(hue, 1, 0.5).rgb().map(function (el) { return el / 255 })
+    for (var i = 0; i < 3; i++) {
+      rgb[i] *= (1 - white - black);
+      rgb[i] += white;
+    }
+    return new Color(rgb.map(function (el) { return Math.round(el * 255) }))
+     */
+  }
+
+  /**
    * Return a new Color object, given a string.
    * The string may have either of the following formats:
    * 1. `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase). The `#` must be included.
    * 2. `rgb(r,g,b)` or `rgb(r, g, b)`, with integer RGB components (in base 10, out of 255).
    * 3. `hsv(h,s,v)` or `hsv(h, s, v)`, with decimal HSV components (in base 10).
    * 4. `hsl(h,s,l)` or `hsl(h, s, l)`, with decimal HSL components (in base 10).
+   * 5. `hwb(h,w,b)` or `hwb(h, w, b)`, with decimal HWB components (in base 10).
    * @param {string} str a string of one of the forms described
    * @return {Color} a new Color object constructed from the given string
    */
@@ -449,11 +593,14 @@ module.exports = (function () {
     if (str.slice(0,4) === 'rgb(') {
       return new Color(Util.components(4, str))
     }
-    if (arg.slice(0,4) === 'hsv(') {
+    if (str.slice(0,4) === 'hsv(') {
       return Color.fromHSV.apply(null, Util.components(4, str))
     }
-    if (arg.slice(0,4) === 'hsl(') {
+    if (str.slice(0,4) === 'hsl(') {
       return Color.fromHSL.apply(null, Util.components(4, str))
+    }
+    if (str.slice(0,4) === 'hwb(') {
+      return Color.fromHWB.apply(null, Util.components(4, str))
     }
     return null
   }
