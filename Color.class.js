@@ -487,12 +487,21 @@ module.exports = (function () {
   // STATIC MEMBERS
   /**
    * Return a new Color object, given hue, saturation, and value in HSV-space.
-   * @param {number} hue must be between 0 and 360; hue in HSV-space
-   * @param {number} sat must be between 0.0 and 1.0; saturation in HSV-space
-   * @param {number} val must be between 0.0 and 1.0; brightness in HSV-space
+   * The HSV-hue must be between 0 and 360.
+   * The HSV-saturation must be between 0.0 and 1.0.
+   * The HSV-value must be between 0.0 and 1.0.
+   * The given argument must be an array of these three values in order.
+   * Or, you may pass 3 values as 3 separate arguments.
+   * CHANGED DEPRECATED starting in v2, argument must be Array<number>(3)
+   * @param {(number|Array<number>)} hue must be between 0 and 360; hue in HSV-space || an Array of HSV components
+   * @param {number=} sat must be between 0.0 and 1.0; saturation in HSV-space
+   * @param {number=} val must be between 0.0 and 1.0; brightness in HSV-space
    * @return {Color} a new Color object with hsv(hue, sat, val)
    */
   Color.fromHSV = function fromHSV(hue, sat, val) {
+    if (Array.isArray(hue)) {
+      return Color.fromHSV(hue[0], hue[1], hue[2])
+    }
     var c = sat * val
     var x = c * (1 - Math.abs(hue/60 % 2 - 1))
     var m = val - c
@@ -507,13 +516,22 @@ module.exports = (function () {
   }
 
   /**
-   * Return a new Color object, given hue, saturation, and luminosity.
-   * @param {number} hue must be between 0 and 360; hue in HSL-space (same as hue in HSV-space)
-   * @param {number} sat must be between 0.0 and 1.0; saturation in HSL-space
-   * @param {number} lum must be between 0.0 and 1.0; luminosity in HSL-space
+   * Return a new Color object, given hue, saturation, and luminosity in HSL-space.
+   * The HSL-hue must be between 0 and 360.
+   * The HSL-saturation must be between 0.0 and 1.0.
+   * The HSL-luminosity must be between 0.0 and 1.0.
+   * The given argument must be an array of these three values in order.
+   * Or, you may pass 3 values as 3 separate arguments.
+   * CHANGED DEPRECATED starting in v2, argument must be Array<number>(3)
+   * @param {(number|Array<number>)} hue must be between 0 and 360; hue in HSL-space || an Array of HSL components
+   * @param {number=} sat must be between 0.0 and 1.0; saturation in HSL-space
+   * @param {number=} lum must be between 0.0 and 1.0; luminosity in HSL-space
    * @return {Color} a new Color object with hsl(hue, sat, lum)
    */
   Color.fromHSL = function fromHSL(hue, sat, lum) {
+    if (Array.isArray(hue)) {
+      return Color.fromHSL(hue[0], hue[1], hue[2])
+    }
     var c = sat * (1 - Math.abs(2*lum - 1))
     var x = c * (1 - Math.abs(hue/60 % 2 - 1))
     var m = lum - c/2
@@ -528,14 +546,23 @@ module.exports = (function () {
   }
 
   /**
-   * Return a new Color object, given hue, white, and black.
-   * Credit is due to https://drafts.csswg.org/css-color/#hwb-to-rgb
-   * @param {number} hue must be between 0 and 360; hue in HWB-space (same as hue in HSV-space)
-   * @param {number} wht must be between 0.0 and 1.0; white in HWB-space
-   * @param {number} blk must be between 0.0 and 1.0; black in HWB-space
+   * Return a new Color object, given hue, white, and black in HWB-space.
+   * Credit for formula is due to https://drafts.csswg.org/css-color/#hwb-to-rgb
+   * The HWB-hue must be between 0 and 360.
+   * The HWB-white must be between 0.0 and 1.0.
+   * The HWB-black must be between 0.0 and 1.0.
+   * The given argument must be an array of these three values in order.
+   * Or, you may pass 3 values as 3 separate arguments.
+   * CHANGED DEPRECATED starting in v2, argument must be Array<number>(3)
+   * @param {(number|Array<number>)} hue must be between 0 and 360; hue in HWB-space || an Array of HWB components
+   * @param {number=} wht must be between 0.0 and 1.0; white in HWB-space
+   * @param {number=} blk must be between 0.0 and 1.0; black in HWB-space
    * @return {Color} a new Color object with hwb(hue, wht, blk)
    */
   Color.fromHWB = function fromHWB(hue, wht, blk) {
+    if (Array.isArray(hue)) {
+      return Color.fromHWB(hue[0], hue[1], hue[2])
+    }
     return Color.fromHSV(hue, 1 - wht / (1 - blk), 1 - blk)
     // HWB -> RGB:
     /*
