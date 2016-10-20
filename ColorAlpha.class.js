@@ -175,7 +175,7 @@ module.exports = (function () {
     var a = Math.round(this.alpha() * 1000) / 1000
     // CHANGED v2 remove 'hexa'
     if (space === 'hex' || space==='hexa') {
-      return Color.prototype.toString.call(this, 'hex') + Util.toHex(this.alpha()*255)
+      return Color.prototype.toString.call(this, 'hex') + Util.toHex(Math.round(this.alpha()*255))
     }
     if (space === 'hsva') {
       return 'hsva(' + Color.prototype.toString.call(this, 'hsv').slice(4, -1) + ', ' + a + ')'
