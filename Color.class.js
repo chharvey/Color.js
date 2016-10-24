@@ -380,10 +380,10 @@ module.exports = (function () {
       return (a * (1-w)) + (b * w)
     }
     return new Color([
-      Math.round(average(this.red(),   $color.red(),   w))
-    , Math.round(average(this.green(), $color.green(), w))
-    , Math.round(average(this.blue(),  $color.blue(),  w))
-    ])
+      average(this.red(),   $color.red(),   w)
+    , average(this.green(), $color.green(), w)
+    , average(this.blue(),  $color.blue(),  w)
+    ]).map(Math.round)
   }
 
   /**
@@ -607,6 +607,24 @@ module.exports = (function () {
       return Color.fromHWB.apply(null, Util.components(4, str))
     }
     return null
+  }
+
+  /**
+   * Mix (average) a set of 2 or more colors. The average will be weighted evenly.
+   * If two colors $a and $b are given, calling this static method, `Color.mix([$a, $b])`,
+   * is equivalent to calling `$a.mix($b)` without a weight.
+   * However, calling `Color.mix([$a, $b, $c])` with 3 or more colors yields an even mix,
+   * and will *NOT* yield the same results as calling `$a.mix($b).mix($c)`, which yields an uneven mix.
+   * Note that the order of the given colors does not change the result.
+   * @param {Array<Color>} $colors an array of Color objects, of length >=2
+   * @return {Color} a mix of the given colors
+   */
+  Color.mix = function mix($colors) {
+    return new Color([
+      $colors.map(function ($c) { return $c.red()   })
+    , $colors.map(function ($c) { return $c.green() })
+    , $colors.map(function ($c) { return $c.blue()  })
+    ].map(function ($arr) { return  Math.round($arr.reduce(function (a, b) { return a + b }) / $colors.length) }))
   }
 
   return Color

@@ -306,5 +306,19 @@ module.exports = (function () {
     return null
   }
 
+  /**
+   * ColorAlpha equivalent of `Color.mix`.
+   * @see Color.mix
+   * @param {Array<Color>} $colors an array of Color (or ColorAlpha) objects, of length >=2
+   * @return {ColorAlpha} a mix of the given colors
+   */
+  ColorAlpha.mix = function mix($colors) {
+    var newColor = Color.mix($colors)
+    var newAlpha = 1 - $colors.map(function ($c) {
+      return ($c instanceof ColorAlpha) ? $c.alpha() : 1
+    }).reduce(function (a, b) { return return (1-a) * (1-b) })
+    return new ColorAlpha(newColor.rgb(), newAlpha)
+  }
+
   return Color
 })()
