@@ -15,10 +15,10 @@ module.exports = (function () {
   // STATIC MEMBERS
   /**
    * Convert a decimal number to a hexadecimal number, as a string.
-   * The number must be within 0–255.
+   * The given number must be an integer within 0–255.
    * The returned string is in lowercase.
-   * @param  {number} n a number in base 10
-   * @return {string} a number in base 16 as a string
+   * @param  {number} n an integer in base 10
+   * @return {string} an integer in base 16 as a string
    */
   Util.toHex = function toHex(n) {
     return '0123456789abcdef'.charAt((n - n % 16) / 16) + '0123456789abcdef'.charAt(n % 16)
