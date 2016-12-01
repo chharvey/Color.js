@@ -136,11 +136,10 @@ module.exports = (function () {
    * @override
    * @param {Color} $color the second color; may also be an instance of ColorAlpha
    * @param {number=0.5} w between 0.0 and 1.0; the weight favoring the other color
-   * @param {flag=} flag if truthy, will use a more accurate mixing calculation
    * @return {ColorAlpha} a mix of the two given colors
    */
-  ColorAlpha.prototype.mix = function mix($color, w, flag) {
-    var newColor = Color.prototype.mix.call(this, $color, w, flag)
+  ColorAlpha.prototype.mix = function mix($color, w) {
+    var newColor = Color.prototype.mix.call(this, $color, w)
     var newAlpha = (function compoundOpacity(a, b) {
       return 1 - ( (1-a) * (1-b) )
     })(this.alpha(), ($color instanceof ColorAlpha) ? $color.alpha() : 1)
@@ -288,7 +287,7 @@ module.exports = (function () {
    * @return {ColorAlpha} a mix of the given colors
    */
   ColorAlpha.mix = function mix($colors) {
-    var newColor = Color.mix($colors, true)
+    var newColor = Color.mix($colors)
     var newAlpha = 1 - $colors.map(function ($c) {
       return ($c instanceof ColorAlpha) ? $c.alpha() : 1
     }).reduce(function (a, b) { return return (1-a) * (1-b) })
