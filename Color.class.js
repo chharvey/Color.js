@@ -368,22 +368,27 @@ module.exports = (function () {
     if (arguments.length >= 2) {
       ;
     } else return this.mix($color, 0.5)
-    /**
-     * Helper function. Average two numbers, with a weight favoring the 2nd number.
-     * The result will always be between the two numbers.
-     * @param  {number} a 1st number
-     * @param  {number} b 2nd number
-     * @param  {number} w number between [0,1]; weight of 2nd number
-     * @return {number} the weighted average of `a` and `b`
-     */
-    function average(a, b, w) {
-      return (a * (1-w)) + (b * w)
-    }
+    // /**
+    //  * Helper function. Average two numbers, with a weight favoring the 2nd number.
+    //  * The result will always be between the two numbers.
+    //  * @param  {number} a 1st number
+    //  * @param  {number} b 2nd number
+    //  * @param  {number} w number between [0,1]; weight of 2nd number
+    //  * @return {number} the weighted average of `a` and `b`
+    //  */
+    // function average(a, b, w) {
+    //   return (a * (1-w)) + (b * w)
+    // }
+    // return new Color([
+    //   average(this.red(),   $color.red(),   w)
+    // , average(this.green(), $color.green(), w)
+    // , average(this.blue(),  $color.blue(),  w)
+    // ].map(Math.round))
     return new Color([
-      average(this.red(),   $color.red(),   w)
-    , average(this.green(), $color.green(), w)
-    , average(this.blue(),  $color.blue(),  w)
-    ]).map(Math.round)
+      (w-1) * this.red()    +  w * $color.red()
+    , (w-1) * this.green()  +  w * $color.green()
+    , (w-1) * this.blue()   +  w * $color.blue()
+    ].map(Math.round))
   }
 
   /**
