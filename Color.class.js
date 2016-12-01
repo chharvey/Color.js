@@ -383,7 +383,7 @@ module.exports = (function () {
       average(this.red(),   $color.red(),   w)
     , average(this.green(), $color.green(), w)
     , average(this.blue(),  $color.blue(),  w)
-    ]).map(Math.round)
+    ].map(Math.round))
   }
 
   /**
