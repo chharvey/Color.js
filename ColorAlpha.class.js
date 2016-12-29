@@ -317,7 +317,7 @@ module.exports = (function () {
     var newColor = Color.mix($colors, true)
     var newAlpha = 1 - $colors.map(function ($c) {
       return ($c instanceof ColorAlpha) ? $c.alpha() : 1
-    }).reduce(function (a, b) { return return (1-a) * (1-b) })
+    }).reduce(function (a, b) { return (1-a) * (1-b) })
     return new ColorAlpha(newColor.rgb(), newAlpha)
   }
 
