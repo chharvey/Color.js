@@ -391,15 +391,15 @@ module.exports = (function () {
     // ].map(Math.round))
     if (flag) {
     return new Color([
-      (w-1) * Math.pow(this.red()  , 2)  +  w * Math.pow($color.red()  , 2)
-    , (w-1) * Math.pow(this.green(), 2)  +  w * Math.pow($color.green(), 2)
-    , (w-1) * Math.pow(this.blue() , 2)  +  w * Math.pow($color.blue() , 2)
+      (1-w) * Math.pow(this.red()  , 2)  +  w * Math.pow($color.red()  , 2)
+    , (1-w) * Math.pow(this.green(), 2)  +  w * Math.pow($color.green(), 2)
+    , (1-w) * Math.pow(this.blue() , 2)  +  w * Math.pow($color.blue() , 2)
     ].map(function (n) { return Math.round(Math.sqrt(n)) }))
     }
     return new Color([
-      (w-1) * this.red()    +  w * $color.red()
-    , (w-1) * this.green()  +  w * $color.green()
-    , (w-1) * this.blue()   +  w * $color.blue()
+      (1-w) * this.red()    +  w * $color.red()
+    , (1-w) * this.green()  +  w * $color.green()
+    , (1-w) * this.blue()   +  w * $color.blue()
     ].map(Math.round))
   }
 
