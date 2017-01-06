@@ -360,30 +360,47 @@ module.exports = (function () {
    * `w == 0.5` (default if omitted) return a perfectly even mix.
    * In other words, `w` is "how much of the other color you want."
    * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
+   * When param `flag` is provided, this method uses a more mathematically accurate calculation,
+   * thus providing a more aesthetically accurate mix.
+   * TODO This will be the default behavior starting in v2.
+   * @see https://www.youtube.com/watch?v=LKnqECcg6Gw
    * @param {Color} $color the second color
    * @param {number=0.5} w between 0.0 and 1.0; the weight favoring the other color
+   * @param {flag=} flag if truthy, will use a more accurate calculation
    * @return {Color} a mix of the two given colors
    */
-  Color.prototype.mix = function mix($color, w) {
+  Color.prototype.mix = function mix($color, w, flag) {
     if (arguments.length >= 2) {
       ;
     } else return this.mix($color, 0.5)
-    /**
-     * Helper function. Average two numbers, with a weight favoring the 2nd number.
-     * The result will always be between the two numbers.
-     * @param  {number} a 1st number
-     * @param  {number} b 2nd number
-     * @param  {number} w number between [0,1]; weight of 2nd number
-     * @return {number} the weighted average of `a` and `b`
-     */
-    function average(a, b, w) {
-      return (a * (1-w)) + (b * w)
+    // /**
+    //  * Helper function. Average two numbers, with a weight favoring the 2nd number.
+    //  * The result will always be between the two numbers.
+    //  * @param  {number} a 1st number
+    //  * @param  {number} b 2nd number
+    //  * @param  {number} w number between [0,1]; weight of 2nd number
+    //  * @return {number} the weighted average of `a` and `b`
+    //  */
+    // function average(a, b, w) {
+    //   return (a * (1-w)) + (b * w)
+    // }
+    // return new Color([
+    //   average(this.red(),   $color.red(),   w)
+    // , average(this.green(), $color.green(), w)
+    // , average(this.blue(),  $color.blue(),  w)
+    // ].map(Math.round))
+    if (flag) {
+    return new Color([
+      (w-1) * Math.pow(this.red()  , 2)  +  w * Math.pow($color.red()  , 2)
+    , (w-1) * Math.pow(this.green(), 2)  +  w * Math.pow($color.green(), 2)
+    , (w-1) * Math.pow(this.blue() , 2)  +  w * Math.pow($color.blue() , 2)
+    ].map(function (n) { return Math.round(Math.sqrt(n)) }))
     }
     return new Color([
-      average(this.red(),   $color.red(),   w)
-    , average(this.green(), $color.green(), w)
-    , average(this.blue(),  $color.blue(),  w)
-    ]).map(Math.round)
+      (w-1) * this.red()    +  w * $color.red()
+    , (w-1) * this.green()  +  w * $color.green()
+    , (w-1) * this.blue()   +  w * $color.blue()
+    ].map(Math.round))
   }
 
   /**
@@ -615,16 +632,24 @@ module.exports = (function () {
    * is equivalent to calling `$a.mix($b)` without a weight.
    * However, calling `Color.mix([$a, $b, $c])` with 3 or more colors yields an even mix,
    * and will *NOT* yield the same results as calling `$a.mix($b).mix($c)`, which yields an uneven mix.
-   * Note that the order of the given colors does not change the result.
+   * Note that the order of the given colors does not change the result, that is,
+   * `Color.mix([$a, $b])` will return the same result as `Color.mix([$b, $a])`.
+   * When param `flag` is provided, this method uses a more mathematically accurate calculation,
+   * thus providing a more aesthetically accurate mix.
+   * TODO This will be the default behavior starting in v2.
    * @param {Array<Color>} $colors an array of Color objects, of length >=2
+   * @param {flag=} flag if truthy, will use a more accurate calculation
    * @return {Color} a mix of the given colors
    */
-  Color.mix = function mix($colors) {
+  Color.mix = function mix($colors, flag) {
     return new Color([
       $colors.map(function ($c) { return $c.red()   })
     , $colors.map(function ($c) { return $c.green() })
     , $colors.map(function ($c) { return $c.blue()  })
-    ].map(function ($arr) { return  Math.round($arr.reduce(function (a, b) { return a + b }) / $colors.length) }))
+    ].map(function ($arr) {
+      if (flag) return Math.round(Math.sqrt($arr.reduce(function (a, b) { return a*a + b*b }) / $colors.length))
+      return Math.round($arr.reduce(function (a, b) { return a + b }) / $colors.length)
+    }))
   }
 
   return Color
