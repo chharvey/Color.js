@@ -360,13 +360,18 @@ module.exports = (function () {
    * `w == 0.5` (default if omitted) return a perfectly even mix.
    * In other words, `w` is "how much of the other color you want."
    * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
-   * When param `flag` is provided, this method uses a more mathematically accurate calculation,
-   * thus providing a more aesthetically accurate mix.
-   * TODO This will be the default behavior starting in v2.
+   *
+   * When the boolean parameter `flag` is provided (and is truthy), this method uses a more
+   * visually accurate, slightly brighter, mix, used when blurring two colors together.
+   * This option is *required* if you are blurring two colors, and the mixed color
+   * is physically placed between the original colors.
+   * However it is *optional* if you are simply mixing colors and the originals
+   * cannot be seen next to the new mix.
+   *
    * @see https://www.youtube.com/watch?v=LKnqECcg6Gw
    * @param {Color} $color the second color
    * @param {number=0.5} w between 0.0 and 1.0; the weight favoring the other color
-   * @param {flag=} flag if truthy, will use a more accurate calculation
+   * @param {boolean=} flag if truthy, will use a more accurate calculation
    * @return {Color} a mix of the two given colors
    */
   Color.prototype.mix = function mix($color, w, flag) {
@@ -634,11 +639,9 @@ module.exports = (function () {
    * and will *NOT* yield the same results as calling `$a.mix($b).mix($c)`, which yields an uneven mix.
    * Note that the order of the given colors does not change the result, that is,
    * `Color.mix([$a, $b])` will return the same result as `Color.mix([$b, $a])`.
-   * When param `flag` is provided, this method uses a more mathematically accurate calculation,
-   * thus providing a more aesthetically accurate mix.
-   * TODO This will be the default behavior starting in v2.
+   * {@see Color#mix()} for description of `@param flag`.
    * @param {Array<Color>} $colors an array of Color objects, of length >=2
-   * @param {flag=} flag if truthy, will use a more accurate calculation
+   * @param {boolean=} flag if truthy, will use a more accurate calculation
    * @return {Color} a mix of the given colors
    */
   Color.mix = function mix($colors, flag) {
