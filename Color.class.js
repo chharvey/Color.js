@@ -397,50 +397,55 @@ module.exports = class Color {
 
   /**
    * Return a string representation of this color.
-   * If `space === 'hex'`, return `#rrggbb`
-   * If `space === 'hsv'`, return `hsv(h, s, v)`
-   * If `space === 'hsl'`, return `hsl(h, s, l)`
-   * If `space === 'hwb'`, return `hwb(h, w, b)`
-   * If `space === 'rgb'`, return `rgb(r, g, b)` (default)
+   * See {@link Color.ColorSpace} for types of arguments accepted.
    * The format of the numbers returned will be as follows:
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
    * - HSV/HSL-sat/val/lum and HWB-wht/blk values will be base 10 decimals in [0,1] rounded to the nearest 0.01
    * - all RGB values will be base 10 integers in [0,255], one to three digits
-   * IDEA may change the default to 'hex' instead of 'rgb', once browsers support ColorAlpha hex (#rrggbbaa)
-   * https://drafts.csswg.org/css-color/#hex-notation
-   * @param {string='rgb'} space represents the space in which this color exists
+   * IDEA may change the default to `.HEX` instead of `.RGB`, once browsers support ColorAlpha hex (#rrggbbaa)
+   * @see https://drafts.csswg.org/css-color/#hex-notation
+   * @param {Color.ColorSpace=} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
-  toString(space) {
-    if (space === 'hex') {
+  toString(space = Color.ColorSpace.RGB) {
+    if (space === Color.ColorSpace.HEX) {
       let r = Util.toHex(this.red())
       let g = Util.toHex(this.green())
       let b = Util.toHex(this.blue())
       return `#${r}${g}${b}`
     }
-    if (space === 'hsv') {
-      let h = Math.round(this.hsvHue() *  10) /  10
-      let s = Math.round(this.hsvSat() * 100) / 100
-      let v = Math.round(this.hsvVal() * 100) / 100
-      return `hsv(${h}, ${s}, ${v})`
+    let result;
+    switch (space) {
+      case Color.ColorSpace.HSV:
+        result = {
+          first  : Math.round(this.hsvHue() *  10) /  10,
+          second : Math.round(this.hsvSat() * 100) / 100,
+          third  : Math.round(this.hsvVal() * 100) / 100,
+        }
+        break;
+      case Color.ColorSpace.HSL:
+        result = {
+          first  : Math.round(this.hslHue() *  10) /  10,
+          second : Math.round(this.hslSat() * 100) / 100,
+          third  : Math.round(this.hslLum() * 100) / 100,
+        }
+        break;
+      case Color.ColorSpace.HWB:
+        result = {
+          first  : Math.round(this.hwbHue() *  10) /  10,
+          second : Math.round(this.hwbWht() * 100) / 100,
+          third  : Math.round(this.hwbBlk() * 100) / 100,
+        }
+        break;
+      default:
+        result = {
+          first  : this.red(),
+          second : this.green(),
+          third  : this.blue(),
+        }
     }
-    if (space === 'hsl') {
-      let h = Math.round(this.hslHue() *  10) /  10
-      let s = Math.round(this.hslSat() * 100) / 100
-      let l = Math.round(this.hslLum() * 100) / 100
-      return `hsl(${h}, ${s}, ${l})`
-    }
-    if (space === 'hwb') {
-      let h = Math.round(this.hwbHue() *  10) /  10
-      let w = Math.round(this.hwbWht() * 100) / 100
-      let b = Math.round(this.hwbBlk() * 100) / 100
-      return `hwb(${h}, ${w}, ${b})`
-    }
-    let r = this.red()
-    let g = this.green()
-    let b = this.blue()
-    return `rgb(${r}, ${g}, ${b})`
+    return `${space}(${result.first}, ${result.second}, ${result.third})`
   }
 
 
@@ -582,5 +587,24 @@ module.exports = class Color {
       }
       return Math.round($arr.reduce((a,b) => a + b) / $colors.length)
     }))
+  }
+
+  /**
+   * Enum for the types of string representations of colors.
+   * @enum {string}
+   */
+  static get ColorSpace() {
+    return {
+      /* Example: #rrggbb */
+      HEX: 'hex',
+      /* Example: rgb(r, g, b) */
+      RGB: 'rgb',
+      /* Example: hsv(h, s, v) */
+      HSV: 'hsv',
+      /* Example: hsl(h, s, l) */
+      HSL: 'hsl',
+      /* Example: hwb(h, w, b) */
+      HWB: 'hwb',
+    }
   }
 }

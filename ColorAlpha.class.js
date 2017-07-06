@@ -142,37 +142,24 @@ module.exports = class ColorAlpha extends Color {
   }
 
   /**
-   * Return a string representation of this color.
-   * If `space === 'hex'` , return `#rrggbbaa`
-   * If `space === 'hsva'`, return `hsva(h, s, v, a)`
-   * If `space === 'hsla'`, return `hsla(h, s, l, a)`
-   * If `space === 'hwba'`, return `hwba(h, w, b, a)` // NOTE not supported yet
-   * If `space === 'rgba'`, return `rgba(r, g, b, a)` (default)
-   * The format of the numbers returned will be as follows:
-   * - all HEX values for RGB, and hue/sat/val/lum will be of the same format as described in
-   *   {@link Color#toString}
-   * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
-   * IDEA may change the default to 'hex' instead of 'rgba', once browsers support ColorAlpha hex (#rrggbbaa)
-   * https://drafts.csswg.org/css-color/#hex-notation
    * @override
-   * @param {string='rgba'} space represents the space in which this color exists
+   * Return a string representation of this color.
+   * See {@link ColorAlpha.ColorSpace} for types of arguments accepted.
+   * The format of the numbers returned will be as follows:
+   * - all HEX values for RGB, and hue/sat/val/lum will be of the same format as described in {@link Color#toString}
+   * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
+   * IDEA may change the default to `.HEXA` instead of `.RGBA`, once browsers support ColorAlpha hex (#rrggbbaa)
+   * @see https://drafts.csswg.org/css-color/#hex-notation
+   * @param {ColorAlpha.ColorSpace=} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
-  toString(space) {
+  toString(space = ColorAlpha.ColorSpace.RGBA) {
+    if (space === ColorAlpha.ColorSpace.HEXA) {
+      return super.toString('hexa') + Util.toHex(Math.round(this.alpha()*255))
+    }
+    let superstring = super.toString(space.slice(0,-1)).slice(4,-1) // converts `'hwb(h, w, b)'` -> `'h, w, b'`
     let a = Math.round(this.alpha() * 1000) / 1000
-    if (space === 'hex') {
-      return super.toString('hex') + Util.toHex(Math.round(this.alpha()*255))
-    }
-    if (space === 'hsva') {
-      return `hsva(${super.toString('hsv').slice(4, -1)}, ${a})`
-    }
-    if (space === 'hsla') {
-      return `hsla(${super.toString('hsl').slice(4, -1)}, ${a})`
-    }
-    if (space === 'hwba') {
-      return `hwba(${super.toString('hwb').slice(4, -1)}, ${a})`
-    }
-    return `rgba(${super.toString('rgb').slice(4, -1)}, ${a})`
+    return `${space}(${superstring}, ${a})`
   }
 
 
@@ -272,5 +259,24 @@ module.exports = class ColorAlpha extends Color {
     let newColor = Color.mix($colors, blur)
     let newAlpha = Util.compoundOpacity($colors.map(($c) => ($c instanceof ColorAlpha) ? $c.alpha() : 1))
     return new ColorAlpha(newColor.rgb(), newAlpha)
+  }
+
+  /**
+   * Enum for the types of string representations of colors.
+   * @enum {string}
+   */
+  static get ColorSpace() {
+    return {
+      /* Example: #rrggbbaa */
+      HEXA: 'hexa',
+      /* Example: rgb(r, g, b, a) */
+      RGBA: 'rgba',
+      /* Example: hsv(h, s, v, a) */
+      HSVA: 'hsva',
+      /* Example: hsl(h, s, l, a) */
+      HSLA: 'hsla',
+      /* Example: hwb(h, w, b, a) */
+      HWBA: 'hwba',
+    }
   }
 }
