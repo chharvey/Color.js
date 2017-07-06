@@ -355,7 +355,7 @@ module.exports = class Color {
    * Compare this color with another color.
    * Return `true` if they are the same color.
    * @param  {Color} $color a Color object
-   * @return {boolean} true if the argument is the same color as this color
+   * @return {boolean} `true` if the argument is the same color as this color
    */
   equals($color) {
     return (this.hsvSat()===0 && $color.hsvSat()===0 && (this.hsvVal() === $color.hsvVal())) // NOTE speedy
@@ -519,7 +519,7 @@ module.exports = class Color {
     return Color.fromHSV([hue, 1 - wht / (1 - blk), 1 - blk])
     // HWB -> RGB:
     /*
-    var rgb = Color.fromHSL([hue, 1, 0.5]).rgb().map(function (el) { return el / 255 })
+    var rgb = Color.fromHSL([hue, 1, 0.5]).rgb().map((el) => el/255)
     for (var i = 0; i < 3; i++) {
       rgb[i] *= (1 - white - black);
       rgb[i] += white;

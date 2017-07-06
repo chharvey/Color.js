@@ -82,7 +82,6 @@ module.exports = class ColorAlpha extends Color {
 
   /**
    * @override
-   * @param  {number} a the number of degrees to rotate
    * @return {ColorAlpha} a new color corresponding to this color rotated by `a` degrees
    */
   rotate(a) {
@@ -91,8 +90,6 @@ module.exports = class ColorAlpha extends Color {
 
   /**
    * @override
-   * @param  {number} p must be between -1.0 and 1.0; the value by which to saturate this color
-   * @param  {boolean=} relative true if the saturation added is relative
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color saturated by `p`
    */
   saturate(p, relative) {
@@ -101,8 +98,6 @@ module.exports = class ColorAlpha extends Color {
 
   /**
    * @override
-   * @param {number} p must be between -1.0 and 1.0; the amount by which to lighten this color
-   * @param {boolean=} relative true if the luminosity added is relative
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color lightened by `p`
    */
   lighten(p, relative) {
@@ -121,9 +116,6 @@ module.exports = class ColorAlpha extends Color {
   /**
    * @override
    * @param {Color} $color the second color; may also be an instance of ColorAlpha
-   * @param {number=0.5} w between 0.0 and 1.0; the weight favoring the other color
-   * @param {boolean=} blur if truthy, will use a more accurate calculation
-   * @return {ColorAlpha} a mix of the two given colors
    */
   mix($color, w = 0.5, blur = false) {
     let newColor = super.mix($color, w, blur)
@@ -134,7 +126,6 @@ module.exports = class ColorAlpha extends Color {
   /**
    * @override
    * @param  {ColorAlpha} $colorAlpha a ColorAlpha object
-   * @return {boolean} true if the argument is the same color as this color
    */
   equals($colorAlpha) {
     let sameAlphas = (this.alpha() === $color.alpha()) // NOTE speedy
