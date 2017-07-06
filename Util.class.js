@@ -1,18 +1,12 @@
-/**
- * A utility class for performing calculations. Contains only static members.
- * This class is *not* exported with the package.
- * @type {Util}
- */
-module.exports = (function () {
-  // CONSTRUCTOR
-  function Util() {}
+module.exports = class Util {
+  /**
+   * A utility class for performing calculations. Contains only static members.
+   * This class is *not* exported with the package.
+   * @constructor
+   * @private
+   */
+  constructor() {}
 
-
-  // ACCESSOR FUNCTIONS
-
-  // METHODS
-
-  // STATIC MEMBERS
   /**
    * Convert a decimal number to a hexadecimal number, as a string.
    * The given number must be an integer within 0–255.
@@ -20,7 +14,7 @@ module.exports = (function () {
    * @param  {number} n an integer in base 10
    * @return {string} an integer in base 16 as a string
    */
-  Util.toHex = function toHex(n) {
+  static toHex(n) {
     return '0123456789abcdef'.charAt((n - n % 16) / 16) + '0123456789abcdef'.charAt(n % 16)
   }
 
@@ -31,8 +25,8 @@ module.exports = (function () {
    * @param  {string} n a number in base 16 as a string
    * @return {number} a number in base 10
    */
-  Util.toDec = function toDec(n) {
-    var tens, ones
+  static toDec(n) {
+    let tens, ones
     for (var i = 0; i < 16; i++) {
       if ('0123456789abcdef'.charAt(i) === n.slice(0,1)) tens = i*16
       if ('0123456789abcdef'.charAt(i) === n.slice(1,2)) ones = i
@@ -55,9 +49,7 @@ module.exports = (function () {
    * @param  {string} s the string to dissect
    * @return {Array<number>} an array of numbers
    */
-  Util.components = function components(n, s) {
-    return s.slice(n, -1).split(',').map(function (el) { return +el })
+  static components(n, s) {
+    return s.slice(n, -1).split(',').map((el) => +el)
   }
-
-  return Util
-})()
+}
