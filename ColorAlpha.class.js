@@ -1,15 +1,11 @@
 var Util = require('./Util.class.js')
 var Color = require('./Color.class.js')
 
-/**
- * A 32-bit color that can be displayed in a pixel, given three primary color components
- * and a transparency component.
- * @type {ColorAlpha}
- * @extends Color
- */
-module.exports = (function () {
-  // CONSTRUCTOR
+module.exports = class ColorAlpha extends Color {
   /**
+   * A 32-bit color that can be displayed in a pixel, given three primary color components
+   * and a transparency component.
+   *
    * Construct a ColorAlpha object.
    * Valid parameters:
    * - new ColorAlpha([60, 120, 240], 0.7) // [red, green, blue], alpha (translucent, rgba(r, g, b, alpha))
@@ -23,75 +19,65 @@ module.exports = (function () {
    * If RGB is given, alpha defaults to 1.0 (opaque).
    * If no RGB is given, alpha defaults to 0.0 (transparent).
    * @constructor
-   * @param {Array<number>=[0]} $rgb an array of 1 or 3 integers in [0,255]
-   * @param {number=(1|0)} alpha a number in [0,1]; the alpha, or opacity, of this color
+   * @extends Color
+   * @param {Array<number>=} $rgb an array of 1 or 3 integers in [0,255]
+   * @param {number=} alpha a number in [0,1]; the alpha, or opacity, of this color
    */
-  function ColorAlpha($rgb, alpha) {
-    var self = this
-    if (arguments.length >= 2 && $rgb.length >= 3) {
-      ;
-    } else if (arguments.length >= 2) {
-      return ColorAlpha.call(self, [$rgb[0], $rgb[0], $rgb[0]], alpha)
-    } else if (arguments.length >= 1 && $rgb instanceof Array) {
-      return ColorAlpha.call(self, $rgb, 1)
-    } else if (arguments.length >= 1) {
-      return ColorAlpha.call(self, [0], $rgb)
-    } else /* if (arguments.length < 1) */ {
-      return ColorAlpha.call(self, 0)
+  constructor($rgb, alpha = 1) {
+    if (Array.isArray($rgb)) {
+      super($rgb)
+    } else {
+      super()
+      alpha = (typeof $rgb === 'number') ? $rgb : 0
     }
-
-    // call the super. if alpha===0 then this color’s rgb will be [0,0,0].
-    if (alpha !== 0) Color.call(self, $rgb)
-    else             Color.call(self)
 
     /**
      * The alpha component of this color. An number in [0,1].
      * @type {number}
      */
-    self._ALPHA = alpha
+    this._ALPHA = alpha
   }
-  ColorAlpha.prototype = Object.create(Color.prototype)
-  ColorAlpha.prototype.constructor = ColorAlpha
 
 
-  // ACCESSOR FUNCTIONS
   /**
    * Get the alpha (opacity) of this color.
    * @return {number} the alpha of this color
    */
-  ColorAlpha.prototype.alpha = function alpha() { return this._ALPHA }
+  alpha() { return this._ALPHA }
+
 
   // Convenience getter functions.
   /**
    * Return an array of RGBA components (in that order).
    * @return {Array<number>} an array of RGBA components
    */
-  ColorAlpha.prototype.rgba = function rgba() { return this.rgb().concat(this.alpha()) }
+  rgba() { return this.rgb().concat(this.alpha()) }
+
   /**
    * Return an array of HSVA components (in that order).
    * @return {Array<number>} an array of HSVA components
    */
-  ColorAlpha.prototype.hsva = function hsva() { return this.hsv().concat(this.alpha()) }
+  hsva() { return this.hsv().concat(this.alpha()) }
+
   /**
    * Return an array of HSLA components (in that order).
    * @return {Array<number>} an array of HSLA components
    */
-  ColorAlpha.prototype.hsla = function hsla() { return this.hsl().concat(this.alpha()) }
+  hsla() { return this.hsl().concat(this.alpha()) }
+
   /**
    * Return an array of HWBA components (in that order).
    * @return {Array<number>} an array of HWBA components
    */
-  ColorAlpha.prototype.hwba = function hwba() { return this.hwb().concat(this.alpha()) }
+  hwba() { return this.hwb().concat(this.alpha()) }
 
-
-  // METHODS
 
   /**
    * @override
    * @return {ColorAlpha} the complement of this color
    */
-  ColorAlpha.prototype.complement = function complement() {
-    return new ColorAlpha(Color.prototype.complement.call(this).rgb(), this.alpha())
+  complement() {
+    return new ColorAlpha(super.complement().rgb(), this.alpha())
   }
 
   /**
@@ -99,8 +85,8 @@ module.exports = (function () {
    * @param  {number} a the number of degrees to rotate
    * @return {ColorAlpha} a new color corresponding to this color rotated by `a` degrees
    */
-  ColorAlpha.prototype.rotate = function rotate(a) {
-    return new ColorAlpha(Color.prototype.rotate.call(this, a).rgb(), this.alpha())
+  rotate(a) {
+    return new ColorAlpha(super.rotate(a).rgb(), this.alpha())
   }
 
   /**
@@ -109,8 +95,8 @@ module.exports = (function () {
    * @param  {boolean=} relative true if the saturation added is relative
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color saturated by `p`
    */
-  ColorAlpha.prototype.saturate = function saturate(p, relative) {
-    return new ColorAlpha(Color.prototype.saturate.call(this, p, relative).rgb(), this.alpha())
+  saturate(p, relative) {
+    return new ColorAlpha(super.saturate(p, relative).rgb(), this.alpha())
   }
 
   /**
@@ -120,11 +106,11 @@ module.exports = (function () {
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color lightened by `p`
    */
   // CHANGED DEPRECATED v2 remove
-  ColorAlpha.prototype.brighten = function brighten(p, relative) {
+  brighten(p, relative) {
     return this.lighten(p, relative)
   }
-  ColorAlpha.prototype.lighten = function lighten(p, relative) {
-    return new ColorAlpha(Color.prototype.lighten.call(this, p, relative).rgb(), this.alpha())
+  lighten(p, relative) {
+    return new ColorAlpha(super.lighten(p, relative).rgb(), this.alpha())
   }
 
   /**
@@ -132,7 +118,7 @@ module.exports = (function () {
    * An alpha of, for example, 0.7, complemented, is 0.3 (the complement with 1.0).
    * @return {ColorAlpha} a new ColorAlpha object with the same color but complemented alpha
    */
-  ColorAlpha.prototype.negative = function negative() {
+  negative() {
     return new ColorAlpha(this.rgb(), 1 - this.alpha())
   }
 
@@ -143,9 +129,9 @@ module.exports = (function () {
    * @param {boolean=} flag if truthy, will use a more accurate calculation
    * @return {ColorAlpha} a mix of the two given colors
    */
-  ColorAlpha.prototype.mix = function mix($color, w, flag) {
-    var newColor = Color.prototype.mix.call(this, $color, w, flag)
-    var newAlpha = (function compoundOpacity(a, b) {
+  mix($color, w = 0.5, flag = false) {
+    let newColor = super.mix($color, w, flag)
+    let newAlpha = (function compoundOpacity(a, b) {
       return 1 - ( (1-a) * (1-b) )
     })(this.alpha(), ($color instanceof ColorAlpha) ? $color.alpha() : 1)
     return new ColorAlpha(newColor.rgb(), newAlpha)
@@ -156,9 +142,9 @@ module.exports = (function () {
    * @param  {ColorAlpha} $colorAlpha a ColorAlpha object
    * @return {boolean} true if the argument is the same color as this color
    */
-  ColorAlpha.prototype.equals = function equals($colorAlpha) {
-    var sameAlphas = (this.alpha() === $color.alpha()) // NOTE speedy
-    return sameAlphas && (this.alpha()===0 || Color.prototype.equals.call(this, $colorAlpha))
+  equals($colorAlpha) {
+    let sameAlphas = (this.alpha() === $color.alpha()) // NOTE speedy
+    return sameAlphas && (this.alpha()===0 || super.equals($colorAlpha))
   }
 
   /**
@@ -178,30 +164,25 @@ module.exports = (function () {
    * @param {string='rgba'} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
-  ColorAlpha.prototype.toString = function toString(space) {
-    var a = Math.round(this.alpha() * 1000) / 1000
+  toString(space) {
+    let a = Math.round(this.alpha() * 1000) / 1000
     // CHANGED v2 remove 'hexa'
     if (space === 'hex' || space==='hexa') {
-      return Color.prototype.toString.call(this, 'hex') + Util.toHex(Math.round(this.alpha()*255))
+      return super.toString('hex') + Util.toHex(Math.round(this.alpha()*255))
     }
     if (space === 'hsva') {
-      return 'hsva(' + Color.prototype.toString.call(this, 'hsv').slice(4, -1) + ', ' + a + ')'
-      // return `hsva(${Color.prototype.toString.call(this, 'hsv').slice(4, -1)}, ${a})` // CHANGED ES6
+      return `hsva(${super.toString('hsv').slice(4, -1)}, ${a})`
     }
     if (space === 'hsla') {
-      return 'hsla(' + Color.prototype.toString.call(this, 'hsl').slice(4, -1) + ', ' + a + ')'
-      // return `hsla(${Color.prototype.toString.call(this, 'hsl').slice(4, -1)}, ${a})` // CHANGED ES6
+      return `hsla(${super.toString('hsl').slice(4, -1)}, ${a})`
     }
     if (space === 'hwba') {
-      return 'hwba(' + Color.prototype.toString.call(this, 'hwb').slice(4, -1) + ', ' + a + ')'
-      // return `hwba(${Color.prototype.toString.call(this, 'hwb').slice(4, -1)}, ${a})` // CHANGED ES6
+      return `hwba(${super.toString('hwb').slice(4, -1)}, ${a})`
     }
-    return 'rgba(' + Color.prototype.toString.call(this, 'rgb').slice(4, -1) + ', ' + a + ')'
-    // return `rgba(${Color.prototype.toString.call(this, 'rgb').slice(4, -1)}, ${a})` // CHANGED ES6
+    return `rgba(${super.toString('rgb').slice(4, -1)}, ${a})`
   }
 
 
-  // STATIC MEMBERS
   /**
    * Return a new ColorAlpha object, given hue, saturation, and value in HSV-space,
    * and an alpha component.
@@ -216,7 +197,7 @@ module.exports = (function () {
    * @param {number=} alpha must be between 0.0 and 1.0; alpha (opacity)
    * @return {ColorAlpha} a new ColorAlpha object with hsva(hue, sat, val, alpha)
    */
-  ColorAlpha.fromHSVA = function fromHSVA(hue, sat, val, alpha) {
+  static fromHSVA(hue, sat, val, alpha) {
     if (Array.isArray(hue)) {
       return Color.fromHSVA(hue[0], hue[1], hue[2], sat)
     }
@@ -237,7 +218,7 @@ module.exports = (function () {
    * @param {number=} alpha must be between 0.0 and 1.0; alpha (opacity)
    * @return {ColorAlpha} a new ColorAlpha object with hsla(hue, sat, lum, alpha)
    */
-  ColorAlpha.fromHSLA = function fromHSLA(hue, sat, lum, alpha) {
+  static fromHSLA(hue, sat, lum, alpha) {
     if (Array.isArray(hue)) {
       return Color.fromHSVA(hue[0], hue[1], hue[2], sat)
     }
@@ -258,7 +239,7 @@ module.exports = (function () {
    * @param {number=} alpha must be between 0.0 and 1.0; alpha (opacity)
    * @return {ColorAlpha} a new ColorAlpha object with hwba(hue, wht, blk, alpha)
    */
-  ColorAlpha.fromHWBA = function fromHWBA(hue, wht, blk, alpha) {
+  static fromHWBA(hue, wht, blk, alpha) {
     if (Array.isArray(hue)) {
       return Color.fromHSVA(hue[0], hue[1], hue[2], wht)
     }
@@ -279,30 +260,30 @@ module.exports = (function () {
    * @param {string} str a string of one of the forms described
    * @return {ColorAlpha} a new ColorAlpha object constructed from the given string
    */
-  ColorAlpha.fromString = function fromString(str) {
-    var is_opaque = Color.fromString(str)
+  static fromString(str) {
+    let is_opaque = Color.fromString(str)
     if (is_opaque) {
       return new ColorAlpha(is_opaque.rgb())
     }
     if (str.slice(0,1) === '#' && str.length === 9) {
       return new ColorAlpha([
-        str.slice(1,3)
-      , str.slice(3,5)
-      , str.slice(5,7)
+        str.slice(1,3),
+        str.slice(3,5),
+        str.slice(5,7),
       ].map(Util.toDec), Util.toDec(str.slice(7,9))/255)
     }
     if (str.slice(0,5) === 'rgba(') {
-      var comps = Util.components(5, str)
+      let comps = Util.components(5, str)
       return new ColorAlpha(comps.slice(0,3), comps[3])
     }
     if (str.slice(0,5) === 'hsva(') {
-      return ColorAlpha.fromHSVA.apply(null, Util.components(5, str))
+      return ColorAlpha.fromHSVA(...Util.components(5, str))
     }
     if (str.slice(0,5) === 'hsla(') {
-      return ColorAlpha.fromHSLA.apply(null, Util.components(5, str))
+      return ColorAlpha.fromHSLA(...Util.components(5, str))
     }
     if (str.slice(0,5) === 'hwba(') {
-      return ColorAlpha.fromHWBA.apply(null, Util.components(5, str))
+      return ColorAlpha.fromHWBA(...Util.components(5, str))
     }
     return null
   }
@@ -314,13 +295,9 @@ module.exports = (function () {
    * @param {boolean=} flag if truthy, will use a more accurate calculation
    * @return {ColorAlpha} a mix of the given colors
    */
-  ColorAlpha.mix = function mix($colors, flag) {
-    var newColor = Color.mix($colors, flag)
-    var newAlpha = 1 - $colors.map(function ($c) {
-      return ($c instanceof ColorAlpha) ? $c.alpha() : 1
-    }).reduce(function (a, b) { return (1-a) * (1-b) })
+  static mix($colors, flag = false) {
+    let newColor = Color.mix($colors, flag)
+    let newAlpha = 1 - $colors.map(($c) => ($c instanceof ColorAlpha) ? $c.alpha() : 1).reduce((a,b) => (1-a) * (1-b))
     return new ColorAlpha(newColor.rgb(), newAlpha)
   }
-
-  return Color
-})()
+}
