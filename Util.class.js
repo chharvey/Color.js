@@ -52,4 +52,19 @@ module.exports = class Util {
   static components(n, s) {
     return s.slice(n, -1).split(',').map((el) => +el)
   }
+
+  /**
+   * Calculate the alpha of two or more overlapping translucent colors.
+   * For two overlapping colors with respective alphas `a` and `b`, the compounded alpha
+   * of an even mix will be `1 - (1-a)*(1-b)`.
+   * For three, it would be `1 - (1-a)*(1-b)*(1-c)`.
+   * An alpha is a number within the interval [0,1], and represents the opacity
+   * of a translucent color. An alpha of 0 is completely transparent; an alpha
+   * of 1 is completely opaque.
+   * @param  {Array<number>} alphas an array of alphas
+   * @return {number} the compounded alpha
+   */
+  static compoundOpacity(alphas) {
+    return 1 - alphas.map((a) => 1-a).reduce((a,b) => a*b)
+  }
 }

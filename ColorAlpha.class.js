@@ -127,9 +127,7 @@ module.exports = class ColorAlpha extends Color {
    */
   mix($color, w = 0.5, flag = false) {
     let newColor = super.mix($color, w, flag)
-    let newAlpha = (function compoundOpacity(a, b) {
-      return 1 - ( (1-a) * (1-b) )
-    })(this.alpha(), ($color instanceof ColorAlpha) ? $color.alpha() : 1)
+    let newAlpha = Util.compoundOpacity([this.alpha(), ($color instanceof ColorAlpha) ? $color.alpha() : 1])
     return new ColorAlpha(newColor.rgb(), newAlpha)
   }
 
@@ -272,7 +270,7 @@ module.exports = class ColorAlpha extends Color {
    */
   static mix($colors, flag = false) {
     let newColor = Color.mix($colors, flag)
-    let newAlpha = 1 - $colors.map(($c) => ($c instanceof ColorAlpha) ? $c.alpha() : 1).reduce((a,b) => (1-a) * (1-b))
+    let newAlpha = Util.compoundOpacity($colors.map(($c) => ($c instanceof ColorAlpha) ? $c.alpha() : 1))
     return new ColorAlpha(newColor.rgb(), newAlpha)
   }
 }
