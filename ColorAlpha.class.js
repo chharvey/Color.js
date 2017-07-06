@@ -122,11 +122,11 @@ module.exports = class ColorAlpha extends Color {
    * @override
    * @param {Color} $color the second color; may also be an instance of ColorAlpha
    * @param {number=0.5} w between 0.0 and 1.0; the weight favoring the other color
-   * @param {boolean=} flag if truthy, will use a more accurate calculation
+   * @param {boolean=} blur if truthy, will use a more accurate calculation
    * @return {ColorAlpha} a mix of the two given colors
    */
-  mix($color, w = 0.5, flag = false) {
-    let newColor = super.mix($color, w, flag)
+  mix($color, w = 0.5, blur = false) {
+    let newColor = super.mix($color, w, blur)
     let newAlpha = Util.compoundOpacity([this.alpha(), ($color instanceof ColorAlpha) ? $color.alpha() : 1])
     return new ColorAlpha(newColor.rgb(), newAlpha)
   }
@@ -265,11 +265,11 @@ module.exports = class ColorAlpha extends Color {
    * ColorAlpha equivalent of {@see Color.mix}.
    * {@see Color#mix()} for description of `@param flag`.
    * @param {Array<Color>} $colors an array of Color (or ColorAlpha) objects, of length >=2
-   * @param {boolean=} flag if truthy, will use a more accurate calculation
+   * @param {boolean=} blur if truthy, will use a more accurate calculation
    * @return {ColorAlpha} a mix of the given colors
    */
-  static mix($colors, flag = false) {
-    let newColor = Color.mix($colors, flag)
+  static mix($colors, blur = false) {
+    let newColor = Color.mix($colors, blur)
     let newAlpha = Util.compoundOpacity($colors.map(($c) => ($c instanceof ColorAlpha) ? $c.alpha() : 1))
     return new ColorAlpha(newColor.rgb(), newAlpha)
   }

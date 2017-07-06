@@ -323,7 +323,7 @@ module.exports = class Color {
    * In other words, `w` is "how much of the other color you want."
    * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
    *
-   * When the boolean parameter `flag` is provided (and is truthy), this method uses a more
+   * When the boolean parameter `blur` is provided (and is truthy), this method uses a more
    * visually accurate, slightly brighter, mix, used when blurring two colors together.
    * This option is *required* if you are blurring two colors, and the mixed color
    * is physically placed between the original colors.
@@ -333,16 +333,16 @@ module.exports = class Color {
    * @see https://www.youtube.com/watch?v=LKnqECcg6Gw
    * @param {Color} $color the second color
    * @param {number=0.5} w between 0.0 and 1.0; the weight favoring the other color
-   * @param {boolean=} flag if truthy, will use a more accurate calculation
+   * @param {boolean=} blur if truthy, will use a more accurate calculation
    * @return {Color} a mix of the two given colors
    */
-  mix($color, w = 0.5, flag = false) {
-    if (flag) {
-    return new Color([
-      (1-w) * Math.pow(this.red()  , 2)  +  w * Math.pow($color.red()  , 2),
-      (1-w) * Math.pow(this.green(), 2)  +  w * Math.pow($color.green(), 2),
-      (1-w) * Math.pow(this.blue() , 2)  +  w * Math.pow($color.blue() , 2),
-    ].map((n) => Math.round(Math.sqrt(n))))
+  mix($color, w = 0.5, blur = false) {
+    if (blur) {
+      return new Color([
+        (1-w) * Math.pow(this.red()  , 2)  +  w * Math.pow($color.red()  , 2),
+        (1-w) * Math.pow(this.green(), 2)  +  w * Math.pow($color.green(), 2),
+        (1-w) * Math.pow(this.blue() , 2)  +  w * Math.pow($color.blue() , 2),
+      ].map((n) => Math.round(Math.sqrt(n))))
     }
     return new Color([
       (1-w) * this.red()    +  w * $color.red(),
@@ -564,20 +564,20 @@ module.exports = class Color {
    * However, calling `Color.mix([$a, $b, $c])` with 3 or more colors yields an even mix,
    * and will *NOT* yield the same results as calling `$a.mix($b).mix($c)`, which yields an uneven mix.
    * Note that the order of the given colors does not change the result, that is,
-   * `Color.mix([$a, $b])` will return the same result as `Color.mix([$b, $a])`.
-   * {@see Color#mix()} for description of `@param flag`.
+   * `Color.mix([$a, $b, $c])` will return the same result as `Color.mix([$c, $b, $a])`.
+   * {@see Color#mix()} for description of `@param blur`.
    * @param {Array<Color>} $colors an array of Color objects, of length >=2
-   * @param {boolean=} flag if truthy, will use a more accurate calculation
+   * @param {boolean=} blur if truthy, will use a more accurate calculation
    * @return {Color} a mix of the given colors
    */
-  static mix($colors, flag = false) {
+  static mix($colors, blur = false) {
     return new Color([
       $colors.map(($c) => $c.red()),
       $colors.map(($c) => $c.green()),
       $colors.map(($c) => $c.blue()),
     ].map(function ($arr) {
-      if (flag) {
-      return Math.round(Math.sqrt($arr.reduce((a,b) => a*a + b*b) / $colors.length))
+      if (blur) {
+        return Math.round(Math.sqrt($arr.reduce((a,b) => a*a + b*b) / $colors.length))
       }
       return Math.round($arr.reduce((a,b) => a + b) / $colors.length)
     }))
