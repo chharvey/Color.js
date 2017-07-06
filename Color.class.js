@@ -87,7 +87,7 @@ module.exports = class Color {
       (r, g, b) => ((g - b) / this._chroma + 6) % 6 * 60,
       (r, g, b) => ((b - r) / this._chroma + 2)     * 60,
       (r, g, b) => ((r - g) / this._chroma + 4)     * 60,
-    ][rgb_norm.indexOf(this._max)].call(null, ...rgb_norm)
+    ][rgb_norm.indexOf(this._max)](...rgb_norm)
     /*
      * Exercise: prove:
      * _HSV_HUE === Math.atan2(Math.sqrt(3) * (g - b), 2*r - g - b)
@@ -241,7 +241,7 @@ module.exports = class Color {
    * @return {Color} a new Color object corresponding to this color rotated by `a` degrees
    */
   rotate(a) {
-    return Color.fromHSV(((this.hsvHue() + a) % 360), this.hsvSat(), this.hsvVal())
+    return Color.fromHSV([((this.hsvHue() + a) % 360), this.hsvSat(), this.hsvVal()])
   }
 
   /**
@@ -265,7 +265,7 @@ module.exports = class Color {
   saturate(p, relative = false) {
     let newsat = this.hslSat() + (relative ? (this.hslSat() * p) : p)
     newsat = Math.min(Math.max(0, newsat), 1)
-    return Color.fromHSL(this.hslHue(), newsat, this.hslLum())
+    return Color.fromHSL([this.hslHue(), newsat, this.hslLum()])
   }
 
   /**
@@ -300,7 +300,7 @@ module.exports = class Color {
   lighten(p, relative = false) {
     var newlum = this.hslLum() + (relative ? (this.hslLum() * p) : p)
     newlum = Math.min(Math.max(0, newlum), 1)
-    return Color.fromHSL(this.hslHue(), this.hslSat(), newlum)
+    return Color.fromHSL([this.hslHue(), this.hslSat(), newlum])
   }
 
   /**
@@ -511,10 +511,10 @@ module.exports = class Color {
     let hue = $hwb[0]
     let wht = $hwb[1]
     let blk = $hwb[2]
-    return Color.fromHSV(hue, 1 - wht / (1 - blk), 1 - blk)
+    return Color.fromHSV([hue, 1 - wht / (1 - blk), 1 - blk])
     // HWB -> RGB:
     /*
-    var rgb = Color.fromHSL(hue, 1, 0.5).rgb().map(function (el) { return el / 255 })
+    var rgb = Color.fromHSL([hue, 1, 0.5]).rgb().map(function (el) { return el / 255 })
     for (var i = 0; i < 3; i++) {
       rgb[i] *= (1 - white - black);
       rgb[i] += white;
@@ -542,17 +542,18 @@ module.exports = class Color {
         str.slice(5,7),
       ].map(Util.toDec))
     }
+    let comps = Util.components(4, str)
     if (str.slice(0,4) === 'rgb(') {
-      return new Color(Util.components(4, str))
+      return new Color(comps)
     }
     if (str.slice(0,4) === 'hsv(') {
-      return Color.fromHSV(...Util.components(4, str))
+      return Color.fromHSV(comps)
     }
     if (str.slice(0,4) === 'hsl(') {
-      return Color.fromHSL(...Util.components(4, str))
+      return Color.fromHSL(comps)
     }
     if (str.slice(0,4) === 'hwb(') {
-      return Color.fromHWB(...Util.components(4, str))
+      return Color.fromHWB(comps)
     }
     return null
   }

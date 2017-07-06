@@ -245,18 +245,18 @@ module.exports = class ColorAlpha extends Color {
         str.slice(5,7),
       ].map(Util.toDec), Util.toDec(str.slice(7,9))/255)
     }
+    let comps = Util.components(5, str)
     if (str.slice(0,5) === 'rgba(') {
-      let comps = Util.components(5, str)
       return new ColorAlpha(comps.slice(0,3), comps[3])
     }
     if (str.slice(0,5) === 'hsva(') {
-      return ColorAlpha.fromHSVA(...Util.components(5, str))
+      return ColorAlpha.fromHSVA(comps.slice(0,3), comps[3])
     }
     if (str.slice(0,5) === 'hsla(') {
-      return ColorAlpha.fromHSLA(...Util.components(5, str))
+      return ColorAlpha.fromHSLA(comps.slice(0,3), comps[3])
     }
     if (str.slice(0,5) === 'hwba(') {
-      return ColorAlpha.fromHWBA(...Util.components(5, str))
+      return ColorAlpha.fromHWBA(comps.slice(0,3), comps[3])
     }
     return null
   }
