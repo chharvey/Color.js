@@ -1,8 +1,11 @@
 var Util = require('./Util.class.js')
 
+/**
+ * A 24-bit color ("True Color") that can be displayed in a pixel, given three primary color components.
+ * @module
+ */
 module.exports = class Color {
   /**
-   * A 24-bit color ("True Color") that can be displayed in a pixel, given three primary color components.
    *
    * Construct a Color object.
    * Valid parameters:
@@ -14,7 +17,6 @@ module.exports = class Color {
    * If the length is 1, the red, green, and blue components are equal to that number,
    * which will produce a grayscale color.
    * If no argument is given, the color will be black (#000000).
-   * @constructor
    * @param {Array<number>=} $rgb an array of 1 or 3 integers in [0,255]
    */
   constructor($rgb = [0]) {

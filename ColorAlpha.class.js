@@ -1,11 +1,14 @@
 var Util = require('./Util.class.js')
 var Color = require('./Color.class.js')
 
+/**
+ * A 32-bit color that can be displayed in a pixel, given three primary color components
+ * and a transparency component.
+ * @extends Color
+ * @module
+ */
 module.exports = class ColorAlpha extends Color {
   /**
-   * A 32-bit color that can be displayed in a pixel, given three primary color components
-   * and a transparency component.
-   *
    * Construct a ColorAlpha object.
    * Valid parameters:
    * - new ColorAlpha([60, 120, 240], 0.7) // [red, green, blue], alpha (translucent, rgba(r, g, b, alpha))
@@ -18,8 +21,6 @@ module.exports = class ColorAlpha extends Color {
    * See {@see Color} for specs on the RGB array. The alpha must be a (decimal) number 0–1.
    * If RGB is given, alpha defaults to 1.0 (opaque).
    * If no RGB is given, alpha defaults to 0.0 (transparent).
-   * @constructor
-   * @extends Color
    * @param {Array<number>=} $rgb an array of 1 or 3 integers in [0,255]
    * @param {number=} alpha a number in [0,1]; the alpha, or opacity, of this color
    */

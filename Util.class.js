@@ -1,11 +1,10 @@
+/**
+ * A utility class for performing calculations. Contains only static members.
+ * This class is *not* exported with the package.
+ * @module
+ */
 module.exports = class Util {
-  /**
-   * A utility class for performing calculations. Contains only static members.
-   * This class is *not* exported with the package.
-   * @constructor
-   * @private
-   */
-  constructor() {}
+  /** @private */ constructor() {}
 
   /**
    * Convert a decimal number to a hexadecimal number, as a string.
