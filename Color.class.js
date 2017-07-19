@@ -324,33 +324,33 @@ module.exports = class Color {
    * `w == 0.5` (default if omitted) return a perfectly even mix.
    * In other words, `w` is "how much of the other color you want."
    * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
-   *
-   * When the boolean parameter `blur` is provided (and is truthy), this method uses a more
-   * visually accurate, slightly brighter, mix, used when blurring two colors together.
-   * This option is *required* if you are blurring two colors, and the mixed color
-   * is physically placed between the original colors.
-   * However it is *optional* if you are simply mixing colors and the originals
-   * cannot be seen next to the new mix.
-   *
-   * @see https://www.youtube.com/watch?v=LKnqECcg6Gw
    * @param {Color} $color the second color
-   * @param {number=0.5} w between 0.0 and 1.0; the weight favoring the other color
-   * @param {boolean=} blur if truthy, will use a more accurate calculation
+   * @param {number=} w between 0.0 and 1.0; the weight favoring the other color
    * @return {Color} a mix of the two given colors
    */
-  mix($color, w = 0.5, blur = false) {
-    if (blur) {
-      return new Color([
-        (1-w) * Math.pow(this.red()  , 2)  +  w * Math.pow($color.red()  , 2),
-        (1-w) * Math.pow(this.green(), 2)  +  w * Math.pow($color.green(), 2),
-        (1-w) * Math.pow(this.blue() , 2)  +  w * Math.pow($color.blue() , 2),
-      ].map((n) => Math.round(Math.sqrt(n))))
-    }
+  mix($color, w = 0.5) {
     return new Color([
       (1-w) * this.red()    +  w * $color.red(),
       (1-w) * this.green()  +  w * $color.green(),
       (1-w) * this.blue()   +  w * $color.blue(),
     ].map(Math.round))
+  }
+
+  /**
+   * Blur another color with this color, with a given weight favoring that color.
+   * Behaves almost exactly the same as {@link Color#mix()}, except that this method uses a more
+   * visually accurate, slightly brighter, mix.
+   * @see https://www.youtube.com/watch?v=LKnqECcg6Gw
+   * @param  {Color} $color the second color
+   * @param  {number=} w between 0.0 and 1.0; the weight favoring the other color
+   * @return {Color} a blur of the two given colors
+   */
+  blur($color, w = 0.5) {
+    return new Color([
+      (1-w) * Math.pow(this.red()  , 2)  +  w * Math.pow($color.red()  , 2),
+      (1-w) * Math.pow(this.green(), 2)  +  w * Math.pow($color.green(), 2),
+      (1-w) * Math.pow(this.blue() , 2)  +  w * Math.pow($color.blue() , 2),
+    ].map((n) => Math.round(Math.sqrt(n))))
   }
 
   /**

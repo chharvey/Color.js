@@ -118,8 +118,18 @@ module.exports = class ColorAlpha extends Color {
    * @override
    * @param {Color} $color the second color; may also be an instance of ColorAlpha
    */
-  mix($color, w = 0.5, blur = false) {
-    let newColor = super.mix($color, w, blur)
+  mix($color, w = 0.5) {
+    let newColor = super.mix($color, w)
+    let newAlpha = Util.compoundOpacity([this.alpha(), ($color instanceof ColorAlpha) ? $color.alpha() : 1])
+    return new ColorAlpha(newColor.rgb(), newAlpha)
+  }
+
+  /**
+   * @override
+   * @param {Color} $color the second color; may also be an instance of ColorAlpha
+   */
+  blur($color, w = 0.5) {
+    let newColor = super.blur($color, w)
     let newAlpha = Util.compoundOpacity([this.alpha(), ($color instanceof ColorAlpha) ? $color.alpha() : 1])
     return new ColorAlpha(newColor.rgb(), newAlpha)
   }
