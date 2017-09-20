@@ -49,7 +49,7 @@ module.exports = class Color {
     // helper calculations
     /** @private */ this._max = Math.max(this._RED, this._GREEN, this._BLUE) / 255
     /** @private */ this._min = Math.min(this._RED, this._GREEN, this._BLUE) / 255
-    /** @private */ this._chroma = _max - _min
+    /** @private */ this._chroma = this._max - this._min
   }
 
 
