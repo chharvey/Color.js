@@ -20,7 +20,6 @@ module.exports = class Color {
    * @param {Array<number>=} $rgb an array of 1 or 3 integers in [0,255]
    */
   constructor($rgb = [0]) {
-    let self = this
     if ($rgb.length < 3) {
       $rgb = [ $rgb[0], $rgb[0], $rgb[0] ]
     }
@@ -57,19 +56,19 @@ module.exports = class Color {
    * Get the red component of this color.
    * @return {number} the red component of this color
    */
-  red() { return this._RED }
+  get red() { return this._RED }
 
   /**
    * Get the green component of this color.
    * @return {number} the green component of this color
    */
-  green() { return this._GREEN }
+  get green() { return this._GREEN }
 
   /**
    * Get the blue component of this color.
    * @return {number} the blue component of this color
    */
-  blue() { return this._BLUE }
+  get blue() { return this._BLUE }
 
 
   /**
@@ -78,7 +77,7 @@ module.exports = class Color {
    * A number bound by [0, 360).
    * @return {number} the hsv-hue of this color
    */
-  hsvHue() {
+  get hsvHue() {
     if (this._chroma === 0) return 0
     let rgb_norm = [
       this._RED   / 255,
@@ -103,8 +102,8 @@ module.exports = class Color {
    * A number bound by [0, 1].
    * @return {number} the hsv-saturation of this color
    */
-  hsvSat() {
-    return (this._chroma === 0) ? 0 : this._chroma / this.hsvVal()
+  get hsvSat() {
+    return (this._chroma === 0) ? 0 : this._chroma / this.hsvVal
   }
 
   /**
@@ -114,7 +113,7 @@ module.exports = class Color {
    * A number bound by [0, 1].
    * @return {number} the hsv-value of this color
    */
-  hsvVal() {
+  get hsvVal() {
     return this._max
   }
 
@@ -125,8 +124,8 @@ module.exports = class Color {
    * A number bound by [0, 360).
    * @return {number} the hsl-hue of this color
    */
-  hslHue() {
-    return this.hsvHue()
+  get hslHue() {
+    return this.hsvHue
   }
 
   /**
@@ -136,11 +135,11 @@ module.exports = class Color {
    * A number bound by [0, 1].
    * @return {number} the hsl-saturation of this color
    */
-  hslSat() {
-    return (this._chroma === 0) ? 0 : (this._chroma / ((this.hslLum() <= 0.5) ? 2*this.hslLum() : (2 - 2*this.hslLum())))
+  get hslSat() {
+    return (this._chroma === 0) ? 0 : (this._chroma / ((this.hslLum <= 0.5) ? 2*this.hslLum : (2 - 2*this.hslLum)))
     /*
      * Exercise: prove:
-     * _HSL_SAT === _chroma / (1 - Math.abs(2*self._HSL_LUM - 1))
+     * _HSL_SAT === _chroma / (1 - Math.abs(2*this.hslLum - 1))
      * Proof:
      * denom == (function (x) {
      *   if (x <= 0.5) return 2x
@@ -160,7 +159,7 @@ module.exports = class Color {
    * A number bound by [0, 1].
    * @return {number} the hsl-luminosity of this color
    */
-  hslLum() {
+  get hslLum() {
     return 0.5 * (this._max + this._min)
   }
 
@@ -171,8 +170,8 @@ module.exports = class Color {
    * A number bound by [0, 360).
    * @return {number} the hwb-hue of this color
    */
-  hwbHue() {
-    return this.hsvHue()
+  get hwbHue() {
+    return this.hsvHue
   }
 
   /**
@@ -182,7 +181,7 @@ module.exports = class Color {
    * A number bound by [0, 1].
    * @return {number} the hwb-white of this color
    */
-  hwbWht() {
+  get hwbWht() {
     return this._min
   }
 
@@ -193,7 +192,7 @@ module.exports = class Color {
    * A number bound by [0, 1].
    * @return {number} the hwb-black of this color
    */
-  hwbBlk() {
+  get hwbBlk() {
     return 1 - this._max
   }
 
@@ -201,27 +200,27 @@ module.exports = class Color {
   // Convenience getter functions.
   /**
    * Return an array of RGB components (in that order).
-   * @return {Array<number>} an array of RGB components
+   * @return {Array<number>(3)} an array of RGB components
    */
-  rgb() { return [this.red(), this.green(), this.blue()] }
+  get rgb() { return [this.red, this.green, this.blue] }
 
   /**
    * Return an array of HSV components (in that order).
-   * @return {Array<number>} an array of HSV components
+   * @return {Array<number>(3)} an array of HSV components
    */
-  hsv() { return [this.hsvHue(), this.hsvSat(), this.hsvVal()] }
+  get hsv() { return [this.hsvHue, this.hsvSat, this.hsvVal] }
 
   /**
    * Return an array of HSL components (in that order).
-   * @return {Array<number>} an array of HSL components
+   * @return {Array<number>(3)} an array of HSL components
    */
-  hsl() { return [this.hslHue(), this.hslSat(), this.hslLum()] }
+  get hsl() { return [this.hslHue, this.hslSat, this.hslLum] }
 
   /**
    * Return an array of HWB components (in that order).
-   * @return {Array<number>} an array of HWB components
+   * @return {Array<number>(3)} an array of HWB components
    */
-  hwb() { return [this.hwbHue(), this.hwbWht(), this.hwbBlk()] }
+  get hwb() { return [this.hwbHue, this.hwbWht, this.hwbBlk] }
 
 
   /**
@@ -231,9 +230,9 @@ module.exports = class Color {
    */
   complement() {
     return new Color([
-      255 - this.red(),
-      255 - this.green(),
-      255 - this.blue(),
+      255 - this.red,
+      255 - this.green,
+      255 - this.blue,
     ])
   }
 
@@ -243,7 +242,7 @@ module.exports = class Color {
    * @return {Color} a new Color object corresponding to this color rotated by `a` degrees
    */
   rotate(a) {
-    return Color.fromHSV([((this.hsvHue() + a) % 360), this.hsvSat(), this.hsvVal()])
+    return Color.fromHSV([((this.hsvHue + a) % 360), this.hsvSat, this.hsvVal])
   }
 
   /**
@@ -265,9 +264,9 @@ module.exports = class Color {
    * @return {Color} a new Color object that corresponds to this color saturated by `p`
    */
   saturate(p, relative = false) {
-    let newsat = this.hslSat() + (relative ? (this.hslSat() * p) : p)
+    let newsat = this.hslSat + (relative ? (this.hslSat * p) : p)
     newsat = Math.min(Math.max(0, newsat), 1)
-    return Color.fromHSL([this.hslHue(), newsat, this.hslLum()])
+    return Color.fromHSL([this.hslHue, newsat, this.hslLum])
   }
 
   /**
@@ -300,9 +299,9 @@ module.exports = class Color {
    * @return {Color} a new Color object that corresponds to this color lightened by `p`
    */
   lighten(p, relative = false) {
-    var newlum = this.hslLum() + (relative ? (this.hslLum() * p) : p)
+    var newlum = this.hslLum + (relative ? (this.hslLum * p) : p)
     newlum = Math.min(Math.max(0, newlum), 1)
-    return Color.fromHSL([this.hslHue(), this.hslSat(), newlum])
+    return Color.fromHSL([this.hslHue, this.hslSat, newlum])
   }
 
   /**
@@ -330,9 +329,9 @@ module.exports = class Color {
    */
   mix($color, w = 0.5) {
     return new Color([
-      (1-w) * this.red()    +  w * $color.red(),
-      (1-w) * this.green()  +  w * $color.green(),
-      (1-w) * this.blue()   +  w * $color.blue(),
+      (1-w) * this.red    +  w * $color.red,
+      (1-w) * this.green  +  w * $color.green,
+      (1-w) * this.blue   +  w * $color.blue,
     ].map(Math.round))
   }
 
@@ -347,9 +346,9 @@ module.exports = class Color {
    */
   blur($color, w = 0.5) {
     return new Color([
-      (1-w) * Math.pow(this.red()  , 2)  +  w * Math.pow($color.red()  , 2),
-      (1-w) * Math.pow(this.green(), 2)  +  w * Math.pow($color.green(), 2),
-      (1-w) * Math.pow(this.blue() , 2)  +  w * Math.pow($color.blue() , 2),
+      (1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2),
+      (1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2),
+      (1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2),
     ].map((n) => Math.round(Math.sqrt(n))))
   }
 
@@ -360,11 +359,11 @@ module.exports = class Color {
    * @return {boolean} `true` if the argument is the same color as this color
    */
   equals($color) {
-    return (this.hsvSat()===0 && $color.hsvSat()===0 && (this.hsvVal() === $color.hsvVal())) // NOTE speedy
+    return (this.hsvSat===0 && $color.hsvSat===0 && (this.hsvVal === $color.hsvVal)) // NOTE speedy
       || (
-         (this.red()   === $color.red())
-      && (this.green() === $color.green())
-      && (this.blue()  === $color.blue())
+         (this.red   === $color.red)
+      && (this.green === $color.green)
+      && (this.blue  === $color.blue)
       )
   }
   /**
@@ -389,9 +388,9 @@ module.exports = class Color {
       function coef(p) {
         return (p <= 0.03928) ? p/12.92 : Math.pow((p + 0.055)/1.055, 2.4)
       }
-      return 0.2126*coef(c.red()  /255)
-           + 0.7152*coef(c.green()/255)
-           + 0.0722*coef(c.blue() /255)
+      return 0.2126*coef(c.red  /255)
+           + 0.7152*coef(c.green/255)
+           + 0.0722*coef(c.blue /255)
     }
     let both = [luma(this), luma($color)]
     return (Math.max(...both) + 0.05) / (Math.min(...both) + 0.05)
@@ -412,39 +411,39 @@ module.exports = class Color {
    */
   toString(space = Color.ColorSpace.RGB) {
     if (space === Color.ColorSpace.HEX) {
-      let r = Util.toHex(this.red())
-      let g = Util.toHex(this.green())
-      let b = Util.toHex(this.blue())
+      let r = Util.toHex(this.red)
+      let g = Util.toHex(this.green)
+      let b = Util.toHex(this.blue)
       return `#${r}${g}${b}`
     }
     let result;
     switch (space) {
       case Color.ColorSpace.HSV:
         result = {
-          first  : Math.round(this.hsvHue() *  10) /  10,
-          second : Math.round(this.hsvSat() * 100) / 100,
-          third  : Math.round(this.hsvVal() * 100) / 100,
+          first  : Math.round(this.hsvHue *  10) /  10,
+          second : Math.round(this.hsvSat * 100) / 100,
+          third  : Math.round(this.hsvVal * 100) / 100,
         }
         break;
       case Color.ColorSpace.HSL:
         result = {
-          first  : Math.round(this.hslHue() *  10) /  10,
-          second : Math.round(this.hslSat() * 100) / 100,
-          third  : Math.round(this.hslLum() * 100) / 100,
+          first  : Math.round(this.hslHue *  10) /  10,
+          second : Math.round(this.hslSat * 100) / 100,
+          third  : Math.round(this.hslLum * 100) / 100,
         }
         break;
       case Color.ColorSpace.HWB:
         result = {
-          first  : Math.round(this.hwbHue() *  10) /  10,
-          second : Math.round(this.hwbWht() * 100) / 100,
-          third  : Math.round(this.hwbBlk() * 100) / 100,
+          first  : Math.round(this.hwbHue *  10) /  10,
+          second : Math.round(this.hwbWht * 100) / 100,
+          third  : Math.round(this.hwbBlk * 100) / 100,
         }
         break;
       default:
         result = {
-          first  : this.red(),
-          second : this.green(),
-          third  : this.blue(),
+          first  : this.red,
+          second : this.green,
+          third  : this.blue,
         }
     }
     return `${space}(${result.first}, ${result.second}, ${result.third})`
@@ -458,7 +457,7 @@ module.exports = class Color {
    * The HSV-saturation must be between 0.0 and 1.0.
    * The HSV-value must be between 0.0 and 1.0.
    * The given argument must be an array of these three values in order.
-   * @param {Array<number>} $hsv an Array of HSV components
+   * @param {Array<number>(3)} $hsv an Array of HSV components
    * @return {Color} a new Color object with hsv(hue, sat, val)
    */
   static fromHSV($hsv) {
@@ -484,7 +483,7 @@ module.exports = class Color {
    * The HSL-saturation must be between 0.0 and 1.0.
    * The HSL-luminosity must be between 0.0 and 1.0.
    * The given argument must be an array of these three values in order.
-   * @param {Array<number>} $hsl an Array of HSL components
+   * @param {Array<number>(3)} $hsl an Array of HSL components
    * @return {Color} a new Color object with hsl(hue, sat, lum)
    */
   static fromHSL($hsl) {
@@ -511,7 +510,7 @@ module.exports = class Color {
    * The HWB-white must be between 0.0 and 1.0.
    * The HWB-black must be between 0.0 and 1.0.
    * The given argument must be an array of these three values in order.
-   * @param {Array<number>} $hwb an Array of HWB components
+   * @param {Array<number>(3)} $hwb an Array of HWB components
    * @return {Color} a new Color object with hwb(hue, wht, blk)
    */
   static fromHWB($hwb) {
@@ -521,7 +520,7 @@ module.exports = class Color {
     return Color.fromHSV([hue, 1 - wht / (1 - blk), 1 - blk])
     // HWB -> RGB:
     /*
-    var rgb = Color.fromHSL([hue, 1, 0.5]).rgb().map((el) => el/255)
+    var rgb = Color.fromHSL([hue, 1, 0.5]).rgb.map((el) => el/255)
     for (var i = 0; i < 3; i++) {
       rgb[i] *= (1 - white - black);
       rgb[i] += white;
@@ -580,9 +579,9 @@ module.exports = class Color {
    */
   static mix($colors, blur = false) {
     return new Color([
-      $colors.map(($c) => $c.red()),
-      $colors.map(($c) => $c.green()),
-      $colors.map(($c) => $c.blue()),
+      $colors.map(($c) => $c.red),
+      $colors.map(($c) => $c.green),
+      $colors.map(($c) => $c.blue),
     ].map(function ($arr) {
       if (blur) {
         return Math.round(Math.sqrt($arr.reduce((a,b) => a*a + b*b) / $colors.length))
@@ -597,16 +596,11 @@ module.exports = class Color {
    */
   static get ColorSpace() {
     return {
-      /* Example: #rrggbb */
-      HEX: 'hex',
-      /* Example: rgb(r, g, b) */
-      RGB: 'rgb',
-      /* Example: hsv(h, s, v) */
-      HSV: 'hsv',
-      /* Example: hsl(h, s, l) */
-      HSL: 'hsl',
-      /* Example: hwb(h, w, b) */
-      HWB: 'hwb',
+      /* Example: #rrggbb */      HEX: 'hex',
+      /* Example: rgb(r, g, b) */ RGB: 'rgb',
+      /* Example: hsv(h, s, v) */ HSV: 'hsv',
+      /* Example: hsl(h, s, l) */ HSL: 'hsl',
+      /* Example: hwb(h, w, b) */ HWB: 'hwb',
     }
   }
 }
