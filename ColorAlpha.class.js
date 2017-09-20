@@ -157,7 +157,7 @@ module.exports = class ColorAlpha extends Color {
    */
   toString(space = ColorAlpha.ColorSpace.RGBA) {
     if (space === ColorAlpha.ColorSpace.HEXA) {
-      return super.toString('hexa') + Util.toHex(Math.round(this.alpha * 255))
+      return `${super.toString(Color.ColorSpace.HEX)}${Util.toHex(Math.round(this.alpha * 255))}`
     }
     let superstring = super.toString(space.slice(0,-1)).slice(4,-1) // converts `'hwb(h, w, b)'` -> `'h, w, b'`
     let a = Math.round(this.alpha * 1000) / 1000
@@ -223,6 +223,7 @@ module.exports = class ColorAlpha extends Color {
    * @return {ColorAlpha} a new ColorAlpha object constructed from the given string
    */
   static fromString(str) {
+    str = str.trim()
     let is_opaque = Color.fromString(str)
     if (is_opaque) {
       return new ColorAlpha(is_opaque.rgb)
@@ -234,20 +235,14 @@ module.exports = class ColorAlpha extends Color {
         str.slice(5,7),
       ].map(Util.toDec), Util.toDec(str.slice(7,9))/255)
     }
-    let comps = Util.components(5, str)
-    if (str.slice(0,5) === 'rgba(') {
-      return new ColorAlpha(comps.slice(0,3), comps[3])
+    let returned = {
+      'rgba(': (comps) => new ColorAlpha     (comps.slice(0,3), comps[3]),
+      'hsva(': (comps) => ColorAlpha.fromHSVA(comps.slice(0,3), comps[3]),
+      'hsla(': (comps) => ColorAlpha.fromHSLA(comps.slice(0,3), comps[3]),
+      'hwba(': (comps) => ColorAlpha.fromHWBA(comps.slice(0,3), comps[3]),
+      default: (comps) => null,
     }
-    if (str.slice(0,5) === 'hsva(') {
-      return ColorAlpha.fromHSVA(comps.slice(0,3), comps[3])
-    }
-    if (str.slice(0,5) === 'hsla(') {
-      return ColorAlpha.fromHSLA(comps.slice(0,3), comps[3])
-    }
-    if (str.slice(0,5) === 'hwba(') {
-      return ColorAlpha.fromHWBA(comps.slice(0,3), comps[3])
-    }
-    return null
+    return (returned[str.slice(0,5)] || returned.default).call(null, Util.components(5, str))
   }
 
   /**

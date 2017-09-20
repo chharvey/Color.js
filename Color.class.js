@@ -416,37 +416,25 @@ module.exports = class Color {
       let b = Util.toHex(this.blue)
       return `#${r}${g}${b}`
     }
-    let result;
-    switch (space) {
-      case Color.ColorSpace.HSV:
-        result = {
-          first  : Math.round(this.hsvHue *  10) /  10,
-          second : Math.round(this.hsvSat * 100) / 100,
-          third  : Math.round(this.hsvVal * 100) / 100,
-        }
-        break;
-      case Color.ColorSpace.HSL:
-        result = {
-          first  : Math.round(this.hslHue *  10) /  10,
-          second : Math.round(this.hslSat * 100) / 100,
-          third  : Math.round(this.hslLum * 100) / 100,
-        }
-        break;
-      case Color.ColorSpace.HWB:
-        result = {
-          first  : Math.round(this.hwbHue *  10) /  10,
-          second : Math.round(this.hwbWht * 100) / 100,
-          third  : Math.round(this.hwbBlk * 100) / 100,
-        }
-        break;
-      default:
-        result = {
-          first  : this.red,
-          second : this.green,
-          third  : this.blue,
-        }
+    let returned = {
+      [Color.ColorSpace.HSV]: () => [
+        Math.round(this.hsvHue *  10) /  10,
+        Math.round(this.hsvSat * 100) / 100,
+        Math.round(this.hsvVal * 100) / 100,
+      ],
+      [Color.ColorSpace.HSL]: () => [
+        Math.round(this.hslHue *  10) /  10,
+        Math.round(this.hslSat * 100) / 100,
+        Math.round(this.hslLum * 100) / 100,
+      ],
+      [Color.ColorSpace.HWB]: () => [
+        Math.round(this.hwbHue *  10) /  10,
+        Math.round(this.hwbWht * 100) / 100,
+        Math.round(this.hwbBlk * 100) / 100,
+      ],
+      default: () => this.rgb,
     }
-    return `${space}(${result.first}, ${result.second}, ${result.third})`
+    return `${space}(${(returned[space] || returned.default).call(this).join(', ')})`
   }
 
 
@@ -541,6 +529,7 @@ module.exports = class Color {
    * @return {Color} a new Color object constructed from the given string
    */
   static fromString(str) {
+    str = str.trim()
     if (str.slice(0,1) === '#' && str.length === 7) {
       return new Color([
         str.slice(1,3),
@@ -548,20 +537,14 @@ module.exports = class Color {
         str.slice(5,7),
       ].map(Util.toDec))
     }
-    let comps = Util.components(4, str)
-    if (str.slice(0,4) === 'rgb(') {
-      return new Color(comps)
+    let returned = {
+      'rgb(' : (comps) => new Color    (comps),
+      'hsv(' : (comps) => Color.fromHSV(comps),
+      'hsl(' : (comps) => Color.fromHSL(comps),
+      'hwb(' : (comps) => Color.fromHWB(comps),
+      default: (comps) => null,
     }
-    if (str.slice(0,4) === 'hsv(') {
-      return Color.fromHSV(comps)
-    }
-    if (str.slice(0,4) === 'hsl(') {
-      return Color.fromHSL(comps)
-    }
-    if (str.slice(0,4) === 'hwb(') {
-      return Color.fromHWB(comps)
-    }
-    return null
+    return (returned[str.slice(0,4)] || returned.default).call(null, Util.components(4, str))
   }
 
   /**
