@@ -33,24 +33,24 @@ module.exports = class Util {
     return tens + ones
   }
 
-  /**
-   * Return an array of comma-separated numbers extracted from a string.
-   * The string must be of the form `xxx(a, b, c, ...)` or `xxx(a,b,c,...)`, where
-   * `a`, `b`, and `c`, etc. are numbers, and `xxx` is any `n-1` number of characters
-   * (if n===4 then `xxx` must be 3 characters).
-   * Any number of prefixed characters and comma-separated numbers may be given. Spaces are optional.
-   * Examples:
-   * ```
-   * components(4, 'rgb(20, 32,044)') === [20, 32, 44]
-   * components(5, 'hsva(310,0.7, .3, 1/2)') === [310, 0.7, 0.3, 0.5]
-   * ```
-   * @param  {number} n the starting point of extraction
-   * @param  {string} s the string to dissect
-   * @return {Array<number>} an array of numbers
-   */
-  static components(n, s) {
-    return s.slice(n, -1).split(',').map((el) => +el)
-  }
+  // /**
+  //  * Return an array of comma-separated numbers extracted from a string.
+  //  * The string must be of the form `xxx(a, b, c, ...)` or `xxx(a,b,c,...)`, where
+  //  * `a`, `b`, and `c`, etc. are numbers, and `xxx` is any `n-1` number of characters
+  //  * (if n===4 then `xxx` must be 3 characters).
+  //  * Any number of prefixed characters and comma-separated numbers may be given. Spaces are optional.
+  //  * Examples:
+  //  * ```
+  //  * components(4, 'rgb(20, 32,044)') === [20, 32, 44]
+  //  * components(5, 'hsva(310,0.7, .3, 1/2)') === [310, 0.7, 0.3, 0.5]
+  //  * ```
+  //  * @param  {number} n the starting point of extraction
+  //  * @param  {string} s the string to dissect
+  //  * @return {Array<number>} an array of numbers
+  //  */
+  // static components(n, s) {
+  //   return s.slice(n, -1).split(',').map((el) => +el)
+  // }
 
   /**
    * Calculate the alpha of two or more overlapping translucent colors.
