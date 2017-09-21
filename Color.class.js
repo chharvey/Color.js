@@ -8,38 +8,47 @@ module.exports = class Color {
   /**
    *
    * Construct a Color object.
-   * Calling `new Color()` (no arguments) will result in black (#000000).
-   * @param {number=} red   the red   component of this color (an integer 0—255)
-   * @param {number=} green the green component of this color (an integer 0—255)
-   * @param {number=} blue  the blue  component of this color (an integer 0—255)
+   * Calling `new Color(r, g, b)` (3 arguments) will result in black (#000000FF).
+   * Calling `new Color()` (no arguments) will result in transparent (#00000000).
+   * @param {number=} r the red   component of this color (an integer 0—255)
+   * @param {number=} g the green component of this color (an integer 0—255)
+   * @param {number=} b the blue  component of this color (an integer 0—255)
+   * @param {number=} a the alpha component of this color (a number 0–1)
    */
-  constructor(red = 0, green = 0, blue = 0) {
+  constructor(r = 0, g = 0, b = 0, a = 0) {
     /**
      * The red component of this color. An integer in [0,255].
      * @type {number}
      * @private
      */
-    this._RED = red
+    this._RED = r
 
     /**
      * The green component of this color. An integer in [0,255].
      * @type {number}
      * @private
      */
-    this._GREEN = green
+    this._GREEN = g
 
     /**
      * The blue component of this color. An integer in [0,255].
      * @type {number}
      * @private
      */
-    this._BLUE = blue
+    this._BLUE = b
+
+    /**
+     * The alpha component of this color. An number in [0,1].
+     * @type {number}
+     */
+    this._ALPHA = a
 
     // helper calculations
     /** @private */ this._max = Math.max(this._RED, this._GREEN, this._BLUE) / 255
     /** @private */ this._min = Math.min(this._RED, this._GREEN, this._BLUE) / 255
     /** @private */ this._chroma = this._max - this._min
   }
+
 
 
   /**
@@ -60,6 +69,13 @@ module.exports = class Color {
    */
   get blue() { return this._BLUE }
 
+  /**
+   * Get the alpha (opacity) of this color.
+   * @return {number} the alpha of this color
+   */
+  get alpha() { return this._ALPHA }
+
+
 
   /**
    * Get the hsv-hue of this color.
@@ -70,9 +86,9 @@ module.exports = class Color {
   get hsvHue() {
     if (this._chroma === 0) return 0
     let rgb_norm = [
-      this._RED   / 255,
-      this._GREEN / 255,
-      this._BLUE  / 255,
+      this.red   / 255,
+      this.green / 255,
+      this.blue  / 255,
     ]
     return [
       (r, g, b) => ((g - b) / this._chroma + 6) % 6 * 60,
@@ -106,6 +122,7 @@ module.exports = class Color {
   get hsvVal() {
     return this._max
   }
+
 
 
   /**
@@ -154,6 +171,7 @@ module.exports = class Color {
   }
 
 
+
   /**
    * Get the hwb-hue of this color.
    * The Hue of this color. Identical to {@link Color#hsvHue()}.
@@ -187,52 +205,58 @@ module.exports = class Color {
   }
 
 
-  // Convenience getter functions.
+
   /**
-   * Return an array of RGB components (in that order).
-   * @return {Array<number>(3)} an array of RGB components
+   * Return an array of RGBA components.
+   * @return {Array<number>(4)} an array of RGB components
    */
-  get rgb() { return [this.red, this.green, this.blue] }
+  get rgb() { return [this.red, this.green, this.blue, this.alpha] }
+  /** Alias of {@link Color#rgb()} */ get rgba() { return this.rgb }
 
   /**
-   * Return an array of HSV components (in that order).
-   * @return {Array<number>(3)} an array of HSV components
+   * Return an array of HSVA components.
+   * @return {Array<number>(4)} an array of HSV components
    */
-  get hsv() { return [this.hsvHue, this.hsvSat, this.hsvVal] }
+  get hsv() { return [this.hsvHue, this.hsvSat, this.hsvVal, this.alpha] }
+  /** Alias of {@link Color#hsv()} */ get hsva() { return this.hsv }
 
   /**
-   * Return an array of HSL components (in that order).
-   * @return {Array<number>(3)} an array of HSL components
+   * Return an array of HSLA components.
+   * @return {Array<number>(4)} an array of HSL components
    */
-  get hsl() { return [this.hslHue, this.hslSat, this.hslLum] }
+  get hsl() { return [this.hslHue, this.hslSat, this.hslLum, this.alpha] }
+  /** Alias of {@link Color#hsl()} */ get hsla() { return this.hsl }
 
   /**
-   * Return an array of HWB components (in that order).
-   * @return {Array<number>(3)} an array of HWB components
+   * Return an array of HWBA components.
+   * @return {Array<number>(4)} an array of HWB components
    */
-  get hwb() { return [this.hwbHue, this.hwbWht, this.hwbBlk] }
+  get hwb() { return [this.hwbHue, this.hwbWht, this.hwbBlk, this.alpha] }
+  /** Alias of {@link Color#hwb()} */ get hwba() { return this.hwb }
+
 
 
   /**
-   * Return a new color that is the complement of this color.
-   * The complement of a color is the difference between that color and white (#fff).
+   * Return a new color that is the complement of this color, preserving alpha.
+   * The complement of a color is the difference between that color and white.
    * @return {Color} a new Color object that corresponds to this color’s complement
    */
   complement() {
-    return new Color(...[
+    return new Color (
       255 - this.red,
       255 - this.green,
       255 - this.blue,
-    ])
+      this.alpha
+    )
   }
 
   /**
-   * Return a new color that is a hue-rotation of this color.
+   * Return a new color that is a hue-rotation of this color, preserving alpha.
    * @param  {number} a the number of degrees to rotate
    * @return {Color} a new Color object corresponding to this color rotated by `a` degrees
    */
   rotate(a) {
-    return Color.fromHSV([((this.hsvHue + a) % 360), this.hsvSat, this.hsvVal])
+    return Color.fromHSV(((this.hsvHue + a) % 360), this.hsvSat, this.hsvVal, this.alpha)
   }
 
   /**
@@ -256,7 +280,7 @@ module.exports = class Color {
   saturate(p, relative = false) {
     let newsat = this.hslSat + (relative ? (this.hslSat * p) : p)
     newsat = Math.min(Math.max(0, newsat), 1)
-    return Color.fromHSL([this.hslHue, newsat, this.hslLum])
+    return Color.fromHSL(this.hslHue, newsat, this.hslLum, this.alpha)
   }
 
   /**
@@ -291,7 +315,7 @@ module.exports = class Color {
   lighten(p, relative = false) {
     var newlum = this.hslLum + (relative ? (this.hslLum * p) : p)
     newlum = Math.min(Math.max(0, newlum), 1)
-    return Color.fromHSL([this.hslHue, this.hslSat, newlum])
+    return Color.fromHSL(this.hslHue, this.hslSat, newlum, this.alpha)
   }
 
   /**
@@ -318,11 +342,11 @@ module.exports = class Color {
    * @return {Color} a mix of the two given colors
    */
   mix($color, w = 0.5) {
-    return new Color(...[
-      (1-w) * this.red    +  w * $color.red,
-      (1-w) * this.green  +  w * $color.green,
-      (1-w) * this.blue   +  w * $color.blue,
-    ].map(Math.round))
+    let red   = Math.round((1-w) * this.red    +  w * $color.red  )
+    let green = Math.round((1-w) * this.green  +  w * $color.green)
+    let blue  = Math.round((1-w) * this.blue   +  w * $color.blue )
+    let alpha = Util.compoundOpacity([this.alpha, $color.alpha])
+    return new Color(red, green, blue, alpha)
   }
 
   /**
@@ -335,31 +359,38 @@ module.exports = class Color {
    * @return {Color} a blur of the two given colors
    */
   blur($color, w = 0.5) {
-    return new Color(...[
-      (1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2),
-      (1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2),
-      (1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2),
-    ].map((n) => Math.round(Math.sqrt(n))))
+    let red   = Math.round(Math.sqrt((1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2)))
+    let green = Math.round(Math.sqrt((1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2)))
+    let blue  = Math.round(Math.sqrt((1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2)))
+    let alpha = Util.compoundOpacity([this.alpha, $color.alpha])
+    return new Color(red, green, blue, alpha)
   }
+
+
 
   /**
    * Compare this color with another color.
    * Return `true` if they are the same color.
+   * Colors are the "same" iff they have exactly the same RGBA components.
    * @param  {Color} $color a Color object
    * @return {boolean} `true` if the argument is the same color as this color
    */
   equals($color) {
-    return (this.hsvSat===0 && $color.hsvSat===0 && (this.hsvVal === $color.hsvVal)) // NOTE speedy
-      || (
-         (this.red   === $color.red)
-      && (this.green === $color.green)
-      && (this.blue  === $color.blue)
-      )
+    if (this === $color) return true
+    if (this.alpha === 0 && $color.alpha === 0) return true
+    return (
+         this.red   === $color.red
+      && this.green === $color.green
+      && this.blue  === $color.blue
+      && this.alpha === $color.alpha
+    )
   }
+
   /**
    * Return the *contrast ratio* between two colors.
    * More info can be found at
-   * {@link https://www.w3.org/TR/WCAG/#contrast-ratiodef}
+   * {@link https://www.w3.org/TR/WCAG/#contrast-ratiodef}.
+   * NOTE: in this method, alpha is ignored, that is, the colors are assumed to be opaque.
    * @param {Color} $color the second color to check
    * @return {number} the contrast ratio of this color with the argument
    */
@@ -388,24 +419,30 @@ module.exports = class Color {
 
   /**
    * Return a string representation of this color.
+   * If the alpha of this color is 1, then the string returned will represent an opaque color,
+   * e.g. `hsv()`, `hsl()`, etc. Otherwise, the string returned will represent a translucent color,
+   * `hsva()`, `hsla()`, etc.
    * See {@link Color.ColorSpace} for types of arguments accepted.
    * The format of the numbers returned will be as follows:
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
    * - HSV/HSL-sat/val/lum and HWB-wht/blk values will be base 10 decimals in [0,1] rounded to the nearest 0.01
    * - all RGB values will be base 10 integers in [0,255], one to three digits
-   * IDEA may change the default to `.HEX` instead of `.RGB`, once browsers support ColorAlpha hex (#rrggbbaa)
+   * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
+   * The default format is HEX.
    * @see https://drafts.csswg.org/css-color/#hex-notation
    * @param {Color.ColorSpace=} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
-  toString(space = Color.ColorSpace.RGB) {
+  toString(space = Color.ColorSpace.HEX) {
     if (space === Color.ColorSpace.HEX) {
-      let r = Util.toHex(this.red)
-      let g = Util.toHex(this.green)
-      let b = Util.toHex(this.blue)
-      return `#${r}${g}${b}`
+      let red   = Util.toHex(this.red)
+      let green = Util.toHex(this.green)
+      let blue  = Util.toHex(this.blue)
+      let alpha = Util.toHex(Math.round(this.alpha * 255))
+      return `#${red}${green}${blue}${(this.alpha < 1) ? alpha : ''}`
     }
+    let alpha = `, ${Math.round(this.alpha * 1000) / 1000}`
     let returned = {
       [Color.ColorSpace.HSV]: () => [
         Math.round(this.hsvHue *  10) /  10,
@@ -424,7 +461,7 @@ module.exports = class Color {
       ],
       default: () => this.rgb,
     }
-    return `${space}(${(returned[space] || returned.default).call(this).join(', ')})`
+    return `${space}(${(returned[space] || returned.default).call(this).join(', ')}${(this.alpha < 1) ? alpha : ''})`
   }
 
 
@@ -434,12 +471,14 @@ module.exports = class Color {
    * The HSV-hue must be between 0 and 360.
    * The HSV-saturation must be between 0.0 and 1.0.
    * The HSV-value must be between 0.0 and 1.0.
+   * The alpha must be between 0.0 and 1.0.
    * @param {number=} hue the HSV-hue component of this color (a number 0—360)
    * @param {number=} sat the HSV-sat component of this color (a number 0—1)
    * @param {number=} val the HSV-val component of this color (a number 0—1)
-   * @return {Color} a new Color object with hsv(hue, sat, val)
+   * @param {number=} alpha the opacity (a number 0—1)
+   * @return {Color} a new Color object with hsva(hue, sat, val, alpha)
    */
-  static fromHSV(hue = 0, sat = 0, val = 0) {
+  static fromHSV(hue = 0, sat = 0, val = 0, alpha = 1) {
     let c = sat * val
     let x = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m = val - c
@@ -450,20 +489,23 @@ module.exports = class Color {
     else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
     else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
-    return new Color(...rgb.map((el) => Math.round((el + m) * 255)))
+    return new Color(...rgb.map((el) => Math.round((el + m) * 255)), alpha)
   }
+  /** Alias of {@link Color.fromHSV()} */ static fromHSVA(h=0,s=0,v=0,a=1) { return Color.fromHSV(h,s,v,a) }
 
   /**
    * Return a new Color object, given hue, saturation, and luminosity in HSL-space.
    * The HSL-hue must be between 0 and 360.
    * The HSL-saturation must be between 0.0 and 1.0.
    * The HSL-luminosity must be between 0.0 and 1.0.
+   * The alpha must be between 0.0 and 1.0.
    * @param {number=} hue the HSL-hue component of this color (a number 0—360)
    * @param {number=} sat the HSL-sat component of this color (a number 0—1)
    * @param {number=} lum the HSL-lum component of this color (a number 0—1)
-   * @return {Color} a new Color object with hsl(hue, sat, lum)
+   * @param {number=} alpha the opacity (a number 0—1)
+   * @return {Color} a new Color object with hsla(hue, sat, lum, alpha)
    */
-  static fromHSL(hue = 0, sat = 0, lum = 0) {
+  static fromHSL(hue = 0, sat = 0, lum = 0, alpha = 1) {
     let c = sat * (1 - Math.abs(2*lum - 1))
     let x = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m = lum - c/2
@@ -474,8 +516,9 @@ module.exports = class Color {
     else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
     else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
-    return new Color(...rgb.map((el) => Math.round((el + m) * 255)))
+    return new Color(...rgb.map((el) => Math.round((el + m) * 255)), alpha)
   }
+  /** Alias of {@link Color.fromHSL()} */ static fromHSLA(h=0,s=0,l=0,a=1) { return Color.fromHSL(h,s,l,a) }
 
   /**
    * Return a new Color object, given hue, white, and black in HWB-space.
@@ -483,13 +526,15 @@ module.exports = class Color {
    * The HWB-hue must be between 0 and 360.
    * The HWB-white must be between 0.0 and 1.0.
    * The HWB-black must be between 0.0 and 1.0.
+   * The alpha must be between 0.0 and 1.0.
    * @param {number=} hue the HWB-hue component of this color (a number 0—360)
    * @param {number=} wht the HWB-wht component of this color (a number 0—1)
    * @param {number=} blk the HWB-blk component of this color (a number 0—1)
-   * @return {Color} a new Color object with hwb(hue, wht, blk)
+   * @param {number=} alpha the opacity (a number 0—1)
+   * @return {Color} a new Color object with hwba(hue, wht, blk, alpha)
    */
-  static fromHWB(hue = 0, wht = 0, blk = 0) {
-    return Color.fromHSV(hue, 1 - wht / (1 - blk), 1 - blk)
+  static fromHWB(hue = 0, wht = 0, blk = 0, alpha = 1) {
+    return Color.fromHSV(hue, 1 - wht / (1 - blk), 1 - blk, alpha)
     // HWB -> RGB:
     /*
     var rgb = Color.fromHSL([hue, 1, 0.5]).rgb.map((el) => el/255)
@@ -500,35 +545,41 @@ module.exports = class Color {
     return new Color(rgb.map(function (el) { return Math.round(el * 255) }))
      */
   }
+  /** Alias of {@link Color.fromHWB()} */ static fromHWBA(h=0,w=0,b=0,a=1) { return Color.fromHWB(h,w,b,a) }
 
   /**
    * Return a new Color object, given a string.
-   * The string may have either of the following formats:
-   * 1. `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase). The `#` must be included.
-   * 2. `rgb(r,g,b)` or `rgb(r, g, b)`, with integer RGB components (in base 10, out of 255).
-   * 3. `hsv(h,s,v)` or `hsv(h, s, v)`, with decimal HSV components (in base 10).
-   * 4. `hsl(h,s,l)` or `hsl(h, s, l)`, with decimal HSL components (in base 10).
-   * 5. `hwb(h,w,b)` or `hwb(h, w, b)`, with decimal HWB components (in base 10).
+   * The string must have one of the following formats:
+   *  1. `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase). The `#` must be included.
+   *  2. `#rrggbbaa`, where `aa` is alpha
+   *  3. `rgb(r,g,b)`    or `rgb(r, g, b)`    , with integer RGB components (in base 10, out of 255)
+   *  4. `rgba(r,g,b,a)` or `rgba(r, g, b, a)`, where `a` is alpha
+   *  5. `hsv(h,s,v)`    or `hsv(h, s, v)`    , with decimal HSV components (in base 10)
+   *  6. `hsva(h,s,v,a)` or `hsva(h, s, v, a)`, where `a` is alpha
+   *  7. `hsl(h,s,l)`    or `hsl(h, s, l)`    , with decimal HSL components (in base 10)
+   *  8. `hsla(h,s,l,a)` or `hsla(h, s, l, a)`, where `a` is alpha
+   *  9. `hwb(h,w,b)`    or `hwb(h, w, b)`    , with decimal HWB components (in base 10)
+   * 10. `hwba(h,w,b,a)` or `hwba(h, w, b, a)`, where `a` is alpha
    * @param {string} str a string of one of the forms described
    * @return {Color} a new Color object constructed from the given string
    */
   static fromString(str) {
-    str = str.trim()
-    if (str.slice(0,1) === '#' && str.length === 7) {
-      return new Color(...[
-        str.slice(1,3),
-        str.slice(3,5),
-        str.slice(5,7),
-      ].map(Util.toDec))
+    if (str[0] === '#') {
+      let red   = Util.toDec(str.slice(1,3))
+      let green = Util.toDec(str.slice(3,5))
+      let blue  = Util.toDec(str.slice(5,7))
+      let alpha = (str.length === 9) ? Util.toDec(str.slice(7,9))/255 : 1
+      return new Color(red, green, blue, alpha)
     }
     let returned = {
-      'rgb(' : (comps) => new Color    (...comps),
-      'hsv(' : (comps) => Color.fromHSV(...comps),
-      'hsl(' : (comps) => Color.fromHSL(...comps),
-      'hwb(' : (comps) => Color.fromHWB(...comps),
+      rgb    : (comps) => new Color    (...comps),
+      hsv    : (comps) => Color.fromHSV(...comps),
+      hsl    : (comps) => Color.fromHSL(...comps),
+      hwb    : (comps) => Color.fromHWB(...comps),
       default: (comps) => null,
     }
-    return (returned[str.slice(0,4)] || returned.default).call(null, Util.components(4, str))
+    return (returned[str.slice(0,3)] || returned.default).call(null,
+      str.slice((str[3] === 'a') ? 5 : 4, -1).split(',').map((s) => +s))
   }
 
   /**
@@ -539,23 +590,25 @@ module.exports = class Color {
    * and will *NOT* yield the same results as calling `$a.mix($b).mix($c)`, which yields an uneven mix.
    * Note that the order of the given colors does not change the result, that is,
    * `Color.mix([$a, $b, $c])` will return the same result as `Color.mix([$c, $b, $a])`.
-   * {@see Color#mix()} for description of `@param blur`.
    * @param {Array<Color>} $colors an array of Color objects, of length >=2
-   * @param {boolean=} blur if truthy, will use a more accurate calculation
+   * @param {boolean=} blur if `true`, use a blurring function ({@link Color#blur()})
    * @return {Color} a mix of the given colors
    */
   static mix($colors, blur = false) {
-    return new Color(...[
-      $colors.map(($c) => $c.red),
-      $colors.map(($c) => $c.green),
-      $colors.map(($c) => $c.blue),
-    ].map(function ($arr) {
+    function compoundComponents($arr) {
       if (blur) {
         return Math.round(Math.sqrt($arr.reduce((a,b) => a*a + b*b) / $colors.length))
       }
       return Math.round($arr.reduce((a,b) => a + b) / $colors.length)
-    }))
+    }
+    let reds   = $colors.map(($c) => $c.red  )
+    let greens = $colors.map(($c) => $c.green)
+    let blues  = $colors.map(($c) => $c.blue )
+    let alphas = $colors.map(($c) => $c.alpha)
+    return new Color(...[reds, greens, blues].map(compoundComponents), Util.compoundOpacity(alphas))
   }
+
+
 
   /**
    * Enum for the types of string representations of colors.
@@ -563,11 +616,11 @@ module.exports = class Color {
    */
   static get ColorSpace() {
     return {
-      /* Example: #rrggbb */      HEX: 'hex',
-      /* Example: rgb(r, g, b) */ RGB: 'rgb',
-      /* Example: hsv(h, s, v) */ HSV: 'hsv',
-      /* Example: hsl(h, s, l) */ HSL: 'hsl',
-      /* Example: hwb(h, w, b) */ HWB: 'hwb',
+      /* #rrggbb[aa] */          HEX: 'hex',
+      /* rgb[a](r, g, b[, a]) */ RGB: 'rgb',
+      /* hsv[a](h, s, v[, a]) */ HSV: 'hsv',
+      /* hsl[a](h, s, l[, a]) */ HSL: 'hsl',
+      /* hwb[a](h, w, b[, a]) */ HWB: 'hwb',
     }
   }
 }
