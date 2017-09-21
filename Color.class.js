@@ -273,6 +273,7 @@ module.exports = class Color {
    * This method calculates saturation in the HSL space.
    * A parameter of 1.0 returns a color with full saturation, and 0.0 returns an identical color.
    * A negative number will {@link Color#desaturate()|desaturate} this color.
+   * Set `relative = true` to specify the amount as relative to the color’s current saturation.
    * @param  {number} p must be between -1.0 and 1.0; the value by which to saturate this color
    * @param  {boolean=} relative `true` if the saturation added is relative
    * @return {Color} a new Color object that corresponds to this color saturated by `p`
@@ -298,10 +299,10 @@ module.exports = class Color {
   /**
    * Return a new color that is a lighter version of this color by a percentage.
    * This method calculates with luminosity in the HSL space.
-   * A parameter of 1.0 returns white (#fff), and 0.0 returns an identical color.
+   * A parameter of 1.0 returns white, and 0.0 returns an identical color.
    * A negative parameter will {@link Color.darken()|darken} this color.
-   *
    * Set `relative = true` to specify the amount as relative to the color’s current luminosity.
+   *
    * For example, if `$color` has an HSL-lum of 0.5, then calling `$color.lighten(0.5)` will return
    * a new color with an HSL-lum of 1.0, because the argument 0.5 is simply added to the color’s luminosity.
    * However, calling `$color.lighten(0.5, true)` will return a new color with an HSL-lum of 0.75,
@@ -320,7 +321,7 @@ module.exports = class Color {
 
   /**
    * Return a new color that is a darker version of this color by a percentage.
-   * A parameter of 1.0 returns black (#000), and 0.0 returns an identical color.
+   * A parameter of 1.0 returns black, and 0.0 returns an identical color.
    * @see Color.lighten()
    * @param {number} p must be between -1.0 and 1.0; the amount by which to darken this color
    * @param {boolean=} relative `true` if the luminosity subtracted is relative
@@ -329,6 +330,40 @@ module.exports = class Color {
   darken(p, relative = false) {
     return this.lighten(-p, relative)
   }
+
+  /**
+   * Return a new color with the complemented alpha of this color.
+   * An alpha of, for example, 0.7, complemented, is 0.3 (the complement with 1.0).
+   * @return {Color} a new Color object with the same color but complemented alpha
+   */
+  negate() {
+    return new Color(...this.rgb, 1 - this.alpha)
+  }
+
+  /**
+   * Return a new color that is a less faded (larger alpha) version of this color.
+   * A parameter of 1.0 returns full opaqueness, and 0.0 returns an identical color.
+   * A negative parameter will {@link Color.fadeOut()|fade out} this color.
+   * Set `relative = true` to specify the amount as relative to the color’s current opacity.
+   * @return {Color} a new Color object that corresponds to this color faded in by `p`
+   */
+  fadeIn(p, relative = false) {
+    var newalpha = this.alpha + (relative ? (this.alpha * p) : p)
+    newalpha = Math.min(Math.max(0, newalpha), 1)
+    return new Color(...this.rgb, newalpha)
+  }
+
+  /**
+   * Return a new color that is a more faded (smaller alpha) version of this color.
+   * A parameter of 1.0 returns transparent, and 0.0 returns an identical color.
+   * @see Color.fadeIn()
+   * @return {Color} a new Color object that corresponds to this color faded out by `p`
+   */
+  fadeOut(p, relative = false) {
+    return this.fadeIn(-p, relative)
+  }
+
+
 
   /**
    * Mix (average) another color with this color, with a given weight favoring that color.

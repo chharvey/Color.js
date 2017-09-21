@@ -19,32 +19,4 @@ module.exports = class ColorAlpha extends Color {
   constructor(red = 0, green = 0, blue = 0, alpha = 1) {
     super(red, green, blue)
   }
-
-
-
-
-
-
-
-
-
-
-  /**
-   * Return a new color with the complemented alpha of this color.
-   * An alpha of, for example, 0.7, complemented, is 0.3 (the complement with 1.0).
-   * @return {ColorAlpha} a new ColorAlpha object with the same color but complemented alpha
-   */
-  negative() {
-    return new ColorAlpha(...this.rgb, 1 - this.alpha)
-  }
-
-
-
-
-
-
-
-
-
-
 }
