@@ -434,14 +434,12 @@ module.exports = class Color {
    * The HSV-hue must be between 0 and 360.
    * The HSV-saturation must be between 0.0 and 1.0.
    * The HSV-value must be between 0.0 and 1.0.
-   * The given argument must be an array of these three values in order.
-   * @param {Array<number>(3)} $hsv an Array of HSV components
+   * @param {number=} hue the HSV-hue component of this color (a number 0—360)
+   * @param {number=} sat the HSV-sat component of this color (a number 0—1)
+   * @param {number=} val the HSV-val component of this color (a number 0—1)
    * @return {Color} a new Color object with hsv(hue, sat, val)
    */
-  static fromHSV($hsv) {
-    let hue = $hsv[0]
-    let sat = $hsv[1]
-    let val = $hsv[2]
+  static fromHSV(hue = 0, sat = 0, val = 0) {
     let c = sat * val
     let x = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m = val - c
@@ -460,14 +458,12 @@ module.exports = class Color {
    * The HSL-hue must be between 0 and 360.
    * The HSL-saturation must be between 0.0 and 1.0.
    * The HSL-luminosity must be between 0.0 and 1.0.
-   * The given argument must be an array of these three values in order.
-   * @param {Array<number>(3)} $hsl an Array of HSL components
+   * @param {number=} hue the HSL-hue component of this color (a number 0—360)
+   * @param {number=} sat the HSL-sat component of this color (a number 0—1)
+   * @param {number=} lum the HSL-lum component of this color (a number 0—1)
    * @return {Color} a new Color object with hsl(hue, sat, lum)
    */
-  static fromHSL($hsl) {
-    let hue = $hsl[0]
-    let sat = $hsl[1]
-    let lum = $hsl[2]
+  static fromHSL(hue = 0, sat = 0, lum = 0) {
     let c = sat * (1 - Math.abs(2*lum - 1))
     let x = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m = lum - c/2
@@ -487,15 +483,13 @@ module.exports = class Color {
    * The HWB-hue must be between 0 and 360.
    * The HWB-white must be between 0.0 and 1.0.
    * The HWB-black must be between 0.0 and 1.0.
-   * The given argument must be an array of these three values in order.
-   * @param {Array<number>(3)} $hwb an Array of HWB components
+   * @param {number=} hue the HWB-hue component of this color (a number 0—360)
+   * @param {number=} wht the HWB-wht component of this color (a number 0—1)
+   * @param {number=} blk the HWB-blk component of this color (a number 0—1)
    * @return {Color} a new Color object with hwb(hue, wht, blk)
    */
-  static fromHWB($hwb) {
-    let hue = $hwb[0]
-    let wht = $hwb[1]
-    let blk = $hwb[2]
-    return Color.fromHSV([hue, 1 - wht / (1 - blk), 1 - blk])
+  static fromHWB(hue = 0, wht = 0, blk = 0) {
+    return Color.fromHSV(hue, 1 - wht / (1 - blk), 1 - blk)
     // HWB -> RGB:
     /*
     var rgb = Color.fromHSL([hue, 1, 0.5]).rgb.map((el) => el/255)
@@ -529,9 +523,9 @@ module.exports = class Color {
     }
     let returned = {
       'rgb(' : (comps) => new Color    (...comps),
-      'hsv(' : (comps) => Color.fromHSV(comps),
-      'hsl(' : (comps) => Color.fromHSL(comps),
-      'hwb(' : (comps) => Color.fromHWB(comps),
+      'hsv(' : (comps) => Color.fromHSV(...comps),
+      'hsl(' : (comps) => Color.fromHSL(...comps),
+      'hwb(' : (comps) => Color.fromHWB(...comps),
       default: (comps) => null,
     }
     return (returned[str.slice(0,4)] || returned.default).call(null, Util.components(4, str))

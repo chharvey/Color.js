@@ -157,42 +157,45 @@ module.exports = class ColorAlpha extends Color {
    * Return a new ColorAlpha object, given hue, saturation, and value in HSV-space,
    * and an alpha component.
    * The alpha must be between 0.0 and 1.0.
-   * The first argument must be an array of these three values in order.
    * @see Color.fromHSV
-   * @param {Array<number>} $hsv an Array of HSV components
-   * @param {number} alpha the opacity
+   * @param {number=} hue the HSV-hue component of this color (a number 0—360)
+   * @param {number=} sat the HSV-sat component of this color (a number 0—1)
+   * @param {number=} val the HSV-val component of this color (a number 0—1)
+   * @param {number=} alpha the opacity (a number 0—1)
    * @return {ColorAlpha} a new ColorAlpha object with hsva(hue, sat, val, alpha)
    */
-  static fromHSVA($hsv, alpha) {
-    return new ColorAlpha(...Color.fromHSV($hsv).rgb, alpha)
+  static fromHSVA(hue = 0, sat = 0, val = 0, alpha = 1) {
+    return new ColorAlpha(...Color.fromHSV(hue, sat, val).rgb, alpha)
   }
 
   /**
    * Return a new ColorAlpha object, given hue, saturation, and luminosity in HSL-space,
    * and an alpha component.
    * The alpha must be between 0.0 and 1.0.
-   * The first argument must be an array of these three values in order.
    * @see Color.fromHSL
-   * @param {Array<number>} $hsl an Array of HSL components
-   * @param {number} alpha the opacity
+   * @param {number=} hue the HSL-hue component of this color (a number 0—360)
+   * @param {number=} sat the HSL-sat component of this color (a number 0—1)
+   * @param {number=} lum the HSL-lum component of this color (a number 0—1)
+   * @param {number=} alpha the opacity (a number 0—1)
    * @return {ColorAlpha} a new ColorAlpha object with hsla(hue, sat, lum, alpha)
    */
-  static fromHSLA($hsl, alpha) {
-    return new ColorAlpha(...Color.fromHSL($hsl).rgb, alpha)
+  static fromHSLA(hue = 0, sat = 0, lum = 0, alpha) {
+    return new ColorAlpha(...Color.fromHSL(hue, sat, lum).rgb, alpha)
   }
 
   /**
    * Return a new ColorAlpha object, given hue, white, and black in HWB-space,
    * and an alpha component.
    * The alpha must be between 0.0 and 1.0.
-   * The first argument must be an array of these three values in order.
    * @see Color.fromHWB
-   * @param {Array<number>} $hwb an Array of HWB components
+   * @param {number=} hue the HWB-hue component of this color (a number 0—360)
+   * @param {number=} wht the HWB-wht component of this color (a number 0—1)
+   * @param {number=} blk the HWB-blk component of this color (a number 0—1)
    * @param {number} alpha the opacity
    * @return {ColorAlpha} a new ColorAlpha object with hwba(hue, wht, blk, alpha)
    */
-  static fromHWBA($hwb, alpha) {
-    return new ColorAlpha(...Color.fromHWB($hwb).rgb, alpha)
+  static fromHWBA(hue = 0, wht = 0, blk = 0, alpha) {
+    return new ColorAlpha(...Color.fromHWB(hue, wht, blk).rgb, alpha)
   }
 
   /**
@@ -223,10 +226,10 @@ module.exports = class ColorAlpha extends Color {
       ].map(Util.toDec), Util.toDec(str.slice(7,9))/255)
     }
     let returned = {
-      'rgba(': (comps) => new ColorAlpha     (...comps.slice(0,3), comps[3]),
-      'hsva(': (comps) => ColorAlpha.fromHSVA(comps.slice(0,3), comps[3]),
-      'hsla(': (comps) => ColorAlpha.fromHSLA(comps.slice(0,3), comps[3]),
-      'hwba(': (comps) => ColorAlpha.fromHWBA(comps.slice(0,3), comps[3]),
+      'rgba(': (comps) => new ColorAlpha     (...comps),
+      'hsva(': (comps) => ColorAlpha.fromHSVA(...comps),
+      'hsla(': (comps) => ColorAlpha.fromHSLA(...comps),
+      'hwba(': (comps) => ColorAlpha.fromHWBA(...comps),
       default: (comps) => null,
     }
     return (returned[str.slice(0,5)] || returned.default).call(null, Util.components(5, str))
