@@ -10,27 +10,14 @@ var Color = require('./Color.class.js')
 module.exports = class ColorAlpha extends Color {
   /**
    * Construct a ColorAlpha object.
-   * Valid parameters:
-   * - new ColorAlpha([60, 120, 240], 0.7) // [red, green, blue], alpha (translucent, rgba(r, g, b, alpha))
-   * - new ColorAlpha([192], 0.7)          // [grayscale], alpha        (translucent, rgba(r, r, r, alpha))
-   * - new ColorAlpha([60, 120, 240])      // [red, green, blue]        (opaque, rgba(r, g, b, 1.0))
-   * - new ColorAlpha([192])               // [grayscale]               (opaque, rgba(r, r, r, 1.0))
-   * - new ColorAlpha(0.7)                 // alpha                     (rgba(0, 0, 0, alpha), translucent black)
-   * - new ColorAlpha()                    //                           (rgba(0, 0, 0, 0.0), transparent)
-   * You may pass both an RGB array and an alpha, or either one, or neither.
-   * See {@see Color} for specs on the RGB array. The alpha must be a (decimal) number 0–1.
-   * If RGB is given, alpha defaults to 1.0 (opaque).
-   * If no RGB is given, alpha defaults to 0.0 (transparent).
-   * @param {Array<number>=} $rgb an array of 1 or 3 integers in [0,255]
+   * Calling `new ColorAlpha()` (no arguments) will result in black (#000000FF).
+   * @param {number=} red   the red   component of this color (an integer 0—255)
+   * @param {number=} green the green component of this color (an integer 0—255)
+   * @param {number=} blue  the blue  component of this color (an integer 0—255)
    * @param {number=} alpha a number in [0,1]; the alpha, or opacity, of this color
    */
-  constructor($rgb, alpha = 1) {
-    if (Array.isArray($rgb)) {
-      super($rgb)
-    } else {
-      super()
-      alpha = (typeof $rgb === 'number') ? $rgb : 0
-    }
+  constructor(red = 0, green = 0, blue = 0, alpha = 1) {
+    super(red, green, blue)
 
     /**
      * The alpha component of this color. An number in [0,1].
@@ -78,7 +65,7 @@ module.exports = class ColorAlpha extends Color {
    * @return {ColorAlpha} the complement of this color
    */
   complement() {
-    return new ColorAlpha(super.complement().rgb, this.alpha)
+    return new ColorAlpha(...super.complement().rgb, this.alpha)
   }
 
   /**
@@ -86,7 +73,7 @@ module.exports = class ColorAlpha extends Color {
    * @return {ColorAlpha} a new color corresponding to this color rotated by `a` degrees
    */
   rotate(a) {
-    return new ColorAlpha(super.rotate(a).rgb, this.alpha)
+    return new ColorAlpha(...super.rotate(a).rgb, this.alpha)
   }
 
   /**
@@ -94,7 +81,7 @@ module.exports = class ColorAlpha extends Color {
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color saturated by `p`
    */
   saturate(p, relative) {
-    return new ColorAlpha(super.saturate(p, relative).rgb, this.alpha)
+    return new ColorAlpha(...super.saturate(p, relative).rgb, this.alpha)
   }
 
   /**
@@ -102,7 +89,7 @@ module.exports = class ColorAlpha extends Color {
    * @return {ColorAlpha} a new ColorAlpha object that corresponds to this color lightened by `p`
    */
   lighten(p, relative) {
-    return new ColorAlpha(super.lighten(p, relative).rgb, this.alpha)
+    return new ColorAlpha(...super.lighten(p, relative).rgb, this.alpha)
   }
 
   /**
@@ -111,7 +98,7 @@ module.exports = class ColorAlpha extends Color {
    * @return {ColorAlpha} a new ColorAlpha object with the same color but complemented alpha
    */
   negative() {
-    return new ColorAlpha(this.rgb, 1 - this.alpha)
+    return new ColorAlpha(...this.rgb, 1 - this.alpha)
   }
 
   /**
@@ -121,7 +108,7 @@ module.exports = class ColorAlpha extends Color {
   mix($color, w = 0.5) {
     let newColor = super.mix($color, w)
     let newAlpha = Util.compoundOpacity([this.alpha, ($color instanceof ColorAlpha) ? $color.alpha : 1])
-    return new ColorAlpha(newColor.rgb, newAlpha)
+    return new ColorAlpha(...newColor.rgb, newAlpha)
   }
 
   /**
@@ -131,7 +118,7 @@ module.exports = class ColorAlpha extends Color {
   blur($color, w = 0.5) {
     let newColor = super.blur($color, w)
     let newAlpha = Util.compoundOpacity([this.alpha, ($color instanceof ColorAlpha) ? $color.alpha : 1])
-    return new ColorAlpha(newColor.rgb, newAlpha)
+    return new ColorAlpha(...newColor.rgb, newAlpha)
   }
 
   /**
@@ -177,7 +164,7 @@ module.exports = class ColorAlpha extends Color {
    * @return {ColorAlpha} a new ColorAlpha object with hsva(hue, sat, val, alpha)
    */
   static fromHSVA($hsv, alpha) {
-    return new ColorAlpha(Color.fromHSV($hsv).rgb, alpha)
+    return new ColorAlpha(...Color.fromHSV($hsv).rgb, alpha)
   }
 
   /**
@@ -191,7 +178,7 @@ module.exports = class ColorAlpha extends Color {
    * @return {ColorAlpha} a new ColorAlpha object with hsla(hue, sat, lum, alpha)
    */
   static fromHSLA($hsl, alpha) {
-    return new ColorAlpha(Color.fromHSL($hsl).rgb, alpha)
+    return new ColorAlpha(...Color.fromHSL($hsl).rgb, alpha)
   }
 
   /**
@@ -205,7 +192,7 @@ module.exports = class ColorAlpha extends Color {
    * @return {ColorAlpha} a new ColorAlpha object with hwba(hue, wht, blk, alpha)
    */
   static fromHWBA($hwb, alpha) {
-    return new ColorAlpha(Color.fromHWB($hwb).rgb, alpha)
+    return new ColorAlpha(...Color.fromHWB($hwb).rgb, alpha)
   }
 
   /**
@@ -226,17 +213,17 @@ module.exports = class ColorAlpha extends Color {
     str = str.trim()
     let is_opaque = Color.fromString(str)
     if (is_opaque) {
-      return new ColorAlpha(is_opaque.rgb)
+      return new ColorAlpha(...is_opaque.rgb)
     }
     if (str.slice(0,1) === '#' && str.length === 9) {
-      return new ColorAlpha([
+      return new ColorAlpha(...[
         str.slice(1,3),
         str.slice(3,5),
         str.slice(5,7),
       ].map(Util.toDec), Util.toDec(str.slice(7,9))/255)
     }
     let returned = {
-      'rgba(': (comps) => new ColorAlpha     (comps.slice(0,3), comps[3]),
+      'rgba(': (comps) => new ColorAlpha     (...comps.slice(0,3), comps[3]),
       'hsva(': (comps) => ColorAlpha.fromHSVA(comps.slice(0,3), comps[3]),
       'hsla(': (comps) => ColorAlpha.fromHSLA(comps.slice(0,3), comps[3]),
       'hwba(': (comps) => ColorAlpha.fromHWBA(comps.slice(0,3), comps[3]),
@@ -255,7 +242,7 @@ module.exports = class ColorAlpha extends Color {
   static mix($colors, blur = false) {
     let newColor = Color.mix($colors, blur)
     let newAlpha = Util.compoundOpacity($colors.map(($c) => ($c instanceof ColorAlpha) ? $c.alpha : 1))
-    return new ColorAlpha(newColor.rgb, newAlpha)
+    return new ColorAlpha(...newColor.rgb, newAlpha)
   }
 
   /**

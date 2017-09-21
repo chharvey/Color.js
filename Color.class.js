@@ -8,42 +8,32 @@ module.exports = class Color {
   /**
    *
    * Construct a Color object.
-   * Valid parameters:
-   * - new Color([60, 120, 240]) // [red, green, blue]
-   * - new Color([192])          // [grayscale]
-   * - new Color()               // (black, rgb(0,0,0))
-   * The RGB array may be an array of length 3 or 1, containing integers 0–255.
-   * If array length is 3, the components are red, green, and blue, in that order.
-   * If the length is 1, the red, green, and blue components are equal to that number,
-   * which will produce a grayscale color.
-   * If no argument is given, the color will be black (#000000).
-   * @param {Array<number>=} $rgb an array of 1 or 3 integers in [0,255]
+   * Calling `new Color()` (no arguments) will result in black (#000000).
+   * @param {number=} red   the red   component of this color (an integer 0—255)
+   * @param {number=} green the green component of this color (an integer 0—255)
+   * @param {number=} blue  the blue  component of this color (an integer 0—255)
    */
-  constructor($rgb = [0]) {
-    if ($rgb.length < 3) {
-      $rgb = [ $rgb[0], $rgb[0], $rgb[0] ]
-    }
-
+  constructor(red = 0, green = 0, blue = 0) {
     /**
      * The red component of this color. An integer in [0,255].
      * @type {number}
      * @private
      */
-    this._RED = $rgb[0]
+    this._RED = red
 
     /**
      * The green component of this color. An integer in [0,255].
      * @type {number}
      * @private
      */
-    this._GREEN = $rgb[1]
+    this._GREEN = green
 
     /**
      * The blue component of this color. An integer in [0,255].
      * @type {number}
      * @private
      */
-    this._BLUE = $rgb[2]
+    this._BLUE = blue
 
     // helper calculations
     /** @private */ this._max = Math.max(this._RED, this._GREEN, this._BLUE) / 255
@@ -229,7 +219,7 @@ module.exports = class Color {
    * @return {Color} a new Color object that corresponds to this color’s complement
    */
   complement() {
-    return new Color([
+    return new Color(...[
       255 - this.red,
       255 - this.green,
       255 - this.blue,
@@ -328,7 +318,7 @@ module.exports = class Color {
    * @return {Color} a mix of the two given colors
    */
   mix($color, w = 0.5) {
-    return new Color([
+    return new Color(...[
       (1-w) * this.red    +  w * $color.red,
       (1-w) * this.green  +  w * $color.green,
       (1-w) * this.blue   +  w * $color.blue,
@@ -345,7 +335,7 @@ module.exports = class Color {
    * @return {Color} a blur of the two given colors
    */
   blur($color, w = 0.5) {
-    return new Color([
+    return new Color(...[
       (1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2),
       (1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2),
       (1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2),
@@ -462,7 +452,7 @@ module.exports = class Color {
     else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
     else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
-    return new Color(rgb.map((el) => Math.round((el + m) * 255)))
+    return new Color(...rgb.map((el) => Math.round((el + m) * 255)))
   }
 
   /**
@@ -488,7 +478,7 @@ module.exports = class Color {
     else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
     else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
-    return new Color(rgb.map((el) => Math.round((el + m) * 255)))
+    return new Color(...rgb.map((el) => Math.round((el + m) * 255)))
   }
 
   /**
@@ -531,14 +521,14 @@ module.exports = class Color {
   static fromString(str) {
     str = str.trim()
     if (str.slice(0,1) === '#' && str.length === 7) {
-      return new Color([
+      return new Color(...[
         str.slice(1,3),
         str.slice(3,5),
         str.slice(5,7),
       ].map(Util.toDec))
     }
     let returned = {
-      'rgb(' : (comps) => new Color    (comps),
+      'rgb(' : (comps) => new Color    (...comps),
       'hsv(' : (comps) => Color.fromHSV(comps),
       'hsl(' : (comps) => Color.fromHSL(comps),
       'hwb(' : (comps) => Color.fromHWB(comps),
@@ -561,7 +551,7 @@ module.exports = class Color {
    * @return {Color} a mix of the given colors
    */
   static mix($colors, blur = false) {
-    return new Color([
+    return new Color(...[
       $colors.map(($c) => $c.red),
       $colors.map(($c) => $c.green),
       $colors.map(($c) => $c.blue),
