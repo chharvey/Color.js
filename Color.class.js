@@ -1,52 +1,61 @@
 var Util = require('./Util.class.js')
 
 /**
- * A 24-bit color ("True Color") that can be displayed in a pixel, given three primary color components.
+ * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color components
+ * and a possible transparency component.
  * @module
  */
 module.exports = class Color {
   /**
    *
    * Construct a Color object.
-   * Calling `new Color(r, g, b)` (3 arguments) will result in black (#000000FF).
-   * Calling `new Color()` (no arguments) will result in transparent (#00000000).
+   * Calling `new Color(r, g, b, a)` (4 arguments) specifies default behavior.
+   * Calling `new Color(r, g, b)` (3 arguments) will result in an opaque color (`#rrggbbFF`),
+   * where the alpha is 1 by default.
+   * Calling `new Color()` (no arguments) will result in transparent (`#00000000`).
    * @param {number=} r the red   component of this color (an integer 0—255)
    * @param {number=} g the green component of this color (an integer 0—255)
    * @param {number=} b the blue  component of this color (an integer 0—255)
    * @param {number=} a the alpha component of this color (a number 0–1)
    */
-  constructor(r = 0, g = 0, b = 0, a = 0) {
+  constructor(r = 0, g = 0, b = 0, a = 1) {
+    if (arguments.length === 0) return Color.call(this, 0, 0, 0, 0)
+
     /**
      * The red component of this color. An integer in [0,255].
      * @type {number}
      * @private
+     * @final
      */
-    this._RED = r
+    this._RED = Math.round(Math.max(0, Math.min(r, 255)))
 
     /**
      * The green component of this color. An integer in [0,255].
      * @type {number}
      * @private
+     * @final
      */
-    this._GREEN = g
+    this._GREEN = Math.round(Math.max(0, Math.min(g, 255)))
 
     /**
      * The blue component of this color. An integer in [0,255].
      * @type {number}
      * @private
+     * @final
      */
-    this._BLUE = b
+    this._BLUE = Math.round(Math.max(0, Math.min(b, 255)))
 
     /**
      * The alpha component of this color. An number in [0,1].
      * @type {number}
+     * @private
+     * @final
      */
-    this._ALPHA = a
+    this._ALPHA = Math.max(0, Math.min(a, 1))
 
-    // helper calculations
-    /** @private */ this._max = Math.max(this._RED, this._GREEN, this._BLUE) / 255
-    /** @private */ this._min = Math.min(this._RED, this._GREEN, this._BLUE) / 255
-    /** @private */ this._chroma = this._max - this._min
+  /** @private */ this._max    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
+  /** @private */ this._min    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
+  /** @private */ this._chroma = this._max - this._min
   }
 
 
@@ -86,9 +95,9 @@ module.exports = class Color {
   get hsvHue() {
     if (this._chroma === 0) return 0
     let rgb_norm = [
-      this.red   / 255,
-      this.green / 255,
-      this.blue  / 255,
+      this._RED   / 255,
+      this._GREEN / 255,
+      this._BLUE  / 255,
     ]
     return [
       (r, g, b) => ((g - b) / this._chroma + 6) % 6 * 60,
