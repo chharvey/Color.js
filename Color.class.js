@@ -19,7 +19,7 @@ module.exports = class Color {
    * @param {number=} a the alpha component of this color (a number 0–1)
    */
   constructor(r = 0, g = 0, b = 0, a = 1) {
-    if (arguments.length === 0) return Color.call(this, 0, 0, 0, 0)
+    if (arguments.length === 0) a = 0
 
     /**
      * The red component of this color. An integer in [0,255].
@@ -53,9 +53,9 @@ module.exports = class Color {
      */
     this._ALPHA = Math.max(0, Math.min(a, 1))
 
-  /** @private */ this._max    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
-  /** @private */ this._min    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
-  /** @private */ this._chroma = this._max - this._min
+    /** @private */ this._max    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
+    /** @private */ this._min    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
+    /** @private */ this._chroma = this._max - this._min
   }
 
 
@@ -503,9 +503,11 @@ module.exports = class Color {
         Math.round(this.hwbWht * 100) / 100,
         Math.round(this.hwbBlk * 100) / 100,
       ],
-      default: () => this.rgb,
+      default: () => this.rgb.slice(0,3),
     }
-    return `${space}(${(returned[space] || returned.default).call(this).join(', ')}${(this.alpha < 1) ? alpha : ''})`
+    return (this.alpha < 1) ?
+      `${space}a(${(returned[space] || returned.default).call(this).join(', ')}${alpha})`
+    : `${space}(${(returned[space] || returned.default).call(this).join(', ')})`
   }
 
 
