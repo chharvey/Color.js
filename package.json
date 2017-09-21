@@ -1,14 +1,14 @@
 {
-  "name": "csscolor",
-  "version": "1.3.1",
-  "description": "A css color represented as an immutable javascript object.",
+  "name": "extrajs-color",
+  "version": "2.0.0-alpha",
+  "description": "A css color in Javascript.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chharvey/csscolor.git"
+    "url": "git+https://github.com/chharvey/extrajs-color.git"
   },
   "keywords": [
     "color",
@@ -17,7 +17,7 @@
   "author": "Chris Harvey <chrisharvey2pi@gmail.com> (https://chharvey.github.io/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/chharvey/csscolor/issues"
+    "url": "https://github.com/chharvey/extrajs-color/issues"
   },
-  "homepage": "https://github.com/chharvey/csscolor#readme"
+  "homepage": "https://github.com/chharvey/extrajs-color#readme"
 }

@@ -1,2 +1,2 @@
-# csscolor
-A css color represented as an immutable javascript object.
+# extrajs-color
+A css color in Javascript.
