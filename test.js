@@ -1,4 +1,4 @@
-var Color = require('./Color.class.js')
+var Color = require('./index.js')
 
 
 function color() {

@@ -1,4 +1,1 @@
-module.exports = {
-  Color: require('./Color.class.js')
-, ColorAlpha: require('./ColorAlpha.class.js')
-}
+module.exports = require('./src/Color.class.js')
