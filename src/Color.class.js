@@ -466,7 +466,6 @@ module.exports = class Color {
    * If the alpha of this color is 1, then the string returned will represent an opaque color,
    * e.g. `hsv()`, `hsl()`, etc. Otherwise, the string returned will represent a translucent color,
    * `hsva()`, `hsla()`, etc.
-   * See {@link Color.ColorSpace} for types of arguments accepted.
    * The format of the numbers returned will be as follows:
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
@@ -475,11 +474,11 @@ module.exports = class Color {
    * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
    * The default format is HEX.
    * @see https://drafts.csswg.org/css-color/#hex-notation
-   * @param {Color.ColorSpace=} space represents the space in which this color exists
+   * @param {Color.Space=} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
-  toString(space = Color.ColorSpace.HEX) {
-    if (space === Color.ColorSpace.HEX) {
+  toString(space = Color.Space.HEX) {
+    if (space === Color.Space.HEX) {
       let red   = Util.toHex(this.red)
       let green = Util.toHex(this.green)
       let blue  = Util.toHex(this.blue)
@@ -487,27 +486,28 @@ module.exports = class Color {
       return `#${red}${green}${blue}${(this.alpha < 1) ? alpha : ''}`
     }
     let alpha = `, ${Math.round(this.alpha * 1000) / 1000}`
-    let returned = {
-      [Color.ColorSpace.HSV]: () => [
+    let arr = {
+      [Color.Space.RGB]: () => this.rgb.slice(0,3),
+      [Color.Space.HSV]: () => [
         Math.round(this.hsvHue *  10) /  10,
         Math.round(this.hsvSat * 100) / 100,
         Math.round(this.hsvVal * 100) / 100,
       ],
-      [Color.ColorSpace.HSL]: () => [
+      [Color.Space.HSL]: () => [
         Math.round(this.hslHue *  10) /  10,
         Math.round(this.hslSat * 100) / 100,
         Math.round(this.hslLum * 100) / 100,
       ],
-      [Color.ColorSpace.HWB]: () => [
+      [Color.Space.HWB]: () => [
         Math.round(this.hwbHue *  10) /  10,
         Math.round(this.hwbWht * 100) / 100,
         Math.round(this.hwbBlk * 100) / 100,
       ],
-      default: () => this.rgb.slice(0,3),
+      default: () => { throw new TypeError('Argument must be of type `Color.Space`.') },
     }
     return (this.alpha < 1) ?
-      `${space}a(${(returned[space] || returned.default).call(this).join(', ')}${alpha})`
-    : `${space}(${(returned[space] || returned.default).call(this).join(', ')})`
+      `${space}a(${(arr[space] || arr.default).call(this).join(', ')}${alpha})`
+    : `${space}(${(arr[space] || arr.default).call(this).join(', ')})`
   }
 
 
@@ -660,7 +660,7 @@ module.exports = class Color {
    * Enum for the types of string representations of colors.
    * @enum {string}
    */
-  static get ColorSpace() {
+  static get Space() {
     return {
       /* #rrggbb[aa] */          HEX: 'hex',
       /* rgb[a](r, g, b[, a]) */ RGB: 'rgb',
