@@ -7,8 +7,8 @@ module.exports = class Util {
   /** @private */ constructor() {}
 
   /**
-   * Convert a decimal number to a hexadecimal number, as a string.
-   * The given number must be an integer within 0–255.
+   * Convert a decimal integer to a hexadecimal integer, as a string.
+   * The given integer must be within 0–255.
    * The returned string is in lowercase.
    * @param  {number} n an integer in base 10
    * @return {string} an integer in base 16 as a string
@@ -18,17 +18,18 @@ module.exports = class Util {
   }
 
   /**
-   * Convert a hexadecimal number (as a string) to a decimal number.
-   * The hexadecimal number must be a string of exactly 2 characters,
-   * each of which is a digit `0–9` or `a–f`.
-   * @param  {string} n a number in base 16 as a string
-   * @return {number} a number in base 10
+   * Convert a hexadecimal integer (as a string) to a decimal integer.
+   * The hexadecimal integer must be a string of exactly 2 characters,
+   * each of which is a digit `0–9`, `a–f`, or `A–F`.
+   * @param  {string} s an integer in base 16 as a string
+   * @return {number} a integer in base 10
    */
-  static toDec(n) {
+  static toDec(s) {
+    s = s.toLowerCase()
     let tens, ones
-    for (var i = 0; i < 16; i++) {
-      if ('0123456789abcdef'.charAt(i) === n.slice(0,1)) tens = i*16
-      if ('0123456789abcdef'.charAt(i) === n.slice(1,2)) ones = i
+    for (let i = 0; i < 16; i++) {
+      if ('0123456789abcdef'.charAt(i) === s.slice(0,1)) tens = i*16
+      if ('0123456789abcdef'.charAt(i) === s.slice(1,2)) ones = i
     }
     return tens + ones
   }

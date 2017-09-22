@@ -7,6 +7,10 @@ function color() {
   console.log(new Color())
 }
 
+function color_hsvHue() {
+  console.log(new Color(128,28,228).toString('hsl'))
+}
+
 function color_complement() {
 }
 
@@ -66,6 +70,7 @@ function color_fromHWB() {
 
 function color_fromString() {
   console.log(Color.fromString('hwb(0,0,0)').toString())
+  console.log(Color.fromString('#e4f0f6').toString(Color.ColorSpace.HWB))
 }
 
 function color_static_mix() {
@@ -73,6 +78,7 @@ function color_static_mix() {
 
 
 // color();
+// color_hsvHue();
 // color_complement();
 // color_rotate();
 // color_invert();

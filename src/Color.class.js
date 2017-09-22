@@ -596,7 +596,7 @@ module.exports = class Color {
   /**
    * Return a new Color object, given a string.
    * The string must have one of the following formats:
-   *  1. `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase). The `#` must be included.
+   *  1. `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase or uppercase). The `#` must be included.
    *  2. `#rrggbbaa`, where `aa` is alpha
    *  3. `rgb(r,g,b)`    or `rgb(r, g, b)`    , with integer RGB components (in base 10, out of 255)
    *  4. `rgba(r,g,b,a)` or `rgba(r, g, b, a)`, where `a` is alpha
