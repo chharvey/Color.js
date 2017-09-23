@@ -410,8 +410,6 @@ module.exports = class Color {
     return new Color(red, green, blue, alpha)
   }
 
-
-
   /**
    * Compare this color with another color.
    * Return `true` if they are the same color.
@@ -662,11 +660,11 @@ module.exports = class Color {
    */
   static get Space() {
     return {
-      /* #rrggbb[aa] */          HEX: 'hex',
-      /* rgb[a](r, g, b[, a]) */ RGB: 'rgb',
-      /* hsv[a](h, s, v[, a]) */ HSV: 'hsv',
-      /* hsl[a](h, s, l[, a]) */ HSL: 'hsl',
-      /* hwb[a](h, w, b[, a]) */ HWB: 'hwb',
+      /** #rrggbb[aa] */          HEX: 'hex',
+      /** rgb[a](r, g, b[, a]) */ RGB: 'rgb',
+      /** hsv[a](h, s, v[, a]) */ HSV: 'hsv',
+      /** hsl[a](h, s, l[, a]) */ HSL: 'hsl',
+      /** hwb[a](h, w, b[, a]) */ HWB: 'hwb',
     }
   }
 }
