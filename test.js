@@ -2,9 +2,9 @@ var Color = require('./index.js')
 
 
 function color() {
-  console.log(new Color(128,128,128, 0.5))
-  console.log(new Color(64,128,256))
-  console.log(new Color())
+  console.log(new Color(128,128,128, 0.5).rgb.join())
+  console.log(new Color(64,128,256).rgb.join())
+  console.log(new Color().rgb.join())
 }
 
 function color_hsvHue() {
@@ -15,9 +15,11 @@ function color_complement() {
 }
 
 function color_rotate() {
+  console.log(new Color(255,0,0).rotate(120))
 }
 
 function color_invert() {
+  console.log(new Color(128,0,0).invert())
 }
 
 function color_saturate() {
