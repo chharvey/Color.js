@@ -406,7 +406,7 @@ module.exports = class Color {
     let red   = Math.round((1-w) * this.red    +  w * $color.red  )
     let green = Math.round((1-w) * this.green  +  w * $color.green)
     let blue  = Math.round((1-w) * this.blue   +  w * $color.blue )
-    let alpha = this._compoundOpacity([this.alpha, $color.alpha])
+    let alpha = Color._compoundOpacity([this.alpha, $color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -423,7 +423,7 @@ module.exports = class Color {
     let red   = Math.round(Math.sqrt((1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2)))
     let green = Math.round(Math.sqrt((1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2)))
     let blue  = Math.round(Math.sqrt((1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2)))
-    let alpha = this._compoundOpacity([this.alpha, $color.alpha])
+    let alpha = Color._compoundOpacity([this.alpha, $color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -668,7 +668,7 @@ module.exports = class Color {
     let greens = $colors.map(($c) => $c.green)
     let blues  = $colors.map(($c) => $c.blue )
     let alphas = $colors.map(($c) => $c.alpha)
-    return new Color(...[reds, greens, blues].map(compoundComponents), this._compoundOpacity(alphas))
+    return new Color(...[reds, greens, blues].map(compoundComponents), Color._compoundOpacity(alphas))
   }
 
 
