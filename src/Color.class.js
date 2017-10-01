@@ -110,7 +110,7 @@ class Color {
 
   /**
    * @summary Get the hsv-hue of this color.
-   * @description The HSV-space hue of this color, or what "color" this color is.
+   * @description The HSV-space hue (in degrees) of this color, or what "color" this color is.
    * A number bound by [0, 360).
    * @version LOCKED
    * @type {number}
@@ -384,7 +384,7 @@ class Color {
 
   /**
    * @summary Return a new color with the complemented alpha of this color.
-   * @description An alpha of, for example, 0.7, complemented, is 0.3 (the complement with 1.0).
+   * @description E.g. an alpha of 0.7, complemented, is 0.3 (the complement with 1.0).
    * @version LOCKED
    * @returns {Color} a new Color object with the same color but complemented alpha
    */
@@ -444,7 +444,7 @@ class Color {
    * @description Behaves almost exactly the same as {@link Color#mix}, except that this method uses a more
    * visually accurate, slightly brighter, mix.
    * @version STABLE
-   * @see https://www.youtube.com/watch?v=LKnqECcg6Gw
+   * @see {@link https://www.youtube.com/watch?v=LKnqECcg6Gw|“Computer Color is Broken” by minutephysics}
    * @param  {Color} $color the second color
    * @param  {number=} w between 0.0 and 1.0; the weight favoring the other color
    * @returns {Color} a blur of the two given colors
@@ -461,7 +461,7 @@ class Color {
    * @summary Compare this color with another color.
    * @description Return `true` if they are the same color.
    * Colors are the “same” iff they have exactly the same RGBA components.
-   * Thus “same” colors are “replaceable”.
+   * Thus, “same” colors are “replaceable”.
    * @version STABLE
    * @param  {Color} $color a Color object
    * @returns {boolean} `true` if the argument is the same color as this color
@@ -648,17 +648,17 @@ class Color {
 
   /**
    * @summary Return a new Color object, given a string.
-   * @description The string must have one of the following formats:
-   *  1. `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase or uppercase). The `#` must be included.
-   *  2. `#rrggbbaa`, where `aa` is alpha
-   *  3. `rgb(r,g,b)`    or `rgb(r, g, b)`    , with integer RGB components (in base 10, out of 255)
-   *  4. `rgba(r,g,b,a)` or `rgba(r, g, b, a)`, where `a` is alpha
-   *  5. `hsv(h,s,v)`    or `hsv(h, s, v)`    , with decimal HSV components (in base 10)
-   *  6. `hsva(h,s,v,a)` or `hsva(h, s, v, a)`, where `a` is alpha
-   *  7. `hsl(h,s,l)`    or `hsl(h, s, l)`    , with decimal HSL components (in base 10)
-   *  8. `hsla(h,s,l,a)` or `hsla(h, s, l, a)`, where `a` is alpha
-   *  9. `hwb(h,w,b)`    or `hwb(h, w, b)`    , with decimal HWB components (in base 10)
-   * 10. `hwba(h,w,b,a)` or `hwba(h, w, b, a)`, where `a` is alpha
+   * @description The string must have one of the following formats (spaces optional):
+   *  1.  `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase or uppercase). The `#` must be included.
+   *  2.  `#rrggbbaa`, where `aa` is alpha
+   *  3.  `rgb(r, g, b)`    , with integer RGB components (in base 10, out of 255)
+   *  4.  `rgba(r, g, b, a)`, where `a` is alpha
+   *  5.  `hsv(h, s, v)`    , with decimal HSV components (in base 10)
+   *  6.  `hsva(h, s, v, a)`, where `a` is alpha
+   *  7.  `hsl(h, s, l)`    , with decimal HSL components (in base 10)
+   *  8.  `hsla(h, s, l, a)`, where `a` is alpha
+   *  9.  `hwb(h, w, b)`    , with decimal HWB components (in base 10)
+   *  10. `hwba(h, w, b, a)`, where `a` is alpha
    * @version LOCKED
    * @param {string} str a string of one of the forms described
    * @returns {Color} a new Color object constructed from the given string
