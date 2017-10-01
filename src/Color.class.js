@@ -1,5 +1,3 @@
-var Util = require('./Util.class.js')
-
 /**
  * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color components
  * and a possible transparency component.
@@ -57,6 +55,25 @@ class Color {
     /** @private */ this._max    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
     /** @private */ this._min    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
     /** @private */ this._chroma = this._max - this._min
+  }
+
+
+
+  /**
+   * @summary Calculate the alpha of two or more overlapping translucent colors.
+   * @description For two overlapping colors with respective alphas `a` and `b`, the compounded alpha
+   * of an even mix will be `1 - (1-a)*(1-b)`.
+   * For three, it would be `1 - (1-a)*(1-b)*(1-c)`.
+   * An alpha is a number within the interval [0,1], and represents the opacity
+   * of a translucent color. An alpha of 0 is completely transparent; an alpha
+   * of 1 is completely opaque.
+   * @private
+   * @version EXPERIMENTAL
+   * @param  {Array<number>} alphas an array of alphas
+   * @return {number} the compounded alpha
+   */
+  static _compoundOpacity(alphas) {
+    return 1 - alphas.map((a) => 1-a).reduce((a,b) => a*b)
   }
 
 
@@ -418,7 +435,7 @@ class Color {
     let red   = Math.round((1-w) * this.red    +  w * $color.red  )
     let green = Math.round((1-w) * this.green  +  w * $color.green)
     let blue  = Math.round((1-w) * this.blue   +  w * $color.blue )
-    let alpha = Util.compoundOpacity([this.alpha, $color.alpha])
+    let alpha = this._compoundOpacity([this.alpha, $color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -436,7 +453,7 @@ class Color {
     let red   = Math.round(Math.sqrt((1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2)))
     let green = Math.round(Math.sqrt((1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2)))
     let blue  = Math.round(Math.sqrt((1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2)))
-    let alpha = Util.compoundOpacity([this.alpha, $color.alpha])
+    let alpha = this._compoundOpacity([this.alpha, $color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -512,10 +529,10 @@ class Color {
    */
   toString(space = Color.Space.HEX) {
     if (space === Color.Space.HEX) {
-      let red   = Util.toHex(this.red)
-      let green = Util.toHex(this.green)
-      let blue  = Util.toHex(this.blue)
-      let alpha = Util.toHex(Math.round(this.alpha * 255))
+      let red   = this.red.toString(16)
+      let green = this.green.toString(16)
+      let blue  = this.blue.toString(16)
+      let alpha = Math.round(this.alpha * 255).toString(16)
       return `#${red}${green}${blue}${(this.alpha < 1) ? alpha : ''}`
     }
     let alpha = `, ${Math.round(this.alpha * 1000) / 1000}`
@@ -648,10 +665,10 @@ class Color {
    */
   static fromString(str) {
     if (str[0] === '#') {
-      let red   = Util.toDec(str.slice(1,3))
-      let green = Util.toDec(str.slice(3,5))
-      let blue  = Util.toDec(str.slice(5,7))
-      let alpha = (str.length === 9) ? Util.toDec(str.slice(7,9))/255 : 1
+      let red   = parseInt(str.slice(1,3), 16)
+      let green = parseInt(str.slice(3,5), 16)
+      let blue  = parseInt(str.slice(5,7), 16)
+      let alpha = (str.length === 9) ? parseInt(str.slice(7,9), 16)/255 : 1
       return new Color(red, green, blue, alpha)
     }
     let returned = {
@@ -690,7 +707,7 @@ class Color {
     let greens = $colors.map(($c) => $c.green)
     let blues  = $colors.map(($c) => $c.blue )
     let alphas = $colors.map(($c) => $c.alpha)
-    return new Color(...[reds, greens, blues].map(compoundComponents), Util.compoundOpacity(alphas))
+    return new Color(...[reds, greens, blues].map(compoundComponents), this._compoundOpacity(alphas))
   }
 }
 
