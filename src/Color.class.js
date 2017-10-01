@@ -1,5 +1,3 @@
-var Util = require('./Util.class.js')
-
 /**
  * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color components
  * and a possible transparency component.
