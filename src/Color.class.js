@@ -61,6 +61,25 @@ module.exports = class Color {
 
 
   /**
+   * @summary Calculate the alpha of two or more overlapping translucent colors.
+   * @description For two overlapping colors with respective alphas `a` and `b`, the compounded alpha
+   * of an even mix will be `1 - (1-a)*(1-b)`.
+   * For three, it would be `1 - (1-a)*(1-b)*(1-c)`.
+   * An alpha is a number within the interval [0,1], and represents the opacity
+   * of a translucent color. An alpha of 0 is completely transparent; an alpha
+   * of 1 is completely opaque.
+   * @private
+   * @version EXPERIMENTAL
+   * @param  {Array<number>} alphas an array of alphas
+   * @return {number} the compounded alpha
+   */
+  static _compoundOpacity(alphas) {
+    return 1 - alphas.map((a) => 1-a).reduce((a,b) => a*b)
+  }
+
+
+
+  /**
    * Get the red component of this color.
    * @return {number} the red component of this color
    */
@@ -389,7 +408,7 @@ module.exports = class Color {
     let red   = Math.round((1-w) * this.red    +  w * $color.red  )
     let green = Math.round((1-w) * this.green  +  w * $color.green)
     let blue  = Math.round((1-w) * this.blue   +  w * $color.blue )
-    let alpha = Util.compoundOpacity([this.alpha, $color.alpha])
+    let alpha = this._compoundOpacity([this.alpha, $color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -406,7 +425,7 @@ module.exports = class Color {
     let red   = Math.round(Math.sqrt((1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2)))
     let green = Math.round(Math.sqrt((1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2)))
     let blue  = Math.round(Math.sqrt((1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2)))
-    let alpha = Util.compoundOpacity([this.alpha, $color.alpha])
+    let alpha = this._compoundOpacity([this.alpha, $color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -651,7 +670,7 @@ module.exports = class Color {
     let greens = $colors.map(($c) => $c.green)
     let blues  = $colors.map(($c) => $c.blue )
     let alphas = $colors.map(($c) => $c.alpha)
-    return new Color(...[reds, greens, blues].map(compoundComponents), Util.compoundOpacity(alphas))
+    return new Color(...[reds, greens, blues].map(compoundComponents), this._compoundOpacity(alphas))
   }
 
 
