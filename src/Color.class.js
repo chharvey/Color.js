@@ -479,10 +479,10 @@ module.exports = class Color {
    */
   toString(space = Color.Space.HEX) {
     if (space === Color.Space.HEX) {
-      let red   = Util.toHex(this.red)
-      let green = Util.toHex(this.green)
-      let blue  = Util.toHex(this.blue)
-      let alpha = Util.toHex(Math.round(this.alpha * 255))
+      let red   = this.red.toString(16)
+      let green = this.green.toString(16)
+      let blue  = this.blue.toString(16)
+      let alpha = Math.round(this.alpha * 255).toString(16)
       return `#${red}${green}${blue}${(this.alpha < 1) ? alpha : ''}`
     }
     let alpha = `, ${Math.round(this.alpha * 1000) / 1000}`
@@ -611,10 +611,10 @@ module.exports = class Color {
    */
   static fromString(str) {
     if (str[0] === '#') {
-      let red   = Util.toDec(str.slice(1,3))
-      let green = Util.toDec(str.slice(3,5))
-      let blue  = Util.toDec(str.slice(5,7))
-      let alpha = (str.length === 9) ? Util.toDec(str.slice(7,9))/255 : 1
+      let red   = parseInt(str.slice(1,3), 16)
+      let green = parseInt(str.slice(3,5), 16)
+      let blue  = parseInt(str.slice(5,7), 16)
+      let alpha = (str.length === 9) ? parseInt(str.slice(7,9), 16)/255 : 1
       return new Color(red, green, blue, alpha)
     }
     let returned = {

@@ -57,6 +57,7 @@ function color_toString() {
   console.log(new Color(128,128,128, 0.5).toString(Color.Space.HWB))
   console.log(new Color(64,128,256).toString(Color.Space.HWB))
   console.log(new Color().toString(Color.Space.HWB))
+  console.log(new Color(64,128,256).toString())
 }
 
 function color_fromHSV() {
