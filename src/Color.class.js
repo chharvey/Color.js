@@ -13,6 +13,7 @@ module.exports = class Color {
    * Calling `new Color(r, g, b)` (3 arguments) will result in an opaque color (`#rrggbbFF`),
    * where the alpha is 1 by default.
    * Calling `new Color()` (no arguments) will result in transparent (`#00000000`).
+   * @stability STABLE
    * @param {number=} r the red   component of this color (an integer 0—255)
    * @param {number=} g the green component of this color (an integer 0—255)
    * @param {number=} b the blue  component of this color (an integer 0—255)
@@ -62,24 +63,28 @@ module.exports = class Color {
 
   /**
    * Get the red component of this color.
+   * @stability LOCKED
    * @return {number} the red component of this color
    */
   get red() { return this._RED }
 
   /**
    * Get the green component of this color.
+   * @stability LOCKED
    * @return {number} the green component of this color
    */
   get green() { return this._GREEN }
 
   /**
    * Get the blue component of this color.
+   * @stability LOCKED
    * @return {number} the blue component of this color
    */
   get blue() { return this._BLUE }
 
   /**
    * Get the alpha (opacity) of this color.
+   * @stability LOCKED
    * @return {number} the alpha of this color
    */
   get alpha() { return this._ALPHA }
@@ -90,6 +95,7 @@ module.exports = class Color {
    * Get the hsv-hue of this color.
    * The HSV-space hue of this color, or what "color" this color is.
    * A number bound by [0, 360).
+   * @stability LOCKED
    * @return {number} the hsv-hue of this color
    */
   get hsvHue() {
@@ -115,6 +121,7 @@ module.exports = class Color {
    * The vividness of this color. A lower saturation means the color is closer to white,
    * a higher saturation means the color is more true to its hue.
    * A number bound by [0, 1].
+   * @stability LOCKED
    * @return {number} the hsv-saturation of this color
    */
   get hsvSat() {
@@ -126,6 +133,7 @@ module.exports = class Color {
    * The brightness of this color. A lower value means the color is closer to black, a higher
    * value means the color is more true to its hue.
    * A number bound by [0, 1].
+   * @stability LOCKED
    * @return {number} the hsv-value of this color
    */
   get hsvVal() {
@@ -138,6 +146,7 @@ module.exports = class Color {
    * Get the hsl-hue of this color.
    * The Hue of this color. Identical to {@link Color#hsvHue()}.
    * A number bound by [0, 360).
+   * @stability LOCKED
    * @return {number} the hsl-hue of this color
    */
   get hslHue() {
@@ -149,6 +158,7 @@ module.exports = class Color {
    * The amount of "color" in the color. A lower saturation means the color is more grayer,
    * a higher saturation means the color is more colorful.
    * A number bound by [0, 1].
+   * @stability LOCKED
    * @return {number} the hsl-saturation of this color
    */
   get hslSat() {
@@ -173,6 +183,7 @@ module.exports = class Color {
    * How "white" or "black" the color is. A lower luminosity means the color is closer to black,
    * a higher luminosity means the color is closer to white.
    * A number bound by [0, 1].
+   * @stability LOCKED
    * @return {number} the hsl-luminosity of this color
    */
   get hslLum() {
@@ -185,6 +196,7 @@ module.exports = class Color {
    * Get the hwb-hue of this color.
    * The Hue of this color. Identical to {@link Color#hsvHue()}.
    * A number bound by [0, 360).
+   * @stability LOCKED
    * @return {number} the hwb-hue of this color
    */
   get hwbHue() {
@@ -196,6 +208,7 @@ module.exports = class Color {
    * The amount of White in this color. A higher white means the color is closer to #fff,
    * a lower white means the color has a true hue (more colorful).
    * A number bound by [0, 1].
+   * @stability LOCKED
    * @return {number} the hwb-white of this color
    */
   get hwbWht() {
@@ -207,6 +220,7 @@ module.exports = class Color {
    * The amount of Black in this color. A higher black means the color is closer to #000,
    * a lower black means the color has a true hue (more colorful).
    * A number bound by [0, 1].
+   * @stability LOCKED
    * @return {number} the hwb-black of this color
    */
   get hwbBlk() {
@@ -217,6 +231,7 @@ module.exports = class Color {
 
   /**
    * Return an array of RGBA components.
+   * @stability LOCKED
    * @return {Array<number>(4)} an array of RGB components
    */
   get rgb() { return [this.red, this.green, this.blue, this.alpha] }
@@ -224,6 +239,7 @@ module.exports = class Color {
 
   /**
    * Return an array of HSVA components.
+   * @stability LOCKED
    * @return {Array<number>(4)} an array of HSV components
    */
   get hsv() { return [this.hsvHue, this.hsvSat, this.hsvVal, this.alpha] }
@@ -231,6 +247,7 @@ module.exports = class Color {
 
   /**
    * Return an array of HSLA components.
+   * @stability LOCKED
    * @return {Array<number>(4)} an array of HSL components
    */
   get hsl() { return [this.hslHue, this.hslSat, this.hslLum, this.alpha] }
@@ -238,6 +255,7 @@ module.exports = class Color {
 
   /**
    * Return an array of HWBA components.
+   * @stability LOCKED
    * @return {Array<number>(4)} an array of HWB components
    */
   get hwb() { return [this.hwbHue, this.hwbWht, this.hwbBlk, this.alpha] }
@@ -248,6 +266,7 @@ module.exports = class Color {
   /**
    * Return a new color that is the complement of this color, preserving alpha.
    * The complement of a color is the difference between that color and white.
+   * @stability LOCKED
    * @return {Color} a new Color object that corresponds to this color’s complement
    */
   complement() {
@@ -261,6 +280,7 @@ module.exports = class Color {
 
   /**
    * Return a new color that is a hue-rotation of this color, preserving alpha.
+   * @stability LOCKED
    * @param  {number} a the number of degrees to rotate
    * @return {Color} a new Color object corresponding to this color rotated by `a` degrees
    */
@@ -271,6 +291,7 @@ module.exports = class Color {
   /**
    * Return a new color that is the inverse of this color.
    * The inverse of a color is that color with a hue rotation of 180 degrees.
+   * @stability LOCKED
    * @return {Color} a new Color object that corresponds to this color’s inverse
    */
   invert() {
@@ -283,6 +304,7 @@ module.exports = class Color {
    * A parameter of 1.0 returns a color with full saturation, and 0.0 returns an identical color.
    * A negative number will {@link Color#desaturate()|desaturate} this color.
    * Set `relative = true` to specify the amount as relative to the color’s current saturation.
+   * @stability LOCKED
    * @param  {number} p must be between -1.0 and 1.0; the value by which to saturate this color
    * @param  {boolean=} relative `true` if the saturation added is relative
    * @return {Color} a new Color object that corresponds to this color saturated by `p`
@@ -296,6 +318,7 @@ module.exports = class Color {
   /**
    * Return a new color that is a less saturated version of this color by a percentage.
    * A parameter of 1.0 returns a grayscale color, and 0.0 returns an identical color.
+   * @stability LOCKED
    * @see Color.saturate()
    * @param  {number} p must be between -1.0 and 1.0; the value by which to desaturate this color
    * @param  {boolean=} relative `true` if the saturation subtracted is relative
@@ -318,6 +341,7 @@ module.exports = class Color {
    * because the argument 0.5, relative to the color’s current luminosity of 0.5, results in
    * an added luminosity of 0.25.
    *
+   * @stability LOCKED
    * @param {number} p must be between -1.0 and 1.0; the amount by which to lighten this color
    * @param {boolean=} relative `true` if the luminosity added is relative
    * @return {Color} a new Color object that corresponds to this color lightened by `p`
@@ -331,6 +355,7 @@ module.exports = class Color {
   /**
    * Return a new color that is a darker version of this color by a percentage.
    * A parameter of 1.0 returns black, and 0.0 returns an identical color.
+   * @stability LOCKED
    * @see Color.lighten()
    * @param {number} p must be between -1.0 and 1.0; the amount by which to darken this color
    * @param {boolean=} relative `true` if the luminosity subtracted is relative
@@ -343,6 +368,7 @@ module.exports = class Color {
   /**
    * Return a new color with the complemented alpha of this color.
    * An alpha of, for example, 0.7, complemented, is 0.3 (the complement with 1.0).
+   * @stability LOCKED
    * @return {Color} a new Color object with the same color but complemented alpha
    */
   negate() {
@@ -354,6 +380,7 @@ module.exports = class Color {
    * A parameter of 1.0 returns full opaqueness, and 0.0 returns an identical color.
    * A negative parameter will {@link Color.fadeOut()|fade out} this color.
    * Set `relative = true` to specify the amount as relative to the color’s current opacity.
+   * @stability LOCKED
    * @return {Color} a new Color object that corresponds to this color faded in by `p`
    */
   fadeIn(p, relative = false) {
@@ -365,6 +392,7 @@ module.exports = class Color {
   /**
    * Return a new color that is a more faded (smaller alpha) version of this color.
    * A parameter of 1.0 returns transparent, and 0.0 returns an identical color.
+   * @stability LOCKED
    * @see Color.fadeIn()
    * @return {Color} a new Color object that corresponds to this color faded out by `p`
    */
@@ -381,6 +409,7 @@ module.exports = class Color {
    * `w == 0.5` (default if omitted) return a perfectly even mix.
    * In other words, `w` is "how much of the other color you want."
    * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
+   * @stability STABLE
    * @param {Color} $color the second color
    * @param {number=} w between 0.0 and 1.0; the weight favoring the other color
    * @return {Color} a mix of the two given colors
@@ -397,6 +426,7 @@ module.exports = class Color {
    * Blur another color with this color, with a given weight favoring that color.
    * Behaves almost exactly the same as {@link Color#mix()}, except that this method uses a more
    * visually accurate, slightly brighter, mix.
+   * @stability STABLE
    * @see https://www.youtube.com/watch?v=LKnqECcg6Gw
    * @param  {Color} $color the second color
    * @param  {number=} w between 0.0 and 1.0; the weight favoring the other color
@@ -414,6 +444,7 @@ module.exports = class Color {
    * Compare this color with another color.
    * Return `true` if they are the same color.
    * Colors are the "same" iff they have exactly the same RGBA components.
+   * @stability STABLE
    * @param  {Color} $color a Color object
    * @return {boolean} `true` if the argument is the same color as this color
    */
@@ -433,6 +464,7 @@ module.exports = class Color {
    * More info can be found at
    * {@link https://www.w3.org/TR/WCAG/#contrast-ratiodef}.
    * NOTE: in this method, alpha is ignored, that is, the colors are assumed to be opaque.
+   * @stability STABLE
    * @param {Color} $color the second color to check
    * @return {number} the contrast ratio of this color with the argument
    */
@@ -471,6 +503,7 @@ module.exports = class Color {
    * - all RGB values will be base 10 integers in [0,255], one to three digits
    * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
    * The default format is HEX.
+   * @stability STABLE
    * @see https://drafts.csswg.org/css-color/#hex-notation
    * @param {Color.Space=} space represents the space in which this color exists
    * @return {string} a string representing this color.
@@ -516,6 +549,7 @@ module.exports = class Color {
    * The HSV-saturation must be between 0.0 and 1.0.
    * The HSV-value must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
+   * @stability LOCKED
    * @param {number=} hue the HSV-hue component of this color (a number 0—360)
    * @param {number=} sat the HSV-sat component of this color (a number 0—1)
    * @param {number=} val the HSV-val component of this color (a number 0—1)
@@ -543,6 +577,7 @@ module.exports = class Color {
    * The HSL-saturation must be between 0.0 and 1.0.
    * The HSL-luminosity must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
+   * @stability LOCKED
    * @param {number=} hue the HSL-hue component of this color (a number 0—360)
    * @param {number=} sat the HSL-sat component of this color (a number 0—1)
    * @param {number=} lum the HSL-lum component of this color (a number 0—1)
@@ -571,6 +606,7 @@ module.exports = class Color {
    * The HWB-white must be between 0.0 and 1.0.
    * The HWB-black must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
+   * @stability LOCKED
    * @param {number=} hue the HWB-hue component of this color (a number 0—360)
    * @param {number=} wht the HWB-wht component of this color (a number 0—1)
    * @param {number=} blk the HWB-blk component of this color (a number 0—1)
@@ -604,6 +640,7 @@ module.exports = class Color {
    *  8. `hsla(h,s,l,a)` or `hsla(h, s, l, a)`, where `a` is alpha
    *  9. `hwb(h,w,b)`    or `hwb(h, w, b)`    , with decimal HWB components (in base 10)
    * 10. `hwba(h,w,b,a)` or `hwba(h, w, b, a)`, where `a` is alpha
+   * @stability LOCKED
    * @param {string} str a string of one of the forms described
    * @return {Color} a new Color object constructed from the given string
    */
@@ -634,6 +671,7 @@ module.exports = class Color {
    * and will *NOT* yield the same results as calling `$a.mix($b).mix($c)`, which yields an uneven mix.
    * Note that the order of the given colors does not change the result, that is,
    * `Color.mix([$a, $b, $c])` will return the same result as `Color.mix([$c, $b, $a])`.
+   * @stability STABLE
    * @param {Array<Color>} $colors an array of Color objects, of length >=2
    * @param {boolean=} blur if `true`, use a blurring function ({@link Color#blur()})
    * @return {Color} a mix of the given colors
@@ -656,6 +694,7 @@ module.exports = class Color {
 
   /**
    * Enum for the types of string representations of colors.
+   * @stability STABLE
    * @enum {string}
    */
   static get Space() {

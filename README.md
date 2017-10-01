@@ -300,7 +300,7 @@ Construct a new color given a css-valid color string.
 ```js
 ```
 
-#### `Color.mix()` (LOCKED)
+#### `Color.mix()` (STABLE)
 Mix an arbitrary number of colors evenly. Differs from `Color#mix()` in that chaining those functions results in uneven mixes.
 ```js
 ```
