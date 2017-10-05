@@ -1,7 +1,6 @@
 /**
  * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color components
  * and a possible transparency component.
- * @module
  */
 module.exports = class Color {
   /**
@@ -495,11 +494,12 @@ module.exports = class Color {
    * @return {string} a string representing this color.
    */
   toString(space = Color.Space.HEX) {
+    function leadingZeroHex(n) { return `${(n < 16) ? '0' : ''}${n.toString(16)}` }
     if (space === Color.Space.HEX) {
-      let red   = this.red.toString(16)
-      let green = this.green.toString(16)
-      let blue  = this.blue.toString(16)
-      let alpha = Math.round(this.alpha * 255).toString(16)
+      let red   = leadingZeroHex(this.red)
+      let green = leadingZeroHex(this.green)
+      let blue  = leadingZeroHex(this.blue)
+      let alpha = leadingZeroHex(Math.round(this.alpha * 255))
       return `#${red}${green}${blue}${(this.alpha < 1) ? alpha : ''}`
     }
     let alpha = `, ${Math.round(this.alpha * 1000) / 1000}`
