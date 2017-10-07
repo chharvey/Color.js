@@ -1,9 +1,6 @@
-var Util = require('./Util.class.js')
-
 /**
  * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color components
  * and a possible transparency component.
- * @module
  */
 module.exports = class Color {
   /**
@@ -56,6 +53,25 @@ module.exports = class Color {
     /** @private */ this._max    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
     /** @private */ this._min    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
     /** @private */ this._chroma = this._max - this._min
+  }
+
+
+
+  /**
+   * @summary Calculate the alpha of two or more overlapping translucent colors.
+   * @description For two overlapping colors with respective alphas `a` and `b`, the compounded alpha
+   * of an even mix will be `1 - (1-a)*(1-b)`.
+   * For three, it would be `1 - (1-a)*(1-b)*(1-c)`.
+   * An alpha is a number within the interval [0,1], and represents the opacity
+   * of a translucent color. An alpha of 0 is completely transparent; an alpha
+   * of 1 is completely opaque.
+   * @private
+   * @version EXPERIMENTAL
+   * @param  {Array<number>} alphas an array of alphas
+   * @return {number} the compounded alpha
+   */
+  static _compoundOpacity(alphas) {
+    return 1 - alphas.map((a) => 1-a).reduce((a,b) => a*b)
   }
 
 
@@ -389,7 +405,7 @@ module.exports = class Color {
     let red   = Math.round((1-w) * this.red    +  w * $color.red  )
     let green = Math.round((1-w) * this.green  +  w * $color.green)
     let blue  = Math.round((1-w) * this.blue   +  w * $color.blue )
-    let alpha = Util.compoundOpacity([this.alpha, $color.alpha])
+    let alpha = Color._compoundOpacity([this.alpha, $color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -406,7 +422,7 @@ module.exports = class Color {
     let red   = Math.round(Math.sqrt((1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2)))
     let green = Math.round(Math.sqrt((1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2)))
     let blue  = Math.round(Math.sqrt((1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2)))
-    let alpha = Util.compoundOpacity([this.alpha, $color.alpha])
+    let alpha = Color._compoundOpacity([this.alpha, $color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -466,7 +482,6 @@ module.exports = class Color {
    * If the alpha of this color is 1, then the string returned will represent an opaque color,
    * e.g. `hsv()`, `hsl()`, etc. Otherwise, the string returned will represent a translucent color,
    * `hsva()`, `hsla()`, etc.
-   * See {@link Color.ColorSpace} for types of arguments accepted.
    * The format of the numbers returned will be as follows:
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
@@ -475,39 +490,41 @@ module.exports = class Color {
    * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
    * The default format is HEX.
    * @see https://drafts.csswg.org/css-color/#hex-notation
-   * @param {Color.ColorSpace=} space represents the space in which this color exists
+   * @param {Color.Space=} space represents the space in which this color exists
    * @return {string} a string representing this color.
    */
-  toString(space = Color.ColorSpace.HEX) {
-    if (space === Color.ColorSpace.HEX) {
-      let red   = Util.toHex(this.red)
-      let green = Util.toHex(this.green)
-      let blue  = Util.toHex(this.blue)
-      let alpha = Util.toHex(Math.round(this.alpha * 255))
+  toString(space = Color.Space.HEX) {
+    function leadingZeroHex(n) { return `${(n < 16) ? '0' : ''}${n.toString(16)}` }
+    if (space === Color.Space.HEX) {
+      let red   = leadingZeroHex(this.red)
+      let green = leadingZeroHex(this.green)
+      let blue  = leadingZeroHex(this.blue)
+      let alpha = leadingZeroHex(Math.round(this.alpha * 255))
       return `#${red}${green}${blue}${(this.alpha < 1) ? alpha : ''}`
     }
     let alpha = `, ${Math.round(this.alpha * 1000) / 1000}`
-    let returned = {
-      [Color.ColorSpace.HSV]: () => [
+    let arr = {
+      [Color.Space.RGB]: () => this.rgb.slice(0,3),
+      [Color.Space.HSV]: () => [
         Math.round(this.hsvHue *  10) /  10,
         Math.round(this.hsvSat * 100) / 100,
         Math.round(this.hsvVal * 100) / 100,
       ],
-      [Color.ColorSpace.HSL]: () => [
+      [Color.Space.HSL]: () => [
         Math.round(this.hslHue *  10) /  10,
         Math.round(this.hslSat * 100) / 100,
         Math.round(this.hslLum * 100) / 100,
       ],
-      [Color.ColorSpace.HWB]: () => [
+      [Color.Space.HWB]: () => [
         Math.round(this.hwbHue *  10) /  10,
         Math.round(this.hwbWht * 100) / 100,
         Math.round(this.hwbBlk * 100) / 100,
       ],
-      default: () => this.rgb.slice(0,3),
+      default: () => { throw new TypeError('Argument must be of type `Color.Space`.') },
     }
     return (this.alpha < 1) ?
-      `${space}a(${(returned[space] || returned.default).call(this).join(', ')}${alpha})`
-    : `${space}(${(returned[space] || returned.default).call(this).join(', ')})`
+      `${space}a(${(arr[space] || arr.default).call(this).join(', ')}${alpha})`
+    : `${space}(${(arr[space] || arr.default).call(this).join(', ')})`
   }
 
 
@@ -596,7 +613,7 @@ module.exports = class Color {
   /**
    * Return a new Color object, given a string.
    * The string must have one of the following formats:
-   *  1. `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase). The `#` must be included.
+   *  1. `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase or uppercase). The `#` must be included.
    *  2. `#rrggbbaa`, where `aa` is alpha
    *  3. `rgb(r,g,b)`    or `rgb(r, g, b)`    , with integer RGB components (in base 10, out of 255)
    *  4. `rgba(r,g,b,a)` or `rgba(r, g, b, a)`, where `a` is alpha
@@ -611,10 +628,10 @@ module.exports = class Color {
    */
   static fromString(str) {
     if (str[0] === '#') {
-      let red   = Util.toDec(str.slice(1,3))
-      let green = Util.toDec(str.slice(3,5))
-      let blue  = Util.toDec(str.slice(5,7))
-      let alpha = (str.length === 9) ? Util.toDec(str.slice(7,9))/255 : 1
+      let red   = parseInt(str.slice(1,3), 16)
+      let green = parseInt(str.slice(3,5), 16)
+      let blue  = parseInt(str.slice(5,7), 16)
+      let alpha = (str.length === 9) ? parseInt(str.slice(7,9), 16)/255 : 1
       return new Color(red, green, blue, alpha)
     }
     let returned = {
@@ -651,7 +668,7 @@ module.exports = class Color {
     let greens = $colors.map(($c) => $c.green)
     let blues  = $colors.map(($c) => $c.blue )
     let alphas = $colors.map(($c) => $c.alpha)
-    return new Color(...[reds, greens, blues].map(compoundComponents), Util.compoundOpacity(alphas))
+    return new Color(...[reds, greens, blues].map(compoundComponents), Color._compoundOpacity(alphas))
   }
 
 
@@ -660,7 +677,7 @@ module.exports = class Color {
    * Enum for the types of string representations of colors.
    * @enum {string}
    */
-  static get ColorSpace() {
+  static get Space() {
     return {
       /* #rrggbb[aa] */          HEX: 'hex',
       /* rgb[a](r, g, b[, a]) */ RGB: 'rgb',
