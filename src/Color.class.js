@@ -1,7 +1,6 @@
 /**
  * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color components
  * and a possible transparency component.
- * @class
  */
 class Color {
   /**
@@ -435,7 +434,7 @@ class Color {
     let red   = Math.round((1-w) * this.red    +  w * $color.red  )
     let green = Math.round((1-w) * this.green  +  w * $color.green)
     let blue  = Math.round((1-w) * this.blue   +  w * $color.blue )
-    let alpha = this._compoundOpacity([this.alpha, $color.alpha])
+    let alpha = Color._compoundOpacity([this.alpha, $color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -453,7 +452,7 @@ class Color {
     let red   = Math.round(Math.sqrt((1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2)))
     let green = Math.round(Math.sqrt((1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2)))
     let blue  = Math.round(Math.sqrt((1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2)))
-    let alpha = this._compoundOpacity([this.alpha, $color.alpha])
+    let alpha = Color._compoundOpacity([this.alpha, $color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -528,11 +527,12 @@ class Color {
    * @returns {string} a string representing this color.
    */
   toString(space = Color.Space.HEX) {
+    function leadingZeroHex(n) { return `${(n < 16) ? '0' : ''}${n.toString(16)}` }
     if (space === Color.Space.HEX) {
-      let red   = this.red.toString(16)
-      let green = this.green.toString(16)
-      let blue  = this.blue.toString(16)
-      let alpha = Math.round(this.alpha * 255).toString(16)
+      let red   = leadingZeroHex(this.red)
+      let green = leadingZeroHex(this.green)
+      let blue  = leadingZeroHex(this.blue)
+      let alpha = leadingZeroHex(Math.round(this.alpha * 255))
       return `#${red}${green}${blue}${(this.alpha < 1) ? alpha : ''}`
     }
     let alpha = `, ${Math.round(this.alpha * 1000) / 1000}`
@@ -707,7 +707,7 @@ class Color {
     let greens = $colors.map(($c) => $c.green)
     let blues  = $colors.map(($c) => $c.blue )
     let alphas = $colors.map(($c) => $c.alpha)
-    return new Color(...[reds, greens, blues].map(compoundComponents), this._compoundOpacity(alphas))
+    return new Color(...[reds, greens, blues].map(compoundComponents), Color._compoundOpacity(alphas))
   }
 }
 
