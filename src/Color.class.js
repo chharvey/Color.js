@@ -1,3 +1,5 @@
+const NAMES = require('./color-names.json')
+
 /**
  * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color components
  * and a possible transparency component.
@@ -560,6 +562,16 @@ class Color {
     : `${space}(${(arr[space] || arr.default).call(this).join(', ')})`
   }
 
+  /**
+   * Return a string name of this color, if one exists.
+   * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
+   * @returns {?string} the name of this color, else `null` if it does not have one
+   */
+  name() {
+    let found_obj = NAMES.find((c) => c.hex.toLowerCase()===this.toString(Color.Space.HEX))
+    return (found_obj) ? found_obj.name : null
+  }
+
 
 
   /**
@@ -659,9 +671,12 @@ class Color {
    *  8.  `hsla(h, s, l, a)`, where `a` is alpha
    *  9.  `hwb(h, w, b)`    , with decimal HWB components (in base 10)
    *  10. `hwba(h, w, b, a)`, where `a` is alpha
+   *  11. *Any exact string match of a named color*
+   * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
    * @version LOCKED
    * @param {string} str a string of one of the forms described
    * @returns {Color} a new Color object constructed from the given string
+   * @throws  {Error} if the string given is not a valid format
    */
   static fromString(str) {
     if (str[0] === '#') {
@@ -671,15 +686,20 @@ class Color {
       let alpha = (str.length === 9) ? parseInt(str.slice(7,9), 16)/255 : 1
       return new Color(red, green, blue, alpha)
     }
+    if (!str.includes('(')) {
+      let found_obj = NAMES.find((c) => c.name===str)
+      if (!found_obj) throw new Error('No color found for the name given.')
+      return Color.fromString(found_obj.hex)
+    }
     let returned = {
       rgb    : (comps) => new Color    (...comps),
       hsv    : (comps) => Color.fromHSV(...comps),
       hsl    : (comps) => Color.fromHSL(...comps),
       hwb    : (comps) => Color.fromHWB(...comps),
-      default: (comps) => null,
     }
-    return (returned[str.slice(0,3)] || returned.default).call(null,
-      str.slice((str[3] === 'a') ? 5 : 4, -1).split(',').map((s) => +s))
+    let from_fn = returned[str.slice(0,3)]
+    if (!from_fn) throw new Error('Incorrect string format given.')
+    return from_fn.call(null, str.slice((str[3] === 'a') ? 5 : 4, -1).split(',').map((s) => +s))
   }
 
   /**

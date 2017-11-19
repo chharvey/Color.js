@@ -62,6 +62,12 @@ function color_toString() {
   console.log(new Color(64,128,256).toString())
 }
 
+function color_name() {
+  console.log(`black:     ${Color.fromString('#000000').name()}`)
+  console.log(`palegreen: ${Color.fromString('#98FB98').name()}`)
+  console.log(`null:      ${Color.fromString('#c0ffee').name()}`)
+}
+
 function color_fromHSV() {
 }
 
@@ -74,6 +80,13 @@ function color_fromHWB() {
 function color_fromString() {
   console.log(Color.fromString('hwb(0,0,0)').toString())
   console.log(Color.fromString('#e4f0f6').toString(Color.Space.HWB))
+  console.log(Color.fromString('black').toString(Color.Space.RGB))
+  console.log(Color.fromString('palegreen').toString(Color.Space.RGB))
+  try {
+    console.log(Color.fromString('kcalb').toString(Color.Space.RGB))
+  } catch (e) {
+    console.log(`not able to call Color.fromString('kcalb')`)
+  }
 }
 
 function color_static_mix() {
@@ -97,6 +110,7 @@ function color_static_mix() {
 // color_equals();
 // color_contrastRatio();
 // color_toString();
+// color_name();
 // color_fromHSV();
 // color_fromHSL();
 // color_fromHWB();
