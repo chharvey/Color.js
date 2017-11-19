@@ -661,7 +661,7 @@ class Color {
   /**
    * @summary Return a new Color object, given a string.
    * @description The string must have one of the following formats (spaces optional):
-   *  1.  `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase or uppercase). The `#` must be included.
+   *  1.  `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase or uppercase) (the `#` must be included)
    *  2.  `#rrggbbaa`, where `aa` is alpha
    *  3.  `rgb(r, g, b)`    , with integer RGB components (in base 10, out of 255)
    *  4.  `rgba(r, g, b, a)`, where `a` is alpha
@@ -671,14 +671,15 @@ class Color {
    *  8.  `hsla(h, s, l, a)`, where `a` is alpha
    *  9.  `hwb(h, w, b)`    , with decimal HWB components (in base 10)
    *  10. `hwba(h, w, b, a)`, where `a` is alpha
-   *  11. *Any exact string match of a named color*
+   *  11. *any exact string match of a named color*
    * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
    * @version LOCKED
-   * @param {string} str a string of one of the forms described
+   * @param {string=} str a string of one of the forms described
    * @returns {Color} a new Color object constructed from the given string
    * @throws  {Error} if the string given is not a valid format
    */
-  static fromString(str) {
+  static fromString(str = '') {
+    if (str === '') return new Color()
     if (str[0] === '#') {
       let red   = parseInt(str.slice(1,3), 16)
       let green = parseInt(str.slice(3,5), 16)

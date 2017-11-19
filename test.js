@@ -80,12 +80,22 @@ function color_fromHWB() {
 function color_fromString() {
   console.log(Color.fromString('hwb(0,0,0)').toString())
   console.log(Color.fromString('#e4f0f6').toString(Color.Space.HWB))
+  try {
+    console.log(Color.fromString().toString(Color.Space.RGB))
+  } catch (e) {
+    console.log(`unable to call Color.fromString()`)
+  }
+  try {
+    console.log(Color.fromString('').toString(Color.Space.RGB))
+  } catch (e) {
+    console.log(`unable to call Color.fromString('')`)
+  }
   console.log(Color.fromString('black').toString(Color.Space.RGB))
   console.log(Color.fromString('palegreen').toString(Color.Space.RGB))
   try {
     console.log(Color.fromString('kcalb').toString(Color.Space.RGB))
   } catch (e) {
-    console.log(`not able to call Color.fromString('kcalb')`)
+    console.log(`unable to call Color.fromString('kcalb')`)
   }
 }
 
