@@ -2,9 +2,9 @@ var Color = require('./index.js')
 
 
 function color() {
-  console.log(new Color(128,128,128, 0.5))
-  console.log(new Color(64,128,256))
-  console.log(new Color())
+  console.log(new Color(128,128,128, 0.5).rgb.join())
+  console.log(new Color(64,128,256).rgb.join())
+  console.log(new Color().rgb.join())
 }
 
 function color_hsvHue() {
@@ -15,9 +15,11 @@ function color_complement() {
 }
 
 function color_rotate() {
+  console.log(new Color(255,0,0).rotate(120))
 }
 
 function color_invert() {
+  console.log(new Color(128,0,0).invert())
 }
 
 function color_saturate() {
@@ -60,6 +62,12 @@ function color_toString() {
   console.log(new Color(64,128,256).toString())
 }
 
+function color_name() {
+  console.log(`black:     ${Color.fromString('#000000').name()}`)
+  console.log(`palegreen: ${Color.fromString('#98FB98').name()}`)
+  console.log(`null:      ${Color.fromString('#c0ffee').name()}`)
+}
+
 function color_fromHSV() {
 }
 
@@ -72,6 +80,23 @@ function color_fromHWB() {
 function color_fromString() {
   console.log(Color.fromString('hwb(0,0,0)').toString())
   console.log(Color.fromString('#e4f0f6').toString(Color.Space.HWB))
+  try {
+    console.log(Color.fromString().toString(Color.Space.RGB))
+  } catch (e) {
+    console.log(`unable to call Color.fromString()`)
+  }
+  try {
+    console.log(Color.fromString('').toString(Color.Space.RGB))
+  } catch (e) {
+    console.log(`unable to call Color.fromString('')`)
+  }
+  console.log(Color.fromString('black').toString(Color.Space.RGB))
+  console.log(Color.fromString('palegreen').toString(Color.Space.RGB))
+  try {
+    console.log(Color.fromString('kcalb').toString(Color.Space.RGB))
+  } catch (e) {
+    console.log(`unable to call Color.fromString('kcalb')`)
+  }
 }
 
 function color_static_mix() {
@@ -95,6 +120,7 @@ function color_static_mix() {
 // color_equals();
 // color_contrastRatio();
 // color_toString();
+// color_name();
 // color_fromHSV();
 // color_fromHSL();
 // color_fromHWB();
