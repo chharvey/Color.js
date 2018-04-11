@@ -481,8 +481,8 @@ class Color {
   /**
    * @summary Return the *contrast ratio* between two colors.
    * @description
-   * NOTE: In this method, alpha is ignored, that is, the colors are assumed to be opaque.
-   * @see https://www.w3.org/TR/WCAG/#contrast-ratiodef
+   * In this method, alpha is ignored, that is, the colors are assumed to be opaque.
+   * @see https://www.w3.org/TR/WCAG/#dfn-contrast-ratio
    * @version STABLE
    * @param {Color} $color the second color to check
    * @returns {number} the contrast ratio of this color with the argument
@@ -517,14 +517,14 @@ class Color {
    * @description If the alpha of this color is 1, then the string returned will represent an opaque color,
    * e.g. `hsv()`, `hsl()`, etc. Otherwise, the string returned will represent a translucent color,
    * `hsva()`, `hsla()`, etc.
-   * The format of the numbers returned will be as follows. The default format is HEX.
+   * The format of the numbers returned will be as follows. The default format is {@link Color.Space.HEX}.
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
    * - HSV/HSL-sat/val/lum and HWB-wht/blk values will be base 10 decimals in [0,1] rounded to the nearest 0.01
    * - all RGB values will be base 10 integers in [0,255], one to three digits
    * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
    * @version STABLE
-   * @see https://drafts.csswg.org/css-color/#hex-notation
+   * @see https://www.w3.org/TR/css-color-4/#hex-notation
    * @param {Color.Space=} space represents the space in which this color exists
    * @returns {string} a string representing this color.
    */
@@ -609,6 +609,7 @@ class Color {
    * The HSL-luminosity must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
    * @version LOCKED
+   * @see https://www.w3.org/TR/css-color-4/#hsl-to-rgb
    * @param {number=} hue the HSL-hue component of this color (a number 0—360)
    * @param {number=} sat the HSL-sat component of this color (a number 0—1)
    * @param {number=} lum the HSL-lum component of this color (a number 0—1)
@@ -632,12 +633,13 @@ class Color {
 
   /**
    * @summary Return a new Color object, given hue, white, and black in HWB-space.
-   * @description Credit for formula is due to https://drafts.csswg.org/css-color/#hwb-to-rgb
+   * @description
    * The HWB-hue must be between 0 and 360.
    * The HWB-white must be between 0.0 and 1.0.
    * The HWB-black must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
    * @version LOCKED
+   * @see https://www.w3.org/TR/css-color-4/#hwb-to-rgb
    * @param {number=} hue the HWB-hue component of this color (a number 0—360)
    * @param {number=} wht the HWB-wht component of this color (a number 0—1)
    * @param {number=} blk the HWB-blk component of this color (a number 0—1)
