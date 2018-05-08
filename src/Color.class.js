@@ -568,8 +568,8 @@ class Color {
    * @returns {?string} the name of this color, else `null` if it does not have one
    */
   name() {
-    let found_obj = NAMES.find((c) => c.hex.toLowerCase()===this.toString(Color.Space.HEX))
-    return (found_obj) ? found_obj.name : null
+    const returned = Object.entries(NAMES).find((c) => c[1].toLowerCase() === this.toString(Color.Space.HEX)) || null
+    return (returned || [null])[0]
   }
 
 
@@ -688,9 +688,9 @@ class Color {
       return new Color(red, green, blue, alpha)
     }
     if (!str.includes('(')) {
-      let found_obj = NAMES.find((c) => c.name===str)
-      if (!found_obj) throw new Error('No color found for the name given.')
-      return Color.fromString(found_obj.hex)
+      const returned = NAMES[str]
+      if (!returned) throw new Error(`No color found for the name given: '${str}'.`)
+      return Color.fromString(returned)
     }
     let returned = {
       rgb    : (comps) => new Color    (...comps),
