@@ -531,34 +531,36 @@ class Color {
   toString(space = Color.Space.HEX) {
     function leadingZeroHex(n) { return `${(n < 16) ? '0' : ''}${n.toString(16)}` }
     if (space === Color.Space.HEX) {
-      let red   = leadingZeroHex(this.red)
-      let green = leadingZeroHex(this.green)
-      let blue  = leadingZeroHex(this.blue)
-      let alpha = leadingZeroHex(Math.round(this.alpha * 255))
-      return `#${red}${green}${blue}${(this.alpha < 1) ? alpha : ''}`
+      return `#${this.rgb.slice(0,3).map(leadingZeroHex).join('')}${(this.alpha < 1) ? leadingZeroHex(Math.round(this.alpha * 255)) : ''}`
     }
-    let alpha = `, ${Math.round(this.alpha * 1000) / 1000}`
     let arr = {
-      [Color.Space.RGB]: () => this.rgb.slice(0,3),
-      [Color.Space.HSV]: () => [
+      [Color.Space.RGB]: function () { return this.rgb.slice(0,3) },
+      [Color.Space.HSV]: function () {
+        return [
+          // REVIEW:INDENTATION
         Math.round(this.hsvHue *  10) /  10,
         Math.round(this.hsvSat * 100) / 100,
         Math.round(this.hsvVal * 100) / 100,
-      ],
-      [Color.Space.HSL]: () => [
+        ]
+      },
+      [Color.Space.HSL]: function () {
+        return [
         Math.round(this.hslHue *  10) /  10,
         Math.round(this.hslSat * 100) / 100,
         Math.round(this.hslLum * 100) / 100,
-      ],
-      [Color.Space.HWB]: () => [
+        ]
+      },
+      [Color.Space.HWB]: function () {
+        return [
         Math.round(this.hwbHue *  10) /  10,
         Math.round(this.hwbWht * 100) / 100,
         Math.round(this.hwbBlk * 100) / 100,
-      ],
-      default: () => { throw new TypeError('Argument must be of type `Color.Space`.') },
+        ]
+      },
+      default() { throw new TypeError('Argument must be of type `Color.Space`.') },
     }
     return (this.alpha < 1) ?
-      `${space}a(${(arr[space] || arr.default).call(this).join(', ')}${alpha})`
+      `${space}a(${(arr[space] || arr.default).call(this).join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
     : `${space}(${(arr[space] || arr.default).call(this).join(', ')})`
   }
 
