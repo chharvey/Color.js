@@ -1,8 +1,8 @@
 const NAMES = require('./color-names.json')
 
 /**
- * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color components
- * and a possible transparency component.
+ * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color channels
+ * and a possible transparency channel.
  */
 class Color {
   /**
@@ -13,16 +13,16 @@ class Color {
    * where the alpha is 1 by default.
    * Calling `new Color()` (no arguments) will result in transparent (`#00000000`).
    * @version STABLE
-   * @param {number=} r the red   component of this color (an integer 0—255)
-   * @param {number=} g the green component of this color (an integer 0—255)
-   * @param {number=} b the blue  component of this color (an integer 0—255)
-   * @param {number=} a the alpha component of this color (a number 0–1)
+   * @param {number=} r the red   channel of this color (an integer 0—255)
+   * @param {number=} g the green channel of this color (an integer 0—255)
+   * @param {number=} b the blue  channel of this color (an integer 0—255)
+   * @param {number=} a the alpha channel of this color (a number 0–1)
    */
   constructor(r = 0, g = 0, b = 0, a = 1) {
     if (arguments.length === 0) a = 0
 
     /**
-     * @summary The red component of this color. An integer in [0,255].
+     * @summary The red channel of this color. An integer in [0,255].
      * @type {number}
      * @private
      * @final
@@ -30,7 +30,7 @@ class Color {
     this._RED = Math.round(Math.max(0, Math.min(r, 255)))
 
     /**
-     * @summary The green component of this color. An integer in [0,255].
+     * @summary The green channel of this color. An integer in [0,255].
      * @type {number}
      * @private
      * @final
@@ -38,7 +38,7 @@ class Color {
     this._GREEN = Math.round(Math.max(0, Math.min(g, 255)))
 
     /**
-     * @summary The blue component of this color. An integer in [0,255].
+     * @summary The blue channel of this color. An integer in [0,255].
      * @type {number}
      * @private
      * @final
@@ -46,7 +46,7 @@ class Color {
     this._BLUE = Math.round(Math.max(0, Math.min(b, 255)))
 
     /**
-     * @summary The alpha component of this color. An number in [0,1].
+     * @summary The alpha channel of this color. An number in [0,1].
      * @type {number}
      * @private
      * @final
@@ -80,21 +80,21 @@ class Color {
 
 
   /**
-   * @summary Get the red component of this color.
+   * @summary Get the red channel of this color.
    * @version LOCKED
    * @type {number}
    */
   get red() { return this._RED }
 
   /**
-   * @summary Get the green component of this color.
+   * @summary Get the green channel of this color.
    * @version LOCKED
    * @type {number}
    */
   get green() { return this._GREEN }
 
   /**
-   * @summary Get the blue component of this color.
+   * @summary Get the blue channel of this color.
    * @version LOCKED
    * @type {number}
    */
@@ -248,7 +248,7 @@ class Color {
 
 
   /**
-   * @summary Get an array of RGBA components.
+   * @summary Get an array of RGBA channels.
    * @version LOCKED
    * @type {Array<number>}
    */
@@ -256,7 +256,7 @@ class Color {
   /** Alias of {@link Color#rgb} */ get rgba() { return this.rgb }
 
   /**
-   * @summary Get an array of HSVA components.
+   * @summary Get an array of HSVA channels.
    * @version LOCKED
    * @type {Array<number>}
    */
@@ -264,7 +264,7 @@ class Color {
   /** Alias of {@link Color#hsv} */ get hsva() { return this.hsv }
 
   /**
-   * @summary Get an array of HSLA components.
+   * @summary Get an array of HSLA channels.
    * @version LOCKED
    * @type {Array<number>}
    */
@@ -272,7 +272,7 @@ class Color {
   /** Alias of {@link Color#hsl} */ get hsla() { return this.hsl }
 
   /**
-   * @summary Get an array of HWBA components.
+   * @summary Get an array of HWBA channels.
    * @version LOCKED
    * @type {Array<number>}
    */
@@ -461,7 +461,7 @@ class Color {
   /**
    * @summary Compare this color with another color.
    * @description Return `true` if they are the same color.
-   * Colors are the “same” iff they have exactly the same RGBA components.
+   * Colors are the “same” iff they have exactly the same RGBA channels.
    * Thus, “same” colors are “replaceable”.
    * @version STABLE
    * @param  {Color} $color a Color object
@@ -581,9 +581,9 @@ class Color {
    * The HSV-value must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
    * @version LOCKED
-   * @param {number=} hue the HSV-hue component of this color (a number 0—360)
-   * @param {number=} sat the HSV-sat component of this color (a number 0—1)
-   * @param {number=} val the HSV-val component of this color (a number 0—1)
+   * @param {number=} hue the HSV-hue channel of this color (a number 0—360)
+   * @param {number=} sat the HSV-sat channel of this color (a number 0—1)
+   * @param {number=} val the HSV-val channel of this color (a number 0—1)
    * @param {number=} alpha the opacity (a number 0—1)
    * @returns {Color} a new Color object with hsva(hue, sat, val, alpha)
    */
@@ -610,9 +610,9 @@ class Color {
    * The alpha must be between 0.0 and 1.0.
    * @version LOCKED
    * @see https://www.w3.org/TR/css-color-4/#hsl-to-rgb
-   * @param {number=} hue the HSL-hue component of this color (a number 0—360)
-   * @param {number=} sat the HSL-sat component of this color (a number 0—1)
-   * @param {number=} lum the HSL-lum component of this color (a number 0—1)
+   * @param {number=} hue the HSL-hue channel of this color (a number 0—360)
+   * @param {number=} sat the HSL-sat channel of this color (a number 0—1)
+   * @param {number=} lum the HSL-lum channel of this color (a number 0—1)
    * @param {number=} alpha the opacity (a number 0—1)
    * @returns {Color} a new Color object with hsla(hue, sat, lum, alpha)
    */
@@ -640,9 +640,9 @@ class Color {
    * The alpha must be between 0.0 and 1.0.
    * @version LOCKED
    * @see https://www.w3.org/TR/css-color-4/#hwb-to-rgb
-   * @param {number=} hue the HWB-hue component of this color (a number 0—360)
-   * @param {number=} wht the HWB-wht component of this color (a number 0—1)
-   * @param {number=} blk the HWB-blk component of this color (a number 0—1)
+   * @param {number=} hue the HWB-hue channel of this color (a number 0—360)
+   * @param {number=} wht the HWB-wht channel of this color (a number 0—1)
+   * @param {number=} blk the HWB-blk channel of this color (a number 0—1)
    * @param {number=} alpha the opacity (a number 0—1)
    * @returns {Color} a new Color object with hwba(hue, wht, blk, alpha)
    */
@@ -665,13 +665,13 @@ class Color {
    * @description The string must have one of the following formats (spaces optional):
    *  1.  `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase or uppercase) (the `#` must be included)
    *  2.  `#rrggbbaa`, where `aa` is alpha
-   *  3.  `rgb(r, g, b)`    , with integer RGB components (in base 10, out of 255)
+   *  3.  `rgb(r, g, b)`    , with integer RGB channels (in base 10, out of 255)
    *  4.  `rgba(r, g, b, a)`, where `a` is alpha
-   *  5.  `hsv(h, s, v)`    , with decimal HSV components (in base 10)
+   *  5.  `hsv(h, s, v)`    , with decimal HSV channels (in base 10)
    *  6.  `hsva(h, s, v, a)`, where `a` is alpha
-   *  7.  `hsl(h, s, l)`    , with decimal HSL components (in base 10)
+   *  7.  `hsl(h, s, l)`    , with decimal HSL channels (in base 10)
    *  8.  `hsla(h, s, l, a)`, where `a` is alpha
-   *  9.  `hwb(h, w, b)`    , with decimal HWB components (in base 10)
+   *  9.  `hwb(h, w, b)`    , with decimal HWB channels (in base 10)
    *  10. `hwba(h, w, b, a)`, where `a` is alpha
    *  11. *any exact string match of a named color*
    * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
@@ -695,10 +695,10 @@ class Color {
       return Color.fromString(found_obj.hex)
     }
     let returned = {
-      rgb    : (comps) => new Color    (...comps),
-      hsv    : (comps) => Color.fromHSV(...comps),
-      hsl    : (comps) => Color.fromHSL(...comps),
-      hwb    : (comps) => Color.fromHWB(...comps),
+      rgb    : (channels) => new Color    (...channels),
+      hsv    : (channels) => Color.fromHSV(...channels),
+      hsl    : (channels) => Color.fromHSL(...channels),
+      hwb    : (channels) => Color.fromHWB(...channels),
     }
     let from_fn = returned[str.slice(0,3)]
     if (!from_fn) throw new Error('Incorrect string format given.')
