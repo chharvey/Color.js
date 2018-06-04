@@ -322,9 +322,16 @@ class Color {
    * A parameter of 1.0 returns a color with full saturation, and 0.0 returns an identical color.
    * A negative number will {@link Color#desaturate()|desaturate} this color.
    * Set `relative = true` to specify the amount as relative to the color’s current saturation.
+   *
+   * For example, if `$color` has an HSL-sat of 0.5, then calling `$color.saturate(0.5)` will return
+   * a new color with an HSL-sat of 1.0, because the argument 0.5 is simply added to the color’s saturation.
+   * However, calling `$color.saturate(0.5, true)` will return a new color with an HSL-sat of 0.75,
+   * because the argument 0.5, relative to the color’s current saturation of 0.5, results in
+   * an added saturation of 0.25.
+   *
    * @version LOCKED
    * @param  {number} p must be between -1.0 and 1.0; the value by which to saturate this color
-   * @param  {boolean=} relative `true` if the saturation added is relative
+   * @param  {boolean=} relative should the saturation added be relative?
    * @returns {Color} a new Color object that corresponds to this color saturated by `p`
    */
   saturate(p, relative = false) {
@@ -339,7 +346,7 @@ class Color {
    * @version LOCKED
    * @see Color#saturate
    * @param  {number} p must be between -1.0 and 1.0; the value by which to desaturate this color
-   * @param  {boolean=} relative `true` if the saturation subtracted is relative
+   * @param  {boolean=} relative should the saturation subtracted be relative?
    * @returns {Color} a new Color object that corresponds to this color desaturated by `p`
    */
   desaturate(p, relative = false) {
@@ -361,7 +368,7 @@ class Color {
    *
    * @version LOCKED
    * @param {number} p must be between -1.0 and 1.0; the amount by which to lighten this color
-   * @param {boolean=} relative `true` if the luminosity added is relative
+   * @param {boolean=} relative should the luminosity added be relative?
    * @returns {Color} a new Color object that corresponds to this color lightened by `p`
    */
   lighten(p, relative = false) {
@@ -376,7 +383,7 @@ class Color {
    * @version LOCKED
    * @see Color#lighten
    * @param {number} p must be between -1.0 and 1.0; the amount by which to darken this color
-   * @param {boolean=} relative `true` if the luminosity subtracted is relative
+   * @param {boolean=} relative should the luminosity subtracted be relative?
    * @returns {Color} a new Color object that corresponds to this color darkened by `p`
    */
   darken(p, relative = false) {
@@ -465,7 +472,7 @@ class Color {
    * Thus, “same” colors are “replaceable”.
    * @version STABLE
    * @param  {Color} $color a Color object
-   * @returns {boolean} `true` if the argument is the same color as this color
+   * @returns {boolean} is the argument the “same” color as this color?
    */
   equals($color) {
     if (this === $color) return true
@@ -716,7 +723,7 @@ class Color {
    * @version STABLE
    * @see Color#mix
    * @param {Array<Color>} $colors an array of Color objects, of length >=2
-   * @param {boolean=} blur if `true`, use a blurring function ({@link Color#blur})
+   * @param {boolean=} blur should I use a blurring function ({@link Color#blur})?
    * @returns {Color} a mix of the given colors
    */
   static mix($colors, blur = false) {
