@@ -732,6 +732,26 @@ class Color {
     let alphas = $colors.map(($c) => $c.alpha)
     return new Color(...[reds, greens, blues].map(compoundComponents), Color._compoundOpacity(alphas))
   }
+
+  /**
+   * @summary Generate a random color.
+   * @version EXPERIMENTAL
+   * @param   {boolean=} alpha should the alpha channel also be randomized? (default is 1)
+   * @returns {Color} a Color object with random values
+   */
+  static random(alpha = true) {
+    return Color.fromString(`#${Math.random().toString(16).slice(2, (alpha) ? 10 : 8)}`)
+  }
+
+  /**
+   * @summary Randomly select a Named Color.
+   * @version EXPERIMENTAL
+   * @returns {Color} one of the Named Colors, randomly chosen
+   */
+  static randomName() {
+    let names = Object.entries(NAMES)
+    return Color.fromString(names[Math.floor(Math.random() * names.length)][0])
+  }
 }
 
 

@@ -102,6 +102,18 @@ function color_fromString() {
 function color_static_mix() {
 }
 
+function color_static_random() {
+  console.log(Color.random(     ).toString(Color.Space.HSL))
+  console.log(Color.random(true ).toString(Color.Space.HSL))
+  console.log(Color.random(false).toString(Color.Space.HSL))
+}
+
+function color_static_randomName() {
+  console.log(Color.randomName().name())
+  console.log(Color.randomName().name())
+  console.log(Color.randomName().name())
+}
+
 
 // color();
 // color_hsvHue();
@@ -126,3 +138,5 @@ function color_static_mix() {
 // color_fromHWB();
 // color_fromString();
 // color_static_mix();
+// color_static_random();
+// color_static_randomName();
