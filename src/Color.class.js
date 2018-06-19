@@ -435,15 +435,15 @@ class Color {
    * In other words, `w` is "how much of the other color you want."
    * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
    * @version STABLE
-   * @param {Color} $color the second color
+   * @param {Color} color the second color
    * @param {number=} w between 0.0 and 1.0; the weight favoring the other color
    * @returns {Color} a mix of the two given colors
    */
-  mix($color, w = 0.5) {
-    let red   = Math.round((1-w) * this.red    +  w * $color.red  )
-    let green = Math.round((1-w) * this.green  +  w * $color.green)
-    let blue  = Math.round((1-w) * this.blue   +  w * $color.blue )
-    let alpha = Color._compoundOpacity([this.alpha, $color.alpha])
+  mix(color, w = 0.5) {
+    let red   = Math.round((1-w) * this.red    +  w * color.red  )
+    let green = Math.round((1-w) * this.green  +  w * color.green)
+    let blue  = Math.round((1-w) * this.blue   +  w * color.blue )
+    let alpha = Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -453,15 +453,15 @@ class Color {
    * visually accurate, slightly brighter, mix.
    * @version STABLE
    * @see {@link https://www.youtube.com/watch?v=LKnqECcg6Gw|“Computer Color is Broken” by minutephysics}
-   * @param  {Color} $color the second color
+   * @param  {Color} color the second color
    * @param  {number=} w between 0.0 and 1.0; the weight favoring the other color
    * @returns {Color} a blur of the two given colors
    */
-  blur($color, w = 0.5) {
-    let red   = Math.round(Math.sqrt((1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2)))
-    let green = Math.round(Math.sqrt((1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2)))
-    let blue  = Math.round(Math.sqrt((1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2)))
-    let alpha = Color._compoundOpacity([this.alpha, $color.alpha])
+  blur(color, w = 0.5) {
+    let red   = Math.round(Math.sqrt((1-w) * (this.red   ** 2)  +  w * (color.red   ** 2)))
+    let green = Math.round(Math.sqrt((1-w) * (this.green ** 2)  +  w * (color.green ** 2)))
+    let blue  = Math.round(Math.sqrt((1-w) * (this.blue  ** 2)  +  w * (color.blue  ** 2)))
+    let alpha = Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -471,17 +471,17 @@ class Color {
    * Colors are the “same” iff they have exactly the same RGBA channels.
    * Thus, “same” colors are “replaceable”.
    * @version STABLE
-   * @param  {Color} $color a Color object
+   * @param  {Color} color a Color object
    * @returns {boolean} is the argument the “same” color as this color?
    */
-  equals($color) {
-    if (this === $color) return true
-    if (this.alpha === 0 && $color.alpha === 0) return true
+  equals(color) {
+    if (this === color) return true
+    if (this.alpha === 0 && color.alpha === 0) return true
     return (
-         this.red   === $color.red
-      && this.green === $color.green
-      && this.blue  === $color.blue
-      && this.alpha === $color.alpha
+         this.red   === color.red
+      && this.green === color.green
+      && this.blue  === color.blue
+      && this.alpha === color.alpha
     )
   }
 
@@ -491,10 +491,10 @@ class Color {
    * In this method, alpha is ignored, that is, the colors are assumed to be opaque.
    * @see https://www.w3.org/TR/WCAG/#dfn-contrast-ratio
    * @version STABLE
-   * @param {Color} $color the second color to check
+   * @param {Color} color the second color to check
    * @returns {number} the contrast ratio of this color with the argument
    */
-  contrastRatio($color) {
+  contrastRatio(color) {
     /**
      * Return the relative lumance of a color.
      * @private
@@ -509,13 +509,13 @@ class Color {
        * @returns {number} the output of some mathematical function of `p`
        */
       function coef(p) {
-        return (p <= 0.03928) ? p/12.92 : Math.pow((p + 0.055)/1.055, 2.4)
+        return (p <= 0.03928) ? p / 12.92 : ((p + 0.055) / 1.055) ** 2.4
       }
       return 0.2126*coef(c.red  /255)
            + 0.7152*coef(c.green/255)
            + 0.0722*coef(c.blue /255)
     }
-    let both = [luma(this), luma($color)]
+    let both = [luma(this), luma(color)]
     return (Math.max(...both) + 0.05) / (Math.min(...both) + 0.05)
   }
 
@@ -714,29 +714,29 @@ class Color {
 
   /**
    * @summary Mix (average) a set of 2 or more colors. The average will be weighted evenly.
-   * @description If two colors $a and $b are given, calling this static method, `Color.mix([$a, $b])`,
-   * is equivalent to calling `$a.mix($b)` without a weight.
-   * However, calling `Color.mix([$a, $b, $c])` with 3 or more colors yields an even mix,
-   * and will *NOT* yield the same results as calling `$a.mix($b).mix($c)`, which yields an uneven mix.
+   * @description If two colors `a` and `b` are given, calling this static method, `Color.mix([a, b])`,
+   * is equivalent to calling `a.mix(b)` without a weight.
+   * However, calling `Color.mix([a, b, c])` with 3 or more colors yields an even mix,
+   * and will *NOT* yield the same results as calling `a.mix(b).mix(c)`, which yields an uneven mix.
    * Note that the order of the given colors does not change the result, that is,
-   * `Color.mix([$a, $b, $c])` will return the same result as `Color.mix([$c, $b, $a])`.
+   * `Color.mix([a, b, c])` will return the same result as `Color.mix([c, b, a])`.
    * @version STABLE
    * @see Color#mix
-   * @param {Array<Color>} $colors an array of Color objects, of length >=2
+   * @param {Array<Color>} colors an array of Color objects, of length >=2
    * @param {boolean=} blur should I use a blurring function ({@link Color#blur})?
    * @returns {Color} a mix of the given colors
    */
-  static mix($colors, blur = false) {
-    function compoundComponents($arr) {
+  static mix(colors, blur = false) {
+    function compoundComponents(arr) {
       if (blur) {
-        return Math.round(Math.sqrt($arr.reduce((a,b) => a*a + b*b) / $colors.length))
+        return Math.round(Math.sqrt(arr.reduce((a,b) => a*a + b*b) / colors.length))
       }
-      return Math.round($arr.reduce((a,b) => a + b) / $colors.length)
+      return Math.round(arr.reduce((a,b) => a + b) / colors.length)
     }
-    let reds   = $colors.map(($c) => $c.red  )
-    let greens = $colors.map(($c) => $c.green)
-    let blues  = $colors.map(($c) => $c.blue )
-    let alphas = $colors.map(($c) => $c.alpha)
+    let reds   = colors.map((c) => c.red  )
+    let greens = colors.map((c) => c.green)
+    let blues  = colors.map((c) => c.blue )
+    let alphas = colors.map((c) => c.alpha)
     return new Color(...[reds, greens, blues].map(compoundComponents), Color._compoundOpacity(alphas))
   }
 }
