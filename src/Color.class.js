@@ -7,7 +7,7 @@ const NAMES = require('./color-names.json')
 class Color {
   /**
    *
-   * @summary Construct a Color object.
+   * @summary Construct a new Color object.
    * @description Calling `new Color(r, g, b, a)` (4 arguments) specifies default behavior.
    * Calling `new Color(r, g, b)` (3 arguments) will result in an opaque color (`#rrggbbFF`),
    * where the alpha is 1 by default.
@@ -533,7 +533,7 @@ class Color {
    * @version STABLE
    * @see https://www.w3.org/TR/css-color-4/#hex-notation
    * @param {Color.Space=} space represents the space in which this color exists
-   * @returns {string} a string representing this color.
+   * @returns {string} a string representing this color
    */
   toString(space = Color.Space.HEX) {
     function leadingZeroHex(n) { return `${(n < 16) ? '0' : ''}${n.toString(16)}` }
