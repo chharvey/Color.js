@@ -663,36 +663,44 @@ export default class Color {
   }
 
   /**
-   * @summary Return the *contrast ratio* between two colors.
+   * @summary Return the *relative luminance* of this color.
    * @description
-   * In this method, alpha is ignored, that is, the colors are assumed to be opaque.
+   * The relative luminance of a color is the perceived brightness of that color.
+   * Note that this is different from the actual luminosity of the color.
+   * For examle, lime (`#00ff00`) and blue (`#0000ff`) both have a luminosity of 0.5,
+   * even though lime is perceived to be much brighter than blue.
+   * In fact, the relative luminance of lime is 0.72 — about ten times that of blue’s, which is only 0.07.
+   *
+   * In this method, alpha is ignored, that is, the color is assumed to be opaque.
+   * @see https://en.wikipedia.org/wiki/Relative_luminance#Relative_luminance_in_colorimetric_spaces
+   * @returns the relative luminance of this color, a number 0–1
+   */
+  relativeLuminance(): number {
+    /**
+     * @summary Transform an sRGB channel value (gamma-corrected) to a linear value.
+     * @see https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
+     * @private
+     * @param   c_srgb a decimal representation of an rgb component (0–1) of a color
+     * @returns the transformed linear value
+     */
+    function sRGBToLinear(c_srgb: number): number {
+      return (c_srgb <= 0.03928) ? c_srgb / 12.92 : ((c_srgb + 0.055) / 1.055) ** 2.4
+    }
+    return 0.2126 * sRGBToLinear(this.red   / 255)
+         + 0.7152 * sRGBToLinear(this.green / 255)
+         + 0.0722 * sRGBToLinear(this.blue  / 255)
+  }
+
+  /**
+   * @summary Return the *contrast ratio* between two colors.
    * @see https://www.w3.org/TR/WCAG/#dfn-contrast-ratio
    * @param   color the second color to check
-   * @returns the contrast ratio of this color with the argument
+   * @returns the contrast ratio of this color with the argument, a number 1–21
    */
   contrastRatio(color: Color): number {
-    /**
-     * @summary Return the relative lumance of a color.
-     * @private
-     * @param   c a Color object
-     * @returns the relative lumance of the color
-     */
-    function luma(c: Color): number {
-      /**
-       * @summary A helper calculation.
-       * @private
-       * @param   p a decimal representation of an rgb component of a color
-       * @returns the output of some mathematical function of `p`
-       */
-      function coef(p: number): number {
-        return (p <= 0.03928) ? p / 12.92 : ((p + 0.055) / 1.055) ** 2.4
-      }
-      return 0.2126*coef(c.red  /255)
-           + 0.7152*coef(c.green/255)
-           + 0.0722*coef(c.blue /255)
-    }
-    let both: number[] = [luma(this), luma(color)]
-    return (Math.max(...both) + 0.05) / (Math.min(...both) + 0.05)
+    let rl_this:  number =  this.relativeLuminance()
+    let rl_color: number = color.relativeLuminance()
+    return (Math.max(rl_this, rl_color) + 0.05) / (Math.min(rl_this, rl_color) + 0.05)
   }
 
   /**
