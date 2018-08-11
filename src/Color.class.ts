@@ -36,6 +36,27 @@ export default class Color {
   }
 
   /**
+   * @summary Transform an sRGB channel value (gamma-corrected) to a linear value.
+   * @see https://www.w3.org/Graphics/Color/sRGB.html
+   * @see https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
+   * @param   c_srgb an rgb component (0–1) of a color
+   * @returns the transformed linear value
+   */
+  private static _sRGB_Linear(c_srgb: number): number {
+    return (c_srgb <= 0.03928) ? c_srgb / 12.92 : ((c_srgb + 0.055) / 1.055) ** 2.4
+  }
+  /**
+   * @summary Return the inverse of {@link Color._sRGB_Linear}.
+   * @see https://www.w3.org/Graphics/Color/sRGB.html
+   * @see https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
+   * @param   c_lin a perceived luminance (linear) of a color’s rgb component
+   * @returns the transformed sRGB value
+   */
+  private static _linear_sRGB(c_lin: number): number {
+    return (c_lin <= 0.00304) ? c_lin * 12.92 : 1.055 * c_lin ** (1 / 2.4) - 0.055
+  }
+
+  /**
    * @summary Return a new Color object, given hue, saturation, and value in HSV-space.
    * @description The HSV-hue must be between 0 and 360.
    * The HSV-saturation must be between 0.0 and 1.0.
@@ -672,23 +693,14 @@ export default class Color {
    * In fact, the relative luminance of lime is 0.72 — about ten times that of blue’s, which is only 0.07.
    *
    * In this method, alpha is ignored, that is, the color is assumed to be opaque.
+   * @see https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
    * @see https://en.wikipedia.org/wiki/Relative_luminance#Relative_luminance_in_colorimetric_spaces
    * @returns the relative luminance of this color, a number 0–1
    */
   relativeLuminance(): number {
-    /**
-     * @summary Transform an sRGB channel value (gamma-corrected) to a linear value.
-     * @see https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
-     * @private
-     * @param   c_srgb a decimal representation of an rgb component (0–1) of a color
-     * @returns the transformed linear value
-     */
-    function sRGBToLinear(c_srgb: number): number {
-      return (c_srgb <= 0.03928) ? c_srgb / 12.92 : ((c_srgb + 0.055) / 1.055) ** 2.4
-    }
-    return 0.2126 * sRGBToLinear(this.red   / 255)
-         + 0.7152 * sRGBToLinear(this.green / 255)
-         + 0.0722 * sRGBToLinear(this.blue  / 255)
+    return 0.2126 * Color._sRGB_Linear(this.red   / 255)
+         + 0.7152 * Color._sRGB_Linear(this.green / 255)
+         + 0.0722 * Color._sRGB_Linear(this.blue  / 255)
   }
 
   /**
