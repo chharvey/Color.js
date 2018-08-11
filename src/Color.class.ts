@@ -1,4 +1,24 @@
 const NAMES = require('./color-names.json')
+/**
+ * @todo TODO take from `continuum/Util.average`
+ * @private
+ * @param   a 1st number
+ * @param   b 2nd number; for best results, should be greater than `a`
+ * @param   w number between [0,1]; weight of 2nd number
+ * @returns the weighted average of `a` and `b`
+ */
+function average(a: number, b: number, w = 0.5): number {
+  return (a * (1-w)) + (b * w)
+}
+/**
+ * @todo TODO take from `continuum/Util.aMean`
+ * @private
+ * @param   arr an array of numbers
+ * @returns the arithmetic mean of the array entries
+ */
+function aMean(arr: number[]): number {
+  return arr.reduce((a,b) => a + b) / arr.length
+}
 
 
 /**
@@ -33,6 +53,29 @@ export default class Color {
    */
   private static _compoundOpacity(alphas: number[]): number {
     return 1 - alphas.map((a) => 1-a).reduce((a,b) => a*b)
+  }
+
+  /**
+   * @summary Transform an sRGB channel value (gamma-corrected) to a linear value.
+   * @description Approximately, the square of the value: `(x) => x * x`.
+   * @see https://www.w3.org/Graphics/Color/sRGB.html
+   * @see https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
+   * @param   c_srgb an rgb component (0–1) of a color
+   * @returns the transformed linear value
+   */
+  private static _sRGB_Linear(c_srgb: number): number {
+    return (c_srgb <= 0.03928) ? c_srgb / 12.92 : ((c_srgb + 0.055) / 1.055) ** 2.4
+  }
+  /**
+   * @summary Return the inverse of {@link Color._sRGB_Linear}.
+   * @description Approximately, the square root of the value: `(x) => Math.sqrt(x)`.
+   * @see https://www.w3.org/Graphics/Color/sRGB.html
+   * @see https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
+   * @param   c_lin a perceived luminance (linear) of a color’s rgb component (0–1)
+   * @returns the transformed sRGB value
+   */
+  private static _linear_sRGB(c_lin: number): number {
+    return (c_lin <= 0.00304) ? c_lin * 12.92 : 1.055 * c_lin ** (1 / 2.4) - 0.055
   }
 
   /**
@@ -166,26 +209,46 @@ export default class Color {
    * @description If two colors `a` and `b` are given, calling this static method, `Color.mix([a, b])`,
    * is equivalent to calling `a.mix(b)` without a weight.
    * However, calling `Color.mix([a, b, c])` with 3 or more colors yields an even mix,
-   * and will *NOT* yield the same results as calling `a.mix(b).mix(c)`, which yields an uneven mix.
+   * and will *not* yield the same results as calling `a.mix(b).mix(c)`, which yields an uneven mix.
    * Note that the order of the given colors does not change the result, that is,
-   * `Color.mix([a, b, c])` will return the same result as `Color.mix([c, b, a])`.
+   * `Color.mix([a, b, c])` returns the same result as `Color.mix([c, b, a])`.
    * @see Color#mix
    * @param   colors an array of Color objects, of length >=2
    * @param   blur should I use a blurring function ({@link Color#blur})?
    * @returns a mix of the given colors
    */
   static mix(colors: Color[], blur = false): Color {
-    function compoundComponents(arr: number[]): number {
-      if (blur) {
-        return Math.round(Math.sqrt(arr.reduce((a,b) => a*a + b*b) / colors.length))
-      }
-      return Math.round(arr.reduce((a,b) => a + b) / colors.length)
+    if (blur) return Color.blur(colors) // TODO remove param `blur` on v3+
+    let red  : number = Math.round(aMean(colors.map((c) => c.red  )))
+    let green: number = Math.round(aMean(colors.map((c) => c.green)))
+    let blue : number = Math.round(aMean(colors.map((c) => c.blue )))
+    let alpha: number = Color._compoundOpacity(colors.map((c) => c.alpha))
+    return new Color(red, green, blue, alpha)
+  }
+
+  /**
+   * @summary Blur a set of 2 or more colors. The average will be weighted evenly.
+   * @description Behaves almost exactly the same as {@link Color.mix},
+   * except that this method uses a more visually accurate, slightly brighter, mix.
+   * @see Color#blur
+   * @param   colors an array of Color objects, of length >=2
+   * @returns a blur of the given colors
+   */
+  static blur(colors: Color[]): Color {
+    /**
+     * @summary Calculate the compound value of two or more overlapping same-channel values.
+     * @private
+     * @param   arr an array of same-channel values (red, green, or blue)
+     * @returns the compounded value
+     */
+    function compoundChannel(arr: number[]): number {
+      return Color._linear_sRGB(aMean(arr.map(Color._sRGB_Linear)))
     }
-    let reds  : number[] = colors.map((c) => c.red  )
-    let greens: number[] = colors.map((c) => c.green)
-    let blues : number[] = colors.map((c) => c.blue )
-    let alphas: number[] = colors.map((c) => c.alpha)
-    return new Color(...[reds, greens, blues].map(compoundComponents), Color._compoundOpacity(alphas))
+    let red  : number = Math.round(compoundChannel(colors.map((c) => c.red  )))
+    let green: number = Math.round(compoundChannel(colors.map((c) => c.green)))
+    let blue : number = Math.round(compoundChannel(colors.map((c) => c.blue )))
+    let alpha: number =     Color._compoundOpacity(colors.map((c) => c.alpha))
+    return new Color(red, green, blue, alpha)
   }
 
   /**
@@ -609,37 +672,47 @@ export default class Color {
 
   /**
    * @summary Mix (average) another color with this color, with a given weight favoring that color.
-   * @description If `w == 0.0`, return exactly this color.
-   * `w == 1.0` return exactly the other color.
-   * `w == 0.5` (default if omitted) return a perfectly even mix.
-   * In other words, `w` is "how much of the other color you want."
-   * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
+   * @description If `weight == 0.0`, return exactly this color.
+   * `weight == 1.0` return exactly the other color.
+   * `weight == 0.5` (default if omitted) return a perfectly even mix.
+   * In other words, `weight` is "how much of the other color you want."
+   * Note that `color1.mix(color2, weight)` returns the same result as `color2.mix(color1, 1-weight)`.
    * @param   color the second color
-   * @param   w between 0.0 and 1.0; the weight favoring the other color
+   * @param   weight between 0.0 and 1.0; the weight favoring the other color
    * @returns a mix of the two given colors
    */
-  mix(color: Color, w = 0.5): this {
-    let red  : number = Math.round((1-w) * this.red    +  w * color.red  )
-    let green: number = Math.round((1-w) * this.green  +  w * color.green)
-    let blue : number = Math.round((1-w) * this.blue   +  w * color.blue )
+  mix(color: Color, weight = 0.5): this {
+    let red  : number = Math.round(average(this.red  , color.red  , weight))
+    let green: number = Math.round(average(this.green, color.green, weight))
+    let blue : number = Math.round(average(this.blue , color.blue , weight))
     let alpha: number = Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
   /**
    * @summary Blur another color with this color, with a given weight favoring that color.
-   * @description Behaves almost exactly the same as {@link Color#mix}, except that this method uses a more
-   * visually accurate, slightly brighter, mix.
+   * @description Behaves almost exactly the same as {@link Color#mix},
+   * except that this method uses a more visually accurate, slightly brighter, mix.
    * @see {@link https://www.youtube.com/watch?v=LKnqECcg6Gw|“Computer Color is Broken” by minutephysics}
    * @param   color the second color
-   * @param   w between 0.0 and 1.0; the weight favoring the other color
+   * @param   weight between 0.0 and 1.0; the weight favoring the other color
    * @returns a blur of the two given colors
    */
-  blur(color: Color, w = 0.5): this {
-    let red  : number = Math.round(Math.sqrt((1-w) * (this.red   ** 2)  +  w * (color.red   ** 2)))
-    let green: number = Math.round(Math.sqrt((1-w) * (this.green ** 2)  +  w * (color.green ** 2)))
-    let blue : number = Math.round(Math.sqrt((1-w) * (this.blue  ** 2)  +  w * (color.blue  ** 2)))
-    let alpha: number = Color._compoundOpacity([this.alpha, color.alpha])
+  blur(color: Color, weight = 0.5): this {
+    /**
+     * @summary Calculate the compound value of two overlapping same-channel values.
+     * @private
+     * @param   c1 the first channel value (red, green, or blue)
+     * @param   c2 the second channel value (corresponding to `c1`)
+     * @returns the compounded value
+     */
+    function compoundChannel(c1: number, c2: number) {
+      return Color._linear_sRGB(average(Color._sRGB_Linear(c1), Color._sRGB_Linear(c2), weight))
+    }
+    let red  : number = Math.round(compoundChannel(this.red  , color.red  ))
+    let green: number = Math.round(compoundChannel(this.green, color.green))
+    let blue : number = Math.round(compoundChannel(this.blue , color.blue ))
+    let alpha: number =    Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -663,36 +736,35 @@ export default class Color {
   }
 
   /**
-   * @summary Return the *contrast ratio* between two colors.
+   * @summary Return the *relative luminance* of this color.
    * @description
-   * In this method, alpha is ignored, that is, the colors are assumed to be opaque.
+   * The relative luminance of a color is the perceived brightness of that color.
+   * Note that this is different from the actual luminosity of the color.
+   * For examle, lime (`#00ff00`) and blue (`#0000ff`) both have a luminosity of 0.5,
+   * even though lime is perceived to be much brighter than blue.
+   * In fact, the relative luminance of lime is 0.72 — about ten times that of blue’s, which is only 0.07.
+   *
+   * In this method, alpha is ignored, that is, the color is assumed to be opaque.
+   * @see https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+   * @see https://en.wikipedia.org/wiki/Relative_luminance#Relative_luminance_in_colorimetric_spaces
+   * @returns the relative luminance of this color, a number 0–1
+   */
+  relativeLuminance(): number {
+    return 0.2126 * Color._sRGB_Linear(this.red   / 255)
+         + 0.7152 * Color._sRGB_Linear(this.green / 255)
+         + 0.0722 * Color._sRGB_Linear(this.blue  / 255)
+  }
+
+  /**
+   * @summary Return the *contrast ratio* between two colors.
    * @see https://www.w3.org/TR/WCAG/#dfn-contrast-ratio
    * @param   color the second color to check
-   * @returns the contrast ratio of this color with the argument
+   * @returns the contrast ratio of this color with the argument, a number 1–21
    */
   contrastRatio(color: Color): number {
-    /**
-     * @summary Return the relative lumance of a color.
-     * @private
-     * @param   c a Color object
-     * @returns the relative lumance of the color
-     */
-    function luma(c: Color): number {
-      /**
-       * @summary A helper calculation.
-       * @private
-       * @param   p a decimal representation of an rgb component of a color
-       * @returns the output of some mathematical function of `p`
-       */
-      function coef(p: number): number {
-        return (p <= 0.03928) ? p / 12.92 : ((p + 0.055) / 1.055) ** 2.4
-      }
-      return 0.2126*coef(c.red  /255)
-           + 0.7152*coef(c.green/255)
-           + 0.0722*coef(c.blue /255)
-    }
-    let both: number[] = [luma(this), luma(color)]
-    return (Math.max(...both) + 0.05) / (Math.min(...both) + 0.05)
+    let rl_this:  number =  this.relativeLuminance()
+    let rl_color: number = color.relativeLuminance()
+    return (Math.max(rl_this, rl_color) + 0.05) / (Math.min(rl_this, rl_color) + 0.05)
   }
 
   /**
