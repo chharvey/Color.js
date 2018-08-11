@@ -103,7 +103,6 @@ export default class Color {
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
     return new Color(...rgb.map((el) => Math.round((el + m) * 255)), alpha)
   }
-  /** Alias of {@link Color.fromHSV} */ static fromHSVA(h=0,s=0,v=0,a=1) { return Color.fromHSV(h,s,v,a) }
 
   /**
    * @summary Return a new Color object, given hue, saturation, and luminosity in HSL-space.
@@ -131,7 +130,6 @@ export default class Color {
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
     return new Color(...rgb.map((el) => Math.round((el + m) * 255)), alpha)
   }
-  /** Alias of {@link Color.fromHSL} */ static fromHSLA(h=0,s=0,l=0,a=1) { return Color.fromHSL(h,s,l,a) }
 
   /**
    * @summary Return a new Color object, given hue, white, and black in HWB-space.
@@ -159,7 +157,6 @@ export default class Color {
     return new Color(rgb.map(function (el) { return Math.round(el * 255) }))
      */
   }
-  /** Alias of {@link Color.fromHWB} */ static fromHWBA(h=0,w=0,b=0,a=1) { return Color.fromHWB(h,w,b,a) }
 
   /**
    * @summary Return a new Color object, given a string.
@@ -506,25 +503,21 @@ export default class Color {
    * @summary Get an array of RGBA channels.
    */
   get rgb(): number[] { return [this.red, this.green, this.blue, this.alpha] }
-  /** Alias of {@link Color#rgb} */ get rgba() { return this.rgb }
 
   /**
    * @summary Get an array of HSVA channels.
    */
   get hsv(): number[] { return [this.hsvHue, this.hsvSat, this.hsvVal, this.alpha] }
-  /** Alias of {@link Color#hsv} */ get hsva() { return this.hsv }
 
   /**
    * @summary Get an array of HSLA channels.
    */
   get hsl(): number[] { return [this.hslHue, this.hslSat, this.hslLum, this.alpha] }
-  /** Alias of {@link Color#hsl} */ get hsla() { return this.hsl }
 
   /**
    * @summary Get an array of HWBA channels.
    */
   get hwb(): number[] { return [this.hwbHue, this.hwbWht, this.hwbBlk, this.alpha] }
-  /** Alias of {@link Color#hwb} */ get hwba() { return this.hwb }
 
 
 
