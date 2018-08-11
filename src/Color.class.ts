@@ -37,6 +37,7 @@ export default class Color {
 
   /**
    * @summary Transform an sRGB channel value (gamma-corrected) to a linear value.
+   * @description Approximately, the square of the value: `(x) => x * x`.
    * @see https://www.w3.org/Graphics/Color/sRGB.html
    * @see https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
    * @param   c_srgb an rgb component (0–1) of a color
@@ -47,9 +48,10 @@ export default class Color {
   }
   /**
    * @summary Return the inverse of {@link Color._sRGB_Linear}.
+   * @description Approximately, the square root of the value: `(x) => Math.sqrt(x)`.
    * @see https://www.w3.org/Graphics/Color/sRGB.html
    * @see https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
-   * @param   c_lin a perceived luminance (linear) of a color’s rgb component
+   * @param   c_lin a perceived luminance (linear) of a color’s rgb component (0–1)
    * @returns the transformed sRGB value
    */
   private static _linear_sRGB(c_lin: number): number {
@@ -196,17 +198,31 @@ export default class Color {
    * @returns a mix of the given colors
    */
   static mix(colors: Color[], blur = false): Color {
-    function compoundComponents(arr: number[]): number {
-      if (blur) {
-        return Math.round(Math.sqrt(arr.reduce((a,b) => a*a + b*b) / colors.length))
+    /**
+     * @summary Calculate the compound value of two or more overlapping same-channel values.
+     * @private
+     * @param   arr an array of same-channel values (red, green, or blue)
+     * @returns the compounded value
+     */
+    function compoundChannel(arr: number[]): number {
+      /**
+       * @todo TODO take from `continuum/Util.aMean`
+       * @private
+       * @param   arr an array of numbers
+       * @returns the arithmetic mean of the array entries
+       */
+      function aMean(arr: number[]): number {
+        return arr.reduce((a,b) => a + b) / arr.length
       }
-      return Math.round(arr.reduce((a,b) => a + b) / colors.length)
+      return (blur) ?
+        Color._linear_sRGB(aMean(arr.map(Color._sRGB_Linear))) :
+        aMean(arr)
     }
-    let reds  : number[] = colors.map((c) => c.red  )
-    let greens: number[] = colors.map((c) => c.green)
-    let blues : number[] = colors.map((c) => c.blue )
-    let alphas: number[] = colors.map((c) => c.alpha)
-    return new Color(...[reds, greens, blues].map(compoundComponents), Color._compoundOpacity(alphas))
+    let red  : number = Math.round(compoundChannel(colors.map((c) => c.red  )))
+    let green: number = Math.round(compoundChannel(colors.map((c) => c.green)))
+    let blue : number = Math.round(compoundChannel(colors.map((c) => c.blue )))
+    let alpha: number =     Color._compoundOpacity(colors.map((c) => c.alpha))
+    return new Color(red, green, blue, alpha)
   }
 
   /**
@@ -636,13 +652,24 @@ export default class Color {
    * In other words, `w` is "how much of the other color you want."
    * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
    * @param   color the second color
-   * @param   w between 0.0 and 1.0; the weight favoring the other color
+   * @param   weight between 0.0 and 1.0; the weight favoring the other color
    * @returns a mix of the two given colors
    */
-  mix(color: Color, w = 0.5): this {
-    let red  : number = Math.round((1-w) * this.red    +  w * color.red  )
-    let green: number = Math.round((1-w) * this.green  +  w * color.green)
-    let blue : number = Math.round((1-w) * this.blue   +  w * color.blue )
+  mix(color: Color, weight = 0.5): this {
+    /**
+     * @todo TODO take from `continuum/Util.average`
+     * @private
+     * @param   a 1st number
+     * @param   b 2nd number; for best results, should be greater than `a`
+     * @param   w number between [0,1]; weight of 2nd number
+     * @returns the weighted average of `a` and `b`
+     */
+    function average(a: number, b: number, w = 0.5): number {
+      return (a * (1-w)) + (b * w)
+    }
+    let red  : number = Math.round(average(this.red  , color.red  , weight))
+    let green: number = Math.round(average(this.green, color.green, weight))
+    let blue : number = Math.round(average(this.blue , color.blue , weight))
     let alpha: number = Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
@@ -653,14 +680,35 @@ export default class Color {
    * visually accurate, slightly brighter, mix.
    * @see {@link https://www.youtube.com/watch?v=LKnqECcg6Gw|“Computer Color is Broken” by minutephysics}
    * @param   color the second color
-   * @param   w between 0.0 and 1.0; the weight favoring the other color
+   * @param   weight between 0.0 and 1.0; the weight favoring the other color
    * @returns a blur of the two given colors
    */
-  blur(color: Color, w = 0.5): this {
-    let red  : number = Math.round(Math.sqrt((1-w) * (this.red   ** 2)  +  w * (color.red   ** 2)))
-    let green: number = Math.round(Math.sqrt((1-w) * (this.green ** 2)  +  w * (color.green ** 2)))
-    let blue : number = Math.round(Math.sqrt((1-w) * (this.blue  ** 2)  +  w * (color.blue  ** 2)))
-    let alpha: number = Color._compoundOpacity([this.alpha, color.alpha])
+  blur(color: Color, weight = 0.5): this {
+    /**
+     * @summary Calculate the compound value of two overlapping same-channel values.
+     * @private
+     * @param   c1 the first channel value (red, green, or blue)
+     * @param   c2 the second channel value (corresponding to `c1`)
+     * @returns the compounded value
+     */
+    function compoundChannel(c1: number, c2: number) {
+      /**
+       * @todo TODO take from `continuum/Util.average`
+       * @private
+       * @param   a 1st number
+       * @param   b 2nd number; for best results, should be greater than `a`
+       * @param   w number between [0,1]; weight of 2nd number
+       * @returns the weighted average of `a` and `b`
+       */
+      function average(a: number, b: number, w = 0.5): number {
+        return (a * (1-w)) + (b * w)
+      }
+      return Color._linear_sRGB(average(Color._sRGB_Linear(c1), Color._sRGB_Linear(c2), weight))
+    }
+    let red  : number = Math.round(compoundChannel(this.red  , color.red  ))
+    let green: number = Math.round(compoundChannel(this.green, color.green))
+    let blue : number = Math.round(compoundChannel(this.blue , color.blue ))
+    let alpha: number =     Color._compoundOpacity(this.alpha, color.alpha)
     return new Color(red, green, blue, alpha)
   }
 
