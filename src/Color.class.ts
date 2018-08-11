@@ -1,4 +1,24 @@
 const NAMES = require('./color-names.json')
+/**
+ * @todo TODO take from `continuum/Util.average`
+ * @private
+ * @param   a 1st number
+ * @param   b 2nd number; for best results, should be greater than `a`
+ * @param   w number between [0,1]; weight of 2nd number
+ * @returns the weighted average of `a` and `b`
+ */
+function average(a: number, b: number, w = 0.5): number {
+  return (a * (1-w)) + (b * w)
+}
+/**
+ * @todo TODO take from `continuum/Util.aMean`
+ * @private
+ * @param   arr an array of numbers
+ * @returns the arithmetic mean of the array entries
+ */
+function aMean(arr: number[]): number {
+  return arr.reduce((a,b) => a + b) / arr.length
+}
 
 
 /**
@@ -189,15 +209,32 @@ export default class Color {
    * @description If two colors `a` and `b` are given, calling this static method, `Color.mix([a, b])`,
    * is equivalent to calling `a.mix(b)` without a weight.
    * However, calling `Color.mix([a, b, c])` with 3 or more colors yields an even mix,
-   * and will *NOT* yield the same results as calling `a.mix(b).mix(c)`, which yields an uneven mix.
+   * and will *not* yield the same results as calling `a.mix(b).mix(c)`, which yields an uneven mix.
    * Note that the order of the given colors does not change the result, that is,
-   * `Color.mix([a, b, c])` will return the same result as `Color.mix([c, b, a])`.
+   * `Color.mix([a, b, c])` returns the same result as `Color.mix([c, b, a])`.
    * @see Color#mix
    * @param   colors an array of Color objects, of length >=2
    * @param   blur should I use a blurring function ({@link Color#blur})?
    * @returns a mix of the given colors
    */
   static mix(colors: Color[], blur = false): Color {
+    if (blur) return Color.blur(colors) // TODO remove param `blur` on v3+
+    let red  : number = Math.round(aMean(colors.map((c) => c.red  )))
+    let green: number = Math.round(aMean(colors.map((c) => c.green)))
+    let blue : number = Math.round(aMean(colors.map((c) => c.blue )))
+    let alpha: number = Color._compoundOpacity(colors.map((c) => c.alpha))
+    return new Color(red, green, blue, alpha)
+  }
+
+  /**
+   * @summary Blur a set of 2 or more colors. The average will be weighted evenly.
+   * @description Behaves almost exactly the same as {@link Color.mix},
+   * except that this method uses a more visually accurate, slightly brighter, mix.
+   * @see Color#blur
+   * @param   colors an array of Color objects, of length >=2
+   * @returns a blur of the given colors
+   */
+  static blur(colors: Color[]): Color {
     /**
      * @summary Calculate the compound value of two or more overlapping same-channel values.
      * @private
@@ -205,18 +242,7 @@ export default class Color {
      * @returns the compounded value
      */
     function compoundChannel(arr: number[]): number {
-      /**
-       * @todo TODO take from `continuum/Util.aMean`
-       * @private
-       * @param   arr an array of numbers
-       * @returns the arithmetic mean of the array entries
-       */
-      function aMean(arr: number[]): number {
-        return arr.reduce((a,b) => a + b) / arr.length
-      }
-      return (blur) ?
-        Color._linear_sRGB(aMean(arr.map(Color._sRGB_Linear))) :
-        aMean(arr)
+      return Color._linear_sRGB(aMean(arr.map(Color._sRGB_Linear)))
     }
     let red  : number = Math.round(compoundChannel(colors.map((c) => c.red  )))
     let green: number = Math.round(compoundChannel(colors.map((c) => c.green)))
@@ -646,27 +672,16 @@ export default class Color {
 
   /**
    * @summary Mix (average) another color with this color, with a given weight favoring that color.
-   * @description If `w == 0.0`, return exactly this color.
-   * `w == 1.0` return exactly the other color.
-   * `w == 0.5` (default if omitted) return a perfectly even mix.
-   * In other words, `w` is "how much of the other color you want."
-   * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
+   * @description If `weight == 0.0`, return exactly this color.
+   * `weight == 1.0` return exactly the other color.
+   * `weight == 0.5` (default if omitted) return a perfectly even mix.
+   * In other words, `weight` is "how much of the other color you want."
+   * Note that `color1.mix(color2, weight)` returns the same result as `color2.mix(color1, 1-weight)`.
    * @param   color the second color
    * @param   weight between 0.0 and 1.0; the weight favoring the other color
    * @returns a mix of the two given colors
    */
   mix(color: Color, weight = 0.5): this {
-    /**
-     * @todo TODO take from `continuum/Util.average`
-     * @private
-     * @param   a 1st number
-     * @param   b 2nd number; for best results, should be greater than `a`
-     * @param   w number between [0,1]; weight of 2nd number
-     * @returns the weighted average of `a` and `b`
-     */
-    function average(a: number, b: number, w = 0.5): number {
-      return (a * (1-w)) + (b * w)
-    }
     let red  : number = Math.round(average(this.red  , color.red  , weight))
     let green: number = Math.round(average(this.green, color.green, weight))
     let blue : number = Math.round(average(this.blue , color.blue , weight))
@@ -676,8 +691,8 @@ export default class Color {
 
   /**
    * @summary Blur another color with this color, with a given weight favoring that color.
-   * @description Behaves almost exactly the same as {@link Color#mix}, except that this method uses a more
-   * visually accurate, slightly brighter, mix.
+   * @description Behaves almost exactly the same as {@link Color#mix},
+   * except that this method uses a more visually accurate, slightly brighter, mix.
    * @see {@link https://www.youtube.com/watch?v=LKnqECcg6Gw|“Computer Color is Broken” by minutephysics}
    * @param   color the second color
    * @param   weight between 0.0 and 1.0; the weight favoring the other color
@@ -692,23 +707,12 @@ export default class Color {
      * @returns the compounded value
      */
     function compoundChannel(c1: number, c2: number) {
-      /**
-       * @todo TODO take from `continuum/Util.average`
-       * @private
-       * @param   a 1st number
-       * @param   b 2nd number; for best results, should be greater than `a`
-       * @param   w number between [0,1]; weight of 2nd number
-       * @returns the weighted average of `a` and `b`
-       */
-      function average(a: number, b: number, w = 0.5): number {
-        return (a * (1-w)) + (b * w)
-      }
       return Color._linear_sRGB(average(Color._sRGB_Linear(c1), Color._sRGB_Linear(c2), weight))
     }
     let red  : number = Math.round(compoundChannel(this.red  , color.red  ))
     let green: number = Math.round(compoundChannel(this.green, color.green))
     let blue : number = Math.round(compoundChannel(this.blue , color.blue ))
-    let alpha: number =     Color._compoundOpacity(this.alpha, color.alpha)
+    let alpha: number =    Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
