@@ -214,11 +214,9 @@ export default class Color {
    * `Color.mix([a, b, c])` returns the same result as `Color.mix([c, b, a])`.
    * @see Color#mix
    * @param   colors an array of Color objects, of length >=2
-   * @param   blur should I use a blurring function ({@link Color#blur})?
    * @returns a mix of the given colors
    */
-  static mix(colors: Color[], blur = false): Color {
-    if (blur) return Color.blur(colors) // TODO remove param `blur` on v3+
+  static mix(colors: Color[]): Color {
     let red  : number = Math.round(aMean(colors.map((c) => c.red  )))
     let green: number = Math.round(aMean(colors.map((c) => c.green)))
     let blue : number = Math.round(aMean(colors.map((c) => c.blue )))
