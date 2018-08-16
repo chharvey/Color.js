@@ -32,7 +32,7 @@ function aMean(arr: number[]): number {
  * @throws  {RangeError} when `n` is not a positive integer
  */
 function mod(a: number, n: number): number {
-  if (n <= 0 || n%1 !== 0) throw new RangeError('The divisor must be a positive integer.')
+  if (n <= 0 || n%1 !== 0) throw new RangeError(`The divisor ${n} must be a positive integer.`)
   return ((a % n) + n) % n
 }
 
@@ -295,8 +295,8 @@ export default class Color {
    * @returns one of the Named Colors, randomly chosen
    */
   static randomName(): Color {
-    let names = Object.entries(NAMES)
-    return Color.fromString(names[Math.floor(Math.random() * names.length)][0])
+    let named_colors: [string, string][] = Object.entries(NAMES)
+    return Color.fromString(named_colors[Math.floor(Math.random() * named_colors.length)][0])
   }
 
 
@@ -421,15 +421,15 @@ export default class Color {
    */
   get hsvHue(): number {
     if (this._CHROMA === 0) return 0
-    let rgb_norm = [
+    let rgb_norm: [number, number, number] = [
       this._RED   / 255,
       this._GREEN / 255,
       this._BLUE  / 255,
     ]
     return [
-      (r, g, b) => ((g - b) / this._CHROMA + 6) % 6 * 60,
-      (r, g, b) => ((b - r) / this._CHROMA + 2)     * 60,
-      (r, g, b) => ((r - g) / this._CHROMA + 4)     * 60,
+      (r: number, g: number, b: number) => ((g - b) / this._CHROMA + 6) % 6 * 60,
+      (r: number, g: number, b: number) => ((b - r) / this._CHROMA + 2)     * 60,
+      (r: number, g: number, b: number) => ((r - g) / this._CHROMA + 4)     * 60,
     ][rgb_norm.indexOf(this._MAX)](...rgb_norm)
     /*
      * Exercise: prove:
@@ -803,7 +803,8 @@ export default class Color {
    * @returns the name of this color, else `null` if it does not have one
    */
   name(): string|null {
-    const returned: [string, number][]|null = Object.entries(NAMES).find((c) => c[1].toLowerCase() === this.toString(Color.Space.HEX)) || null
-    return (returned || [null])[0]
+    let named_colors: [string, string][] = Object.entries(NAMES)
+    const returned: [string, string]|null = named_colors.find((c) => c[1].toLowerCase() === this.toString(Color.Space.HEX)) || null
+    return (returned || [returned])[0]
   }
 }
