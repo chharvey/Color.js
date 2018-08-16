@@ -19,6 +19,22 @@ function average(a: number, b: number, w = 0.5): number {
 function aMean(arr: number[]): number {
   return arr.reduce((a,b) => a + b) / arr.length
 }
+/**
+ * @todo TODO put into `extrajs/Number`
+ * @private
+ * @summary Return the remainder of Euclidean division of `a` by `n`.
+ * @description This method returns `a % n` when `a` is positive,
+ * but returns a positive result when `a` is negative.
+ * `n` must be positive.
+ * @param   a the dividend
+ * @param   n the divisor, a positive integer
+ * @returns `((a % n) + n) % n`
+ * @throws  {RangeError} when `n` is not a positive integer
+ */
+function mod(a: number, n: number): number {
+  if (n <= 0 || n%1 !== 0) throw new RangeError('The divisor must be a positive integer.')
+  return ((a % n) + n) % n
+}
 
 
 /**
@@ -91,10 +107,11 @@ export default class Color {
    * @returns a new Color object with hsva(hue, sat, val, alpha)
    */
   static fromHSV(hue = 0, sat = 0, val = 0, alpha = 1): Color {
+    hue = mod(hue, 360)
     let c: number = sat * val
     let x: number = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m: number = val - c
-    let rgb: number[];
+    let rgb: number[] = [c, x, 0]
          if (  0 <= hue && hue <  60) { rgb = [c, x, 0] }
     else if ( 60 <= hue && hue < 120) { rgb = [x, c, 0] }
     else if (120 <= hue && hue < 180) { rgb = [0, c, x] }
@@ -119,10 +136,11 @@ export default class Color {
    * @returns a new Color object with hsla(hue, sat, lum, alpha)
    */
   static fromHSL(hue = 0, sat = 0, lum = 0, alpha = 1): Color {
+    hue = mod(hue, 360)
     let c: number = sat * (1 - Math.abs(2*lum - 1))
     let x: number = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m: number = lum - c/2
-    let rgb: number[];
+    let rgb: number[] = [c, x, 0]
          if (  0 <= hue && hue <  60) { rgb = [c, x, 0] }
     else if ( 60 <= hue && hue < 120) { rgb = [x, c, 0] }
     else if (120 <= hue && hue < 180) { rgb = [0, c, x] }
