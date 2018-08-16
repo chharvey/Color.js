@@ -317,9 +317,9 @@ export default class Color {
    */
   private readonly _ALPHA: number
 
-  private readonly _max: number
-  private readonly _min: number
-  private readonly _chroma: number
+  private readonly _MAX: number
+  private readonly _MIN: number
+  private readonly _CHROMA: number
 
   /**
    *
@@ -341,9 +341,9 @@ export default class Color {
     this._BLUE  = Math.round(Math.max(0, Math.min(b, 255)))
     this._ALPHA = Math.max(0, Math.min(a, 1))
 
-    this._max    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
-    this._min    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
-    this._chroma = this._max - this._min
+    this._MAX    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
+    this._MIN    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
+    this._CHROMA = this._MAX - this._MIN
   }
 
   /**
@@ -420,17 +420,17 @@ export default class Color {
    * A number bound by [0, 360).
    */
   get hsvHue(): number {
-    if (this._chroma === 0) return 0
+    if (this._CHROMA === 0) return 0
     let rgb_norm = [
       this._RED   / 255,
       this._GREEN / 255,
       this._BLUE  / 255,
     ]
     return [
-      (r, g, b) => ((g - b) / this._chroma + 6) % 6 * 60,
-      (r, g, b) => ((b - r) / this._chroma + 2)     * 60,
-      (r, g, b) => ((r - g) / this._chroma + 4)     * 60,
-    ][rgb_norm.indexOf(this._max)](...rgb_norm)
+      (r, g, b) => ((g - b) / this._CHROMA + 6) % 6 * 60,
+      (r, g, b) => ((b - r) / this._CHROMA + 2)     * 60,
+      (r, g, b) => ((r - g) / this._CHROMA + 4)     * 60,
+    ][rgb_norm.indexOf(this._MAX)](...rgb_norm)
     /*
      * Exercise: prove:
      * _HSV_HUE === Math.atan2(Math.sqrt(3) * (g - b), 2*r - g - b)
@@ -444,7 +444,7 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hsvSat(): number {
-    return (this._chroma === 0) ? 0 : this._chroma / this.hsvVal
+    return (this._CHROMA === 0) ? 0 : this._CHROMA / this.hsvVal
   }
 
   /**
@@ -454,7 +454,7 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hsvVal(): number {
-    return this._max
+    return this._MAX
   }
 
 
@@ -475,10 +475,10 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hslSat(): number {
-    return (this._chroma === 0) ? 0 : (this._chroma / ((this.hslLum <= 0.5) ? 2*this.hslLum : (2 - 2*this.hslLum)))
+    return (this._CHROMA === 0) ? 0 : (this._CHROMA / ((this.hslLum <= 0.5) ? 2*this.hslLum : (2 - 2*this.hslLum)))
     /*
      * Exercise: prove:
-     * _HSL_SAT === _chroma / (1 - Math.abs(2*this.hslLum - 1))
+     * _HSL_SAT === _CHROMA / (1 - Math.abs(2*this.hslLum - 1))
      * Proof:
      * denom == (function (x) {
      *   if (x <= 0.5) return 2x
@@ -498,7 +498,7 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hslLum(): number {
-    return 0.5 * (this._max + this._min)
+    return 0.5 * (this._MAX + this._MIN)
   }
 
 
@@ -519,7 +519,7 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hwbWht(): number {
-    return this._min
+    return this._MIN
   }
 
   /**
@@ -529,7 +529,7 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hwbBlk(): number {
-    return 1 - this._max
+    return 1 - this._MAX
   }
 
 
