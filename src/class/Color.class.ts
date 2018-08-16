@@ -565,8 +565,8 @@ export default class Color {
    * @description The complement of a color is the difference between that color and white.
    * @returns a new Color object that corresponds to this color’s complement
    */
-  complement(): this {
-    return new Color (
+  complement(): Color {
+    return new Color(
       255 - this.red,
       255 - this.green,
       255 - this.blue,
@@ -579,7 +579,7 @@ export default class Color {
    * @param   a the number of degrees to rotate
    * @returns a new Color object corresponding to this color rotated by `a` degrees
    */
-  rotate(a: number): this {
+  rotate(a: number): Color {
     return Color.fromHSV(((this.hsvHue + a) % 360), this.hsvSat, this.hsvVal, this.alpha)
   }
 
@@ -588,7 +588,7 @@ export default class Color {
    * @description The inverse of a color is that color with a hue rotation of 180 degrees.
    * @returns a new Color object that corresponds to this color’s inverse
    */
-  invert(): this {
+  invert(): Color {
     return this.rotate(180)
   }
 
@@ -609,7 +609,7 @@ export default class Color {
    * @param   relative should the saturation added be relative?
    * @returns a new Color object that corresponds to this color saturated by `p`
    */
-  saturate(p: number, relative = false): this {
+  saturate(p: number, relative = false): Color {
     let newsat: number = this.hslSat + (relative ? (this.hslSat * p) : p)
     newsat = Math.min(Math.max(0, newsat), 1)
     return Color.fromHSL(this.hslHue, newsat, this.hslLum, this.alpha)
@@ -623,7 +623,7 @@ export default class Color {
    * @param   relative should the saturation subtracted be relative?
    * @returns a new Color object that corresponds to this color desaturated by `p`
    */
-  desaturate(p: number, relative = false): this {
+  desaturate(p: number, relative = false): Color {
     return this.saturate(-p, relative)
   }
 
@@ -644,7 +644,7 @@ export default class Color {
    * @param   relative should the luminosity added be relative?
    * @returns a new Color object that corresponds to this color lightened by `p`
    */
-  lighten(p: number, relative = false): this {
+  lighten(p: number, relative = false): Color {
     let newlum: number = this.hslLum + (relative ? (this.hslLum * p) : p)
     newlum = Math.min(Math.max(0, newlum), 1)
     return Color.fromHSL(this.hslHue, this.hslSat, newlum, this.alpha)
@@ -658,7 +658,7 @@ export default class Color {
    * @param   relative should the luminosity subtracted be relative?
    * @returns a new Color object that corresponds to this color darkened by `p`
    */
-  darken(p: number, relative = false): this {
+  darken(p: number, relative = false): Color {
     return this.lighten(-p, relative)
   }
 
@@ -667,7 +667,7 @@ export default class Color {
    * @description E.g. an alpha of 0.7, complemented, is 0.3 (the complement with 1.0).
    * @returns a new Color object with the same color but complemented alpha
    */
-  negate(): this {
+  negate(): Color {
     return new Color(...this.rgb, 1 - this.alpha)
   }
 
@@ -680,7 +680,7 @@ export default class Color {
    * @param   relative should the alpha added be relative?
    * @returns a new Color object that corresponds to this color faded in by `p`
    */
-  fadeIn(p: number, relative = false): this {
+  fadeIn(p: number, relative = false): Color {
     let newalpha: number = this.alpha + (relative ? (this.alpha * p) : p)
     newalpha = Math.min(Math.max(0, newalpha), 1)
     return new Color(...this.rgb, newalpha)
@@ -694,7 +694,7 @@ export default class Color {
    * @param   relative should the alpha subtracted be relative?
    * @returns a new Color object that corresponds to this color faded out by `p`
    */
-  fadeOut(p: number, relative = false): this {
+  fadeOut(p: number, relative = false): Color {
     return this.fadeIn(-p, relative)
   }
 
@@ -711,7 +711,7 @@ export default class Color {
    * @param   weight between 0.0 and 1.0; the weight favoring the other color
    * @returns a mix of the two given colors
    */
-  mix(color: Color, weight = 0.5): this {
+  mix(color: Color, weight = 0.5): Color {
     let red  : number = Math.round(average(this.red  , color.red  , weight))
     let green: number = Math.round(average(this.green, color.green, weight))
     let blue : number = Math.round(average(this.blue , color.blue , weight))
@@ -728,7 +728,7 @@ export default class Color {
    * @param   weight between 0.0 and 1.0; the weight favoring the other color
    * @returns a blur of the two given colors
    */
-  blur(color: Color, weight = 0.5): this {
+  blur(color: Color, weight = 0.5): Color {
     /**
      * @summary Calculate the compound value of two overlapping same-channel values.
      * @private
