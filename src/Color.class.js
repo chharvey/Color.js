@@ -1,28 +1,28 @@
 const NAMES = require('./color-names.json')
 
 /**
- * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color components
- * and a possible transparency component.
+ * A 24/32-bit color ("True Color") that can be displayed in a pixel, given three primary color channels
+ * and a possible transparency channel.
  */
 class Color {
   /**
    *
-   * @summary Construct a Color object.
+   * @summary Construct a new Color object.
    * @description Calling `new Color(r, g, b, a)` (4 arguments) specifies default behavior.
    * Calling `new Color(r, g, b)` (3 arguments) will result in an opaque color (`#rrggbbFF`),
    * where the alpha is 1 by default.
    * Calling `new Color()` (no arguments) will result in transparent (`#00000000`).
    * @version STABLE
-   * @param {number=} r the red   component of this color (an integer 0—255)
-   * @param {number=} g the green component of this color (an integer 0—255)
-   * @param {number=} b the blue  component of this color (an integer 0—255)
-   * @param {number=} a the alpha component of this color (a number 0–1)
+   * @param {number=} r the red   channel of this color (an integer 0—255)
+   * @param {number=} g the green channel of this color (an integer 0—255)
+   * @param {number=} b the blue  channel of this color (an integer 0—255)
+   * @param {number=} a the alpha channel of this color (a number 0–1)
    */
   constructor(r = 0, g = 0, b = 0, a = 1) {
     if (arguments.length === 0) a = 0
 
     /**
-     * @summary The red component of this color. An integer in [0,255].
+     * @summary The red channel of this color. An integer in [0,255].
      * @type {number}
      * @private
      * @final
@@ -30,7 +30,7 @@ class Color {
     this._RED = Math.round(Math.max(0, Math.min(r, 255)))
 
     /**
-     * @summary The green component of this color. An integer in [0,255].
+     * @summary The green channel of this color. An integer in [0,255].
      * @type {number}
      * @private
      * @final
@@ -38,7 +38,7 @@ class Color {
     this._GREEN = Math.round(Math.max(0, Math.min(g, 255)))
 
     /**
-     * @summary The blue component of this color. An integer in [0,255].
+     * @summary The blue channel of this color. An integer in [0,255].
      * @type {number}
      * @private
      * @final
@@ -46,7 +46,7 @@ class Color {
     this._BLUE = Math.round(Math.max(0, Math.min(b, 255)))
 
     /**
-     * @summary The alpha component of this color. An number in [0,1].
+     * @summary The alpha channel of this color. An number in [0,1].
      * @type {number}
      * @private
      * @final
@@ -80,21 +80,21 @@ class Color {
 
 
   /**
-   * @summary Get the red component of this color.
+   * @summary Get the red channel of this color.
    * @version LOCKED
    * @type {number}
    */
   get red() { return this._RED }
 
   /**
-   * @summary Get the green component of this color.
+   * @summary Get the green channel of this color.
    * @version LOCKED
    * @type {number}
    */
   get green() { return this._GREEN }
 
   /**
-   * @summary Get the blue component of this color.
+   * @summary Get the blue channel of this color.
    * @version LOCKED
    * @type {number}
    */
@@ -248,7 +248,7 @@ class Color {
 
 
   /**
-   * @summary Get an array of RGBA components.
+   * @summary Get an array of RGBA channels.
    * @version LOCKED
    * @type {Array<number>}
    */
@@ -256,7 +256,7 @@ class Color {
   /** Alias of {@link Color#rgb} */ get rgba() { return this.rgb }
 
   /**
-   * @summary Get an array of HSVA components.
+   * @summary Get an array of HSVA channels.
    * @version LOCKED
    * @type {Array<number>}
    */
@@ -264,7 +264,7 @@ class Color {
   /** Alias of {@link Color#hsv} */ get hsva() { return this.hsv }
 
   /**
-   * @summary Get an array of HSLA components.
+   * @summary Get an array of HSLA channels.
    * @version LOCKED
    * @type {Array<number>}
    */
@@ -272,7 +272,7 @@ class Color {
   /** Alias of {@link Color#hsl} */ get hsla() { return this.hsl }
 
   /**
-   * @summary Get an array of HWBA components.
+   * @summary Get an array of HWBA channels.
    * @version LOCKED
    * @type {Array<number>}
    */
@@ -322,9 +322,16 @@ class Color {
    * A parameter of 1.0 returns a color with full saturation, and 0.0 returns an identical color.
    * A negative number will {@link Color#desaturate()|desaturate} this color.
    * Set `relative = true` to specify the amount as relative to the color’s current saturation.
+   *
+   * For example, if `$color` has an HSL-sat of 0.5, then calling `$color.saturate(0.5)` will return
+   * a new color with an HSL-sat of 1.0, because the argument 0.5 is simply added to the color’s saturation.
+   * However, calling `$color.saturate(0.5, true)` will return a new color with an HSL-sat of 0.75,
+   * because the argument 0.5, relative to the color’s current saturation of 0.5, results in
+   * an added saturation of 0.25.
+   *
    * @version LOCKED
    * @param  {number} p must be between -1.0 and 1.0; the value by which to saturate this color
-   * @param  {boolean=} relative `true` if the saturation added is relative
+   * @param  {boolean=} relative should the saturation added be relative?
    * @returns {Color} a new Color object that corresponds to this color saturated by `p`
    */
   saturate(p, relative = false) {
@@ -339,7 +346,7 @@ class Color {
    * @version LOCKED
    * @see Color#saturate
    * @param  {number} p must be between -1.0 and 1.0; the value by which to desaturate this color
-   * @param  {boolean=} relative `true` if the saturation subtracted is relative
+   * @param  {boolean=} relative should the saturation subtracted be relative?
    * @returns {Color} a new Color object that corresponds to this color desaturated by `p`
    */
   desaturate(p, relative = false) {
@@ -361,7 +368,7 @@ class Color {
    *
    * @version LOCKED
    * @param {number} p must be between -1.0 and 1.0; the amount by which to lighten this color
-   * @param {boolean=} relative `true` if the luminosity added is relative
+   * @param {boolean=} relative should the luminosity added be relative?
    * @returns {Color} a new Color object that corresponds to this color lightened by `p`
    */
   lighten(p, relative = false) {
@@ -376,7 +383,7 @@ class Color {
    * @version LOCKED
    * @see Color#lighten
    * @param {number} p must be between -1.0 and 1.0; the amount by which to darken this color
-   * @param {boolean=} relative `true` if the luminosity subtracted is relative
+   * @param {boolean=} relative should the luminosity subtracted be relative?
    * @returns {Color} a new Color object that corresponds to this color darkened by `p`
    */
   darken(p, relative = false) {
@@ -428,15 +435,15 @@ class Color {
    * In other words, `w` is "how much of the other color you want."
    * Note that `color1.mix(color2, w)` returns the same result as `color2.mix(color1, 1-w)`.
    * @version STABLE
-   * @param {Color} $color the second color
+   * @param {Color} color the second color
    * @param {number=} w between 0.0 and 1.0; the weight favoring the other color
    * @returns {Color} a mix of the two given colors
    */
-  mix($color, w = 0.5) {
-    let red   = Math.round((1-w) * this.red    +  w * $color.red  )
-    let green = Math.round((1-w) * this.green  +  w * $color.green)
-    let blue  = Math.round((1-w) * this.blue   +  w * $color.blue )
-    let alpha = Color._compoundOpacity([this.alpha, $color.alpha])
+  mix(color, w = 0.5) {
+    let red   = Math.round((1-w) * this.red    +  w * color.red  )
+    let green = Math.round((1-w) * this.green  +  w * color.green)
+    let blue  = Math.round((1-w) * this.blue   +  w * color.blue )
+    let alpha = Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
@@ -446,48 +453,48 @@ class Color {
    * visually accurate, slightly brighter, mix.
    * @version STABLE
    * @see {@link https://www.youtube.com/watch?v=LKnqECcg6Gw|“Computer Color is Broken” by minutephysics}
-   * @param  {Color} $color the second color
+   * @param  {Color} color the second color
    * @param  {number=} w between 0.0 and 1.0; the weight favoring the other color
    * @returns {Color} a blur of the two given colors
    */
-  blur($color, w = 0.5) {
-    let red   = Math.round(Math.sqrt((1-w) * Math.pow(this.red  , 2)  +  w * Math.pow($color.red  , 2)))
-    let green = Math.round(Math.sqrt((1-w) * Math.pow(this.green, 2)  +  w * Math.pow($color.green, 2)))
-    let blue  = Math.round(Math.sqrt((1-w) * Math.pow(this.blue , 2)  +  w * Math.pow($color.blue , 2)))
-    let alpha = Color._compoundOpacity([this.alpha, $color.alpha])
+  blur(color, w = 0.5) {
+    let red   = Math.round(Math.sqrt((1-w) * (this.red   ** 2)  +  w * (color.red   ** 2)))
+    let green = Math.round(Math.sqrt((1-w) * (this.green ** 2)  +  w * (color.green ** 2)))
+    let blue  = Math.round(Math.sqrt((1-w) * (this.blue  ** 2)  +  w * (color.blue  ** 2)))
+    let alpha = Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
 
   /**
    * @summary Compare this color with another color.
    * @description Return `true` if they are the same color.
-   * Colors are the “same” iff they have exactly the same RGBA components.
+   * Colors are the “same” iff they have exactly the same RGBA channels.
    * Thus, “same” colors are “replaceable”.
    * @version STABLE
-   * @param  {Color} $color a Color object
-   * @returns {boolean} `true` if the argument is the same color as this color
+   * @param  {Color} color a Color object
+   * @returns {boolean} is the argument the “same” color as this color?
    */
-  equals($color) {
-    if (this === $color) return true
-    if (this.alpha === 0 && $color.alpha === 0) return true
+  equals(color) {
+    if (this === color) return true
+    if (this.alpha === 0 && color.alpha === 0) return true
     return (
-         this.red   === $color.red
-      && this.green === $color.green
-      && this.blue  === $color.blue
-      && this.alpha === $color.alpha
+         this.red   === color.red
+      && this.green === color.green
+      && this.blue  === color.blue
+      && this.alpha === color.alpha
     )
   }
 
   /**
    * @summary Return the *contrast ratio* between two colors.
    * @description
-   * NOTE: In this method, alpha is ignored, that is, the colors are assumed to be opaque.
-   * @see https://www.w3.org/TR/WCAG/#contrast-ratiodef
+   * In this method, alpha is ignored, that is, the colors are assumed to be opaque.
+   * @see https://www.w3.org/TR/WCAG/#dfn-contrast-ratio
    * @version STABLE
-   * @param {Color} $color the second color to check
+   * @param {Color} color the second color to check
    * @returns {number} the contrast ratio of this color with the argument
    */
-  contrastRatio($color) {
+  contrastRatio(color) {
     /**
      * Return the relative lumance of a color.
      * @private
@@ -502,13 +509,13 @@ class Color {
        * @returns {number} the output of some mathematical function of `p`
        */
       function coef(p) {
-        return (p <= 0.03928) ? p/12.92 : Math.pow((p + 0.055)/1.055, 2.4)
+        return (p <= 0.03928) ? p / 12.92 : ((p + 0.055) / 1.055) ** 2.4
       }
       return 0.2126*coef(c.red  /255)
            + 0.7152*coef(c.green/255)
            + 0.0722*coef(c.blue /255)
     }
-    let both = [luma(this), luma($color)]
+    let both = [luma(this), luma(color)]
     return (Math.max(...both) + 0.05) / (Math.min(...both) + 0.05)
   }
 
@@ -517,16 +524,16 @@ class Color {
    * @description If the alpha of this color is 1, then the string returned will represent an opaque color,
    * e.g. `hsv()`, `hsl()`, etc. Otherwise, the string returned will represent a translucent color,
    * `hsva()`, `hsla()`, etc.
-   * The format of the numbers returned will be as follows. The default format is HEX.
+   * The format of the numbers returned will be as follows. The default format is {@link Color.Space.HEX}.
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
    * - HSV/HSL-sat/val/lum and HWB-wht/blk values will be base 10 decimals in [0,1] rounded to the nearest 0.01
    * - all RGB values will be base 10 integers in [0,255], one to three digits
    * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
    * @version STABLE
-   * @see https://drafts.csswg.org/css-color/#hex-notation
+   * @see https://www.w3.org/TR/css-color-4/#hex-notation
    * @param {Color.Space=} space represents the space in which this color exists
-   * @returns {string} a string representing this color.
+   * @returns {string} a string representing this color
    */
   toString(space = Color.Space.HEX) {
     function leadingZeroHex(n) { return `${(n < 16) ? '0' : ''}${n.toString(16)}` }
@@ -583,9 +590,9 @@ class Color {
    * The HSV-value must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
    * @version LOCKED
-   * @param {number=} hue the HSV-hue component of this color (a number 0—360)
-   * @param {number=} sat the HSV-sat component of this color (a number 0—1)
-   * @param {number=} val the HSV-val component of this color (a number 0—1)
+   * @param {number=} hue the HSV-hue channel of this color (a number 0—360)
+   * @param {number=} sat the HSV-sat channel of this color (a number 0—1)
+   * @param {number=} val the HSV-val channel of this color (a number 0—1)
    * @param {number=} alpha the opacity (a number 0—1)
    * @returns {Color} a new Color object with hsva(hue, sat, val, alpha)
    */
@@ -611,9 +618,10 @@ class Color {
    * The HSL-luminosity must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
    * @version LOCKED
-   * @param {number=} hue the HSL-hue component of this color (a number 0—360)
-   * @param {number=} sat the HSL-sat component of this color (a number 0—1)
-   * @param {number=} lum the HSL-lum component of this color (a number 0—1)
+   * @see https://www.w3.org/TR/css-color-4/#hsl-to-rgb
+   * @param {number=} hue the HSL-hue channel of this color (a number 0—360)
+   * @param {number=} sat the HSL-sat channel of this color (a number 0—1)
+   * @param {number=} lum the HSL-lum channel of this color (a number 0—1)
    * @param {number=} alpha the opacity (a number 0—1)
    * @returns {Color} a new Color object with hsla(hue, sat, lum, alpha)
    */
@@ -634,15 +642,16 @@ class Color {
 
   /**
    * @summary Return a new Color object, given hue, white, and black in HWB-space.
-   * @description Credit for formula is due to https://drafts.csswg.org/css-color/#hwb-to-rgb
+   * @description
    * The HWB-hue must be between 0 and 360.
    * The HWB-white must be between 0.0 and 1.0.
    * The HWB-black must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
    * @version LOCKED
-   * @param {number=} hue the HWB-hue component of this color (a number 0—360)
-   * @param {number=} wht the HWB-wht component of this color (a number 0—1)
-   * @param {number=} blk the HWB-blk component of this color (a number 0—1)
+   * @see https://www.w3.org/TR/css-color-4/#hwb-to-rgb
+   * @param {number=} hue the HWB-hue channel of this color (a number 0—360)
+   * @param {number=} wht the HWB-wht channel of this color (a number 0—1)
+   * @param {number=} blk the HWB-blk channel of this color (a number 0—1)
    * @param {number=} alpha the opacity (a number 0—1)
    * @returns {Color} a new Color object with hwba(hue, wht, blk, alpha)
    */
@@ -665,13 +674,13 @@ class Color {
    * @description The string must have one of the following formats (spaces optional):
    *  1.  `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase or uppercase) (the `#` must be included)
    *  2.  `#rrggbbaa`, where `aa` is alpha
-   *  3.  `rgb(r, g, b)`    , with integer RGB components (in base 10, out of 255)
+   *  3.  `rgb(r, g, b)`    , with integer RGB channels (in base 10, out of 255)
    *  4.  `rgba(r, g, b, a)`, where `a` is alpha
-   *  5.  `hsv(h, s, v)`    , with decimal HSV components (in base 10)
+   *  5.  `hsv(h, s, v)`    , with decimal HSV channels (in base 10)
    *  6.  `hsva(h, s, v, a)`, where `a` is alpha
-   *  7.  `hsl(h, s, l)`    , with decimal HSL components (in base 10)
+   *  7.  `hsl(h, s, l)`    , with decimal HSL channels (in base 10)
    *  8.  `hsla(h, s, l, a)`, where `a` is alpha
-   *  9.  `hwb(h, w, b)`    , with decimal HWB components (in base 10)
+   *  9.  `hwb(h, w, b)`    , with decimal HWB channels (in base 10)
    *  10. `hwba(h, w, b, a)`, where `a` is alpha
    *  11. *any exact string match of a named color*
    * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
@@ -695,10 +704,10 @@ class Color {
       return Color.fromString(returned)
     }
     let returned = {
-      rgb    : (comps) => new Color    (...comps),
-      hsv    : (comps) => Color.fromHSV(...comps),
-      hsl    : (comps) => Color.fromHSL(...comps),
-      hwb    : (comps) => Color.fromHWB(...comps),
+      rgb    : (channels) => new Color    (...channels),
+      hsv    : (channels) => Color.fromHSV(...channels),
+      hsl    : (channels) => Color.fromHSL(...channels),
+      hwb    : (channels) => Color.fromHWB(...channels),
     }
     let from_fn = returned[str.slice(0,3)]
     if (!from_fn) throw new Error('Incorrect string format given.')
@@ -707,29 +716,29 @@ class Color {
 
   /**
    * @summary Mix (average) a set of 2 or more colors. The average will be weighted evenly.
-   * @description If two colors $a and $b are given, calling this static method, `Color.mix([$a, $b])`,
-   * is equivalent to calling `$a.mix($b)` without a weight.
-   * However, calling `Color.mix([$a, $b, $c])` with 3 or more colors yields an even mix,
-   * and will *NOT* yield the same results as calling `$a.mix($b).mix($c)`, which yields an uneven mix.
+   * @description If two colors `a` and `b` are given, calling this static method, `Color.mix([a, b])`,
+   * is equivalent to calling `a.mix(b)` without a weight.
+   * However, calling `Color.mix([a, b, c])` with 3 or more colors yields an even mix,
+   * and will *NOT* yield the same results as calling `a.mix(b).mix(c)`, which yields an uneven mix.
    * Note that the order of the given colors does not change the result, that is,
-   * `Color.mix([$a, $b, $c])` will return the same result as `Color.mix([$c, $b, $a])`.
+   * `Color.mix([a, b, c])` will return the same result as `Color.mix([c, b, a])`.
    * @version STABLE
    * @see Color#mix
-   * @param {Array<Color>} $colors an array of Color objects, of length >=2
-   * @param {boolean=} blur if `true`, use a blurring function ({@link Color#blur})
+   * @param {Array<Color>} colors an array of Color objects, of length >=2
+   * @param {boolean=} blur should I use a blurring function ({@link Color#blur})?
    * @returns {Color} a mix of the given colors
    */
-  static mix($colors, blur = false) {
-    function compoundComponents($arr) {
+  static mix(colors, blur = false) {
+    function compoundComponents(arr) {
       if (blur) {
-        return Math.round(Math.sqrt($arr.reduce((a,b) => a*a + b*b) / $colors.length))
+        return Math.round(Math.sqrt(arr.reduce((a,b) => a*a + b*b) / colors.length))
       }
-      return Math.round($arr.reduce((a,b) => a + b) / $colors.length)
+      return Math.round(arr.reduce((a,b) => a + b) / colors.length)
     }
-    let reds   = $colors.map(($c) => $c.red  )
-    let greens = $colors.map(($c) => $c.green)
-    let blues  = $colors.map(($c) => $c.blue )
-    let alphas = $colors.map(($c) => $c.alpha)
+    let reds   = colors.map((c) => c.red  )
+    let greens = colors.map((c) => c.green)
+    let blues  = colors.map((c) => c.blue )
+    let alphas = colors.map((c) => c.alpha)
     return new Color(...[reds, greens, blues].map(compoundComponents), Color._compoundOpacity(alphas))
   }
 
