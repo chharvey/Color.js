@@ -1,4 +1,4 @@
-const NAMES = require('./color-names.json')
+const NAMES = require('../color-names.json')
 /**
  * @todo TODO take from `continuum/Util.average`
  * @private
@@ -161,17 +161,23 @@ export default class Color {
   /**
    * @summary Return a new Color object, given a string.
    * @description The string must have one of the following formats (spaces optional):
-   *  1.  `#rrggbb`, with hexadecimal RGB components (in base 16, out of ff, lowercase or uppercase) (the `#` must be included)
-   *  2.  `#rrggbbaa`, where `aa` is alpha
-   *  3.  `rgb(r, g, b)`    , with integer RGB channels (in base 10, out of 255)
-   *  4.  `rgba(r, g, b, a)`, where `a` is alpha
-   *  5.  `hsv(h, s, v)`    , with decimal HSV channels (in base 10)
-   *  6.  `hsva(h, s, v, a)`, where `a` is alpha
-   *  7.  `hsl(h, s, l)`    , with decimal HSL channels (in base 10)
-   *  8.  `hsla(h, s, l, a)`, where `a` is alpha
-   *  9.  `hwb(h, w, b)`    , with decimal HWB channels (in base 10)
-   *  10. `hwba(h, w, b, a)`, where `a` is alpha
-   *  11. *any exact string match of a named color*
+   *  - `#rrggbb`
+   *  - `#rrggbbaa`
+   *  - `#rgb`
+   *  - `#rgba`
+   *  - `rgb(r, g, b)`
+   *  - `rgb(r, g, b, a)`
+   *  - `rgba(r, g, b, a)`
+   *  - `hsv(h, s, v)`
+   *  - `hsv(h, s, v, a)`
+   *  - `hsva(h, s, v, a)`
+   *  - `hsl(h, s, l)`
+   *  - `hsl(h, s, l, a)`
+   *  - `hsla(h, s, l, a)`
+   *  - `hwb(h, w, b)`
+   *  - `hwb(h, w, b, a)`
+   *  - `hwba(h, w, b, a)`
+   *  - *any exact string match of a named color*
    * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
    * @param   str a string of one of the forms described
    * @returns a new Color object constructed from the given string
@@ -180,11 +186,17 @@ export default class Color {
   static fromString(str = ''): Color {
     if (str === '') return new Color()
     if (str[0] === '#') {
-      let red  : number = parseInt(str.slice(1,3), 16)
-      let green: number = parseInt(str.slice(3,5), 16)
-      let blue : number = parseInt(str.slice(5,7), 16)
-      let alpha: number = (str.length === 9) ? parseInt(str.slice(7,9), 16)/255 : 1
-      return new Color(red, green, blue, alpha)
+      if ([4,5,7,9].includes(str.length)) {
+        if ([4,5].includes(str.length)) {
+          let [r, g, b, a]: string[] = [str[1], str[2], str[3], str[4] || '']
+          return Color.fromString(`#${r}${r}${g}${g}${b}${b}${a}${a}`)
+        }
+        let red  : number = parseInt(str.slice(1,3), 16)
+        let green: number = parseInt(str.slice(3,5), 16)
+        let blue : number = parseInt(str.slice(5,7), 16)
+        let alpha: number = (str.length === 9) ? parseInt(str.slice(7,9), 16)/255 : 1
+        return new Color(red, green, blue, alpha)
+      }
     }
     if (!str.includes('(')) {
       const returned: string|null = NAMES[str] || null
@@ -248,7 +260,7 @@ export default class Color {
 
   /**
    * @summary Generate a random color.
-   * @param   alpha should the alpha channel also be randomized? (default is 1)
+   * @param   alpha should the alpha channel also be randomized? (if false, default alpha value is 1)
    * @returns a Color object with random values
    */
   static random(alpha = true): Color {
