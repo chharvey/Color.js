@@ -19,6 +19,22 @@ function average(a: number, b: number, w = 0.5): number {
 function aMean(arr: number[]): number {
   return arr.reduce((a,b) => a + b) / arr.length
 }
+/**
+ * @todo TODO put into `extrajs/Number`
+ * @private
+ * @summary Return the remainder of Euclidean division of `a` by `n`.
+ * @description This method returns `a % n` when `a` is positive,
+ * but returns a positive result when `a` is negative.
+ * `n` must be positive.
+ * @param   a the dividend
+ * @param   n the divisor, a positive integer
+ * @returns `((a % n) + n) % n`
+ * @throws  {RangeError} when `n` is not a positive integer
+ */
+function mod(a: number, n: number): number {
+  if (n <= 0 || n%1 !== 0) throw new RangeError(`The divisor ${n} must be a positive integer.`)
+  return ((a % n) + n) % n
+}
 
 
 /**
@@ -91,10 +107,11 @@ export default class Color {
    * @returns a new Color object with hsva(hue, sat, val, alpha)
    */
   static fromHSV(hue = 0, sat = 0, val = 0, alpha = 1): Color {
+    hue = mod(hue, 360)
     let c: number = sat * val
     let x: number = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m: number = val - c
-    let rgb: number[];
+    let rgb: number[] = [c, x, 0]
          if (  0 <= hue && hue <  60) { rgb = [c, x, 0] }
     else if ( 60 <= hue && hue < 120) { rgb = [x, c, 0] }
     else if (120 <= hue && hue < 180) { rgb = [0, c, x] }
@@ -118,10 +135,11 @@ export default class Color {
    * @returns a new Color object with hsla(hue, sat, lum, alpha)
    */
   static fromHSL(hue = 0, sat = 0, lum = 0, alpha = 1): Color {
+    hue = mod(hue, 360)
     let c: number = sat * (1 - Math.abs(2*lum - 1))
     let x: number = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m: number = lum - c/2
-    let rgb: number[];
+    let rgb: number[] = [c, x, 0]
          if (  0 <= hue && hue <  60) { rgb = [c, x, 0] }
     else if ( 60 <= hue && hue < 120) { rgb = [x, c, 0] }
     else if (120 <= hue && hue < 180) { rgb = [0, c, x] }
@@ -272,8 +290,8 @@ export default class Color {
    * @returns one of the Named Colors, randomly chosen
    */
   static randomName(): Color {
-    let names = Object.entries(NAMES)
-    return Color.fromString(names[Math.floor(Math.random() * names.length)][0])
+    let named_colors: [string, string][] = Object.entries(NAMES)
+    return Color.fromString(named_colors[Math.floor(Math.random() * named_colors.length)][0])
   }
 
 
@@ -294,9 +312,9 @@ export default class Color {
    */
   private readonly _ALPHA: number
 
-  private readonly _max: number
-  private readonly _min: number
-  private readonly _chroma: number
+  private readonly _MAX: number
+  private readonly _MIN: number
+  private readonly _CHROMA: number
 
   /**
    *
@@ -318,9 +336,9 @@ export default class Color {
     this._BLUE  = Math.round(Math.max(0, Math.min(b, 255)))
     this._ALPHA = Math.max(0, Math.min(a, 1))
 
-    this._max    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
-    this._min    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
-    this._chroma = this._max - this._min
+    this._MAX    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
+    this._MIN    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
+    this._CHROMA = this._MAX - this._MIN
   }
 
   /**
@@ -397,17 +415,17 @@ export default class Color {
    * A number bound by [0, 360).
    */
   get hsvHue(): number {
-    if (this._chroma === 0) return 0
-    let rgb_norm = [
+    if (this._CHROMA === 0) return 0
+    let rgb_norm: [number, number, number] = [
       this._RED   / 255,
       this._GREEN / 255,
       this._BLUE  / 255,
     ]
     return [
-      (r, g, b) => ((g - b) / this._chroma + 6) % 6 * 60,
-      (r, g, b) => ((b - r) / this._chroma + 2)     * 60,
-      (r, g, b) => ((r - g) / this._chroma + 4)     * 60,
-    ][rgb_norm.indexOf(this._max)](...rgb_norm)
+      (r: number, g: number, b: number) => ((g - b) / this._CHROMA + 6) % 6 * 60,
+      (r: number, g: number, b: number) => ((b - r) / this._CHROMA + 2)     * 60,
+      (r: number, g: number, b: number) => ((r - g) / this._CHROMA + 4)     * 60,
+    ][rgb_norm.indexOf(this._MAX)](...rgb_norm)
     /*
      * Exercise: prove:
      * _HSV_HUE === Math.atan2(Math.sqrt(3) * (g - b), 2*r - g - b)
@@ -421,7 +439,7 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hsvSat(): number {
-    return (this._chroma === 0) ? 0 : this._chroma / this.hsvVal
+    return (this._CHROMA === 0) ? 0 : this._CHROMA / this.hsvVal
   }
 
   /**
@@ -431,7 +449,7 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hsvVal(): number {
-    return this._max
+    return this._MAX
   }
 
 
@@ -452,10 +470,10 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hslSat(): number {
-    return (this._chroma === 0) ? 0 : (this._chroma / ((this.hslLum <= 0.5) ? 2*this.hslLum : (2 - 2*this.hslLum)))
+    return (this._CHROMA === 0) ? 0 : (this._CHROMA / ((this.hslLum <= 0.5) ? 2*this.hslLum : (2 - 2*this.hslLum)))
     /*
      * Exercise: prove:
-     * _HSL_SAT === _chroma / (1 - Math.abs(2*this.hslLum - 1))
+     * _HSL_SAT === _CHROMA / (1 - Math.abs(2*this.hslLum - 1))
      * Proof:
      * denom == (function (x) {
      *   if (x <= 0.5) return 2x
@@ -475,7 +493,7 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hslLum(): number {
-    return 0.5 * (this._max + this._min)
+    return 0.5 * (this._MAX + this._MIN)
   }
 
 
@@ -496,7 +514,7 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hwbWht(): number {
-    return this._min
+    return this._MIN
   }
 
   /**
@@ -506,7 +524,7 @@ export default class Color {
    * A number bound by [0, 1].
    */
   get hwbBlk(): number {
-    return 1 - this._max
+    return 1 - this._MAX
   }
 
 
@@ -538,8 +556,8 @@ export default class Color {
    * @description The complement of a color is the difference between that color and white.
    * @returns a new Color object that corresponds to this color’s complement
    */
-  complement(): this {
-    return new Color (
+  complement(): Color {
+    return new Color(
       255 - this.red,
       255 - this.green,
       255 - this.blue,
@@ -552,7 +570,7 @@ export default class Color {
    * @param   a the number of degrees to rotate
    * @returns a new Color object corresponding to this color rotated by `a` degrees
    */
-  rotate(a: number): this {
+  rotate(a: number): Color {
     return Color.fromHSV(((this.hsvHue + a) % 360), this.hsvSat, this.hsvVal, this.alpha)
   }
 
@@ -561,7 +579,7 @@ export default class Color {
    * @description The inverse of a color is that color with a hue rotation of 180 degrees.
    * @returns a new Color object that corresponds to this color’s inverse
    */
-  invert(): this {
+  invert(): Color {
     return this.rotate(180)
   }
 
@@ -582,7 +600,7 @@ export default class Color {
    * @param   relative should the saturation added be relative?
    * @returns a new Color object that corresponds to this color saturated by `p`
    */
-  saturate(p: number, relative = false): this {
+  saturate(p: number, relative = false): Color {
     let newsat: number = this.hslSat + (relative ? (this.hslSat * p) : p)
     newsat = Math.min(Math.max(0, newsat), 1)
     return Color.fromHSL(this.hslHue, newsat, this.hslLum, this.alpha)
@@ -596,7 +614,7 @@ export default class Color {
    * @param   relative should the saturation subtracted be relative?
    * @returns a new Color object that corresponds to this color desaturated by `p`
    */
-  desaturate(p: number, relative = false): this {
+  desaturate(p: number, relative = false): Color {
     return this.saturate(-p, relative)
   }
 
@@ -617,7 +635,7 @@ export default class Color {
    * @param   relative should the luminosity added be relative?
    * @returns a new Color object that corresponds to this color lightened by `p`
    */
-  lighten(p: number, relative = false): this {
+  lighten(p: number, relative = false): Color {
     let newlum: number = this.hslLum + (relative ? (this.hslLum * p) : p)
     newlum = Math.min(Math.max(0, newlum), 1)
     return Color.fromHSL(this.hslHue, this.hslSat, newlum, this.alpha)
@@ -631,7 +649,7 @@ export default class Color {
    * @param   relative should the luminosity subtracted be relative?
    * @returns a new Color object that corresponds to this color darkened by `p`
    */
-  darken(p: number, relative = false): this {
+  darken(p: number, relative = false): Color {
     return this.lighten(-p, relative)
   }
 
@@ -640,7 +658,7 @@ export default class Color {
    * @description E.g. an alpha of 0.7, complemented, is 0.3 (the complement with 1.0).
    * @returns a new Color object with the same color but complemented alpha
    */
-  negate(): this {
+  negate(): Color {
     return new Color(...this.rgb, 1 - this.alpha)
   }
 
@@ -653,7 +671,7 @@ export default class Color {
    * @param   relative should the alpha added be relative?
    * @returns a new Color object that corresponds to this color faded in by `p`
    */
-  fadeIn(p: number, relative = false): this {
+  fadeIn(p: number, relative = false): Color {
     let newalpha: number = this.alpha + (relative ? (this.alpha * p) : p)
     newalpha = Math.min(Math.max(0, newalpha), 1)
     return new Color(...this.rgb, newalpha)
@@ -667,7 +685,7 @@ export default class Color {
    * @param   relative should the alpha subtracted be relative?
    * @returns a new Color object that corresponds to this color faded out by `p`
    */
-  fadeOut(p: number, relative = false): this {
+  fadeOut(p: number, relative = false): Color {
     return this.fadeIn(-p, relative)
   }
 
@@ -684,7 +702,7 @@ export default class Color {
    * @param   weight between 0.0 and 1.0; the weight favoring the other color
    * @returns a mix of the two given colors
    */
-  mix(color: Color, weight = 0.5): this {
+  mix(color: Color, weight = 0.5): Color {
     let red  : number = Math.round(average(this.red  , color.red  , weight))
     let green: number = Math.round(average(this.green, color.green, weight))
     let blue : number = Math.round(average(this.blue , color.blue , weight))
@@ -701,7 +719,7 @@ export default class Color {
    * @param   weight between 0.0 and 1.0; the weight favoring the other color
    * @returns a blur of the two given colors
    */
-  blur(color: Color, weight = 0.5): this {
+  blur(color: Color, weight = 0.5): Color {
     /**
      * @summary Calculate the compound value of two overlapping same-channel values.
      * @private
@@ -776,7 +794,8 @@ export default class Color {
    * @returns the name of this color, else `null` if it does not have one
    */
   name(): string|null {
-    const returned: [string, number][]|null = Object.entries(NAMES).find((c) => c[1].toLowerCase() === this.toString(Color.Space.HEX)) || null
-    return (returned || [null])[0]
+    let named_colors: [string, string][] = Object.entries(NAMES)
+    const returned: [string, string]|null = named_colors.find((c) => c[1].toLowerCase() === this.toString(Color.Space.HEX)) || null
+    return (returned || [returned])[0]
   }
 }
