@@ -1,4 +1,4 @@
-const NAMES = require('./color-names.json')
+const NAMES = require('../color-names.json')
 /**
  * @todo TODO take from `continuum/Util.average`
  * @private
