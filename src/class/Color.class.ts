@@ -805,6 +805,6 @@ export default class Color {
   name(): string|null {
     let named_colors: [string, string][] = Object.entries(NAMES)
     const returned: [string, string]|null = named_colors.find((c) => c[1].toLowerCase() === this.toString(Color.Space.HEX)) || null
-    return (returned || [returned])[0]
+    return (returned) ? returned[0] : null
   }
 }
