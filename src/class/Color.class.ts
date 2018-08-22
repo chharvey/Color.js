@@ -331,35 +331,15 @@ export default class Color {
   constructor(r = 0, g = 0, b = 0, a = 1) {
     if (arguments.length === 0) a = 0
 
-    this._RED   = Math.round(Math.max(0, Math.min(r, 255)))
-    this._GREEN = Math.round(Math.max(0, Math.min(g, 255)))
-    this._BLUE  = Math.round(Math.max(0, Math.min(b, 255)))
-    this._ALPHA = Math.max(0, Math.min(a, 1))
+    this._RED   = Math.round(Math.max(0, Math.min(r, 255))) // TODO use `xjs.Number.clamp`
+    this._GREEN = Math.round(Math.max(0, Math.min(g, 255))) // TODO use `xjs.Number.clamp`
+    this._BLUE  = Math.round(Math.max(0, Math.min(b, 255))) // TODO use `xjs.Number.clamp`
+    this._ALPHA = Math.max(0, Math.min(a, 1)) // TODO use `xjs.Number.clamp`
 
     this._MAX    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
     this._MIN    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
     this._CHROMA = this._MAX - this._MIN
   }
-
-  /**
-   * @summary Get the red channel of this color.
-   */
-  get red(): number { return this._RED }
-
-  /**
-   * @summary Get the green channel of this color.
-   */
-  get green(): number { return this._GREEN }
-
-  /**
-   * @summary Get the blue channel of this color.
-   */
-  get blue(): number { return this._BLUE }
-
-  /**
-   * @summary Get the alpha (opacity) of this color.
-   */
-  get alpha(): number { return this._ALPHA }
 
   /**
    * @summary Return a string representation of this color.
@@ -407,7 +387,25 @@ export default class Color {
     : `${space}(${ (switch_[space] || switch_.default).call(this).join(', ')})`
   }
 
+  /**
+   * @summary Get the red channel of this color.
+   */
+  get red(): number { return this._RED }
 
+  /**
+   * @summary Get the green channel of this color.
+   */
+  get green(): number { return this._GREEN }
+
+  /**
+   * @summary Get the blue channel of this color.
+   */
+  get blue(): number { return this._BLUE }
+
+  /**
+   * @summary Get the alpha (opacity) of this color.
+   */
+  get alpha(): number { return this._ALPHA }
 
   /**
    * @summary Get the hsv-hue of this color.
@@ -452,8 +450,6 @@ export default class Color {
     return this._MAX
   }
 
-
-
   /**
    * @summary Get the hsl-hue of this color.
    * @description The Hue of this color. Identical to {@link Color#hsvHue}.
@@ -496,8 +492,6 @@ export default class Color {
     return 0.5 * (this._MAX + this._MIN)
   }
 
-
-
   /**
    * @summary Get the hwb-hue of this color.
    * @description The Hue of this color. Identical to {@link Color#hsvHue}.
@@ -527,8 +521,6 @@ export default class Color {
     return 1 - this._MAX
   }
 
-
-
   /**
    * @summary Get an array of RGBA channels.
    */
@@ -548,8 +540,6 @@ export default class Color {
    * @summary Get an array of HWBA channels.
    */
   get hwb(): number[] { return [this.hwbHue, this.hwbWht, this.hwbBlk, this.alpha] }
-
-
 
   /**
    * @summary Return the complement of this color, preserving alpha.
@@ -602,7 +592,7 @@ export default class Color {
    */
   saturate(p: number, relative = false): Color {
     let newsat: number = this.hslSat + (relative ? (this.hslSat * p) : p)
-    newsat = Math.min(Math.max(0, newsat), 1)
+    newsat = Math.min(Math.max(0, newsat), 1) // TODO use `xjs.Number.clamp`
     return Color.fromHSL(this.hslHue, newsat, this.hslLum, this.alpha)
   }
 
@@ -637,7 +627,7 @@ export default class Color {
    */
   lighten(p: number, relative = false): Color {
     let newlum: number = this.hslLum + (relative ? (this.hslLum * p) : p)
-    newlum = Math.min(Math.max(0, newlum), 1)
+    newlum = Math.min(Math.max(0, newlum), 1) // TODO use `xjs.Number.clamp`
     return Color.fromHSL(this.hslHue, this.hslSat, newlum, this.alpha)
   }
 
@@ -673,7 +663,7 @@ export default class Color {
    */
   fadeIn(p: number, relative = false): Color {
     let newalpha: number = this.alpha + (relative ? (this.alpha * p) : p)
-    newalpha = Math.min(Math.max(0, newalpha), 1)
+    newalpha = Math.min(Math.max(0, newalpha), 1) // TODO use `xjs.Number.clamp`
     return new Color(...this.rgb, newalpha)
   }
 
@@ -688,8 +678,6 @@ export default class Color {
   fadeOut(p: number, relative = false): Color {
     return this.fadeIn(-p, relative)
   }
-
-
 
   /**
    * @summary Mix (average) another color with this color, with a given weight favoring that color.
@@ -796,6 +784,6 @@ export default class Color {
   name(): string|null {
     let named_colors: [string, string][] = Object.entries(NAMES)
     const returned: [string, string]|null = named_colors.find((c) => c[1].toLowerCase() === this.toString(Color.Space.HEX)) || null
-    return (returned || [returned])[0]
+    return (returned) ? returned[0] : null
   }
 }
