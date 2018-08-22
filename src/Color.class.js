@@ -741,6 +741,9 @@ class Color {
     let alphas = colors.map((c) => c.alpha)
     return new Color(...[reds, greens, blues].map(compoundComponents), Color._compoundOpacity(alphas))
   }
+  static blur(colors) {
+    return Color.mix(colors, true)
+  }
 
   /**
    * @summary Generate a random color.
