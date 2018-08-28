@@ -7,7 +7,7 @@ const NAMES = require('./color-names.json')
 class Color {
   /**
    *
-   * @summary Construct a Color object.
+   * @summary Construct a new Color object.
    * @description Calling `new Color(r, g, b, a)` (4 arguments) specifies default behavior.
    * Calling `new Color(r, g, b)` (3 arguments) will result in an opaque color (`#rrggbbFF`),
    * where the alpha is 1 by default.
@@ -533,39 +533,41 @@ class Color {
    * @version STABLE
    * @see https://www.w3.org/TR/css-color-4/#hex-notation
    * @param {Color.Space=} space represents the space in which this color exists
-   * @returns {string} a string representing this color.
+   * @returns {string} a string representing this color
    */
   toString(space = Color.Space.HEX) {
     function leadingZeroHex(n) { return `${(n < 16) ? '0' : ''}${n.toString(16)}` }
     if (space === Color.Space.HEX) {
-      let red   = leadingZeroHex(this.red)
-      let green = leadingZeroHex(this.green)
-      let blue  = leadingZeroHex(this.blue)
-      let alpha = leadingZeroHex(Math.round(this.alpha * 255))
-      return `#${red}${green}${blue}${(this.alpha < 1) ? alpha : ''}`
+      return `#${this.rgb.slice(0,3).map(leadingZeroHex).join('')}${(this.alpha < 1) ? leadingZeroHex(Math.round(this.alpha * 255)) : ''}`
     }
-    let alpha = `, ${Math.round(this.alpha * 1000) / 1000}`
     let arr = {
-      [Color.Space.RGB]: () => this.rgb.slice(0,3),
-      [Color.Space.HSV]: () => [
+      [Color.Space.RGB]: function () { return this.rgb.slice(0,3) },
+      [Color.Space.HSV]: function () {
+        return [
+          // REVIEW:INDENTATION
         Math.round(this.hsvHue *  10) /  10,
         Math.round(this.hsvSat * 100) / 100,
         Math.round(this.hsvVal * 100) / 100,
-      ],
-      [Color.Space.HSL]: () => [
+        ]
+      },
+      [Color.Space.HSL]: function () {
+        return [
         Math.round(this.hslHue *  10) /  10,
         Math.round(this.hslSat * 100) / 100,
         Math.round(this.hslLum * 100) / 100,
-      ],
-      [Color.Space.HWB]: () => [
+        ]
+      },
+      [Color.Space.HWB]: function () {
+        return [
         Math.round(this.hwbHue *  10) /  10,
         Math.round(this.hwbWht * 100) / 100,
         Math.round(this.hwbBlk * 100) / 100,
-      ],
-      default: () => { throw new TypeError('Argument must be of type `Color.Space`.') },
+        ]
+      },
+      default() { throw new TypeError('Argument must be of type `Color.Space`.') },
     }
     return (this.alpha < 1) ?
-      `${space}a(${(arr[space] || arr.default).call(this).join(', ')}${alpha})`
+      `${space}a(${(arr[space] || arr.default).call(this).join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
     : `${space}(${(arr[space] || arr.default).call(this).join(', ')})`
   }
 
@@ -575,8 +577,8 @@ class Color {
    * @returns {?string} the name of this color, else `null` if it does not have one
    */
   name() {
-    let found_obj = NAMES.find((c) => c.hex.toLowerCase()===this.toString(Color.Space.HEX))
-    return (found_obj) ? found_obj.name : null
+    const returned = Object.entries(NAMES).find((c) => c[1].toLowerCase() === this.toString(Color.Space.HEX)) || null
+    return (returned || [null])[0]
   }
 
 
@@ -697,9 +699,9 @@ class Color {
       return new Color(red, green, blue, alpha)
     }
     if (!str.includes('(')) {
-      let found_obj = NAMES.find((c) => c.name===str)
-      if (!found_obj) throw new Error('No color found for the name given.')
-      return Color.fromString(found_obj.hex)
+      const returned = NAMES[str]
+      if (!returned) throw new Error(`No color found for the name given: '${str}'.`)
+      return Color.fromString(returned)
     }
     let returned = {
       rgb    : (channels) => new Color    (...channels),
@@ -738,6 +740,29 @@ class Color {
     let blues  = colors.map((c) => c.blue )
     let alphas = colors.map((c) => c.alpha)
     return new Color(...[reds, greens, blues].map(compoundComponents), Color._compoundOpacity(alphas))
+  }
+  static blur(colors) {
+    return Color.mix(colors, true)
+  }
+
+  /**
+   * @summary Generate a random color.
+   * @version EXPERIMENTAL
+   * @param   {boolean=} alpha should the alpha channel also be randomized? (default is 1)
+   * @returns {Color} a Color object with random values
+   */
+  static random(alpha = true) {
+    return Color.fromString(`#${Math.random().toString(16).slice(2, (alpha) ? 10 : 8)}`)
+  }
+
+  /**
+   * @summary Randomly select a Named Color.
+   * @version EXPERIMENTAL
+   * @returns {Color} one of the Named Colors, randomly chosen
+   */
+  static randomName() {
+    let names = Object.entries(NAMES)
+    return Color.fromString(names[Math.floor(Math.random() * names.length)][0])
   }
 }
 
