@@ -342,11 +342,9 @@ export default class Color {
    * @returns a string representing this color
    */
   toString(space = Color.Space.HEX): string {
-    function leadingZeroHex(n: number): string {
-      return `${(n < 16) ? '0' : ''}${n.toString(16)}`
-    }
+    const leadingZero = (n: number, r: number = 10) => `0${n.toString(r)}`.slice(-2)
     if (space === Color.Space.HEX) {
-      return `#${this.rgb.slice(0,3).map(leadingZeroHex).join('')}${(this.alpha < 1) ? leadingZeroHex(Math.round(this.alpha * 255)) : ''}`
+      return `#${this.rgb.slice(0,3).map((c) => leadingZero(c, 16)).join('')}${(this.alpha < 1) ? leadingZero(Math.round(this.alpha * 255), 16) : ''}`
     }
     const returned = xjs.Object.switch<[number, number, number]>(space, {
       [Color.Space.RGB]: () => this.rgb.slice(0,3) as [number, number, number],
