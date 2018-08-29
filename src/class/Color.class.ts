@@ -1,4 +1,4 @@
-import {Math as xjs_Math} from 'extrajs'
+import * as xjs from 'extrajs'
 
 const NAMES = require('../color-names.json')
 
@@ -94,7 +94,7 @@ export default class Color {
    * @returns a new Color object with hsva(hue, sat, val, alpha)
    */
   static fromHSV(hue = 0, sat = 0, val = 0, alpha = 1): Color {
-    hue = xjs_Math.mod(hue, 360)
+    hue = xjs.Math.mod(hue, 360)
     let c: number = sat * val
     let x: number = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m: number = val - c
@@ -122,7 +122,7 @@ export default class Color {
    * @returns a new Color object with hsla(hue, sat, lum, alpha)
    */
   static fromHSL(hue = 0, sat = 0, lum = 0, alpha = 1): Color {
-    hue = xjs_Math.mod(hue, 360)
+    hue = xjs.Math.mod(hue, 360)
     let c: number = sat * (1 - Math.abs(2*lum - 1))
     let x: number = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m: number = lum - c/2
@@ -318,10 +318,10 @@ export default class Color {
   constructor(r = 0, g = 0, b = 0, a = 1) {
     if (arguments.length === 0) a = 0
 
-    this._RED   = Math.round(xjs_Math.clamp(0, r, 255))
-    this._GREEN = Math.round(xjs_Math.clamp(0, g, 255))
-    this._BLUE  = Math.round(xjs_Math.clamp(0, b, 255))
-    this._ALPHA = xjs_Math.clamp(0, a, 1)
+    this._RED   = Math.round(xjs.Math.clamp(0, r, 255))
+    this._GREEN = Math.round(xjs.Math.clamp(0, g, 255))
+    this._BLUE  = Math.round(xjs.Math.clamp(0, b, 255))
+    this._ALPHA = xjs.Math.clamp(0, a, 1)
 
     this._MAX    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
     this._MIN    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
@@ -579,7 +579,7 @@ export default class Color {
    */
   saturate(p: number, relative = false): Color {
     let newsat: number = this.hslSat + (relative ? (this.hslSat * p) : p)
-    newsat = xjs_Math.clamp(0, newsat, 1)
+    newsat = xjs.Math.clamp(0, newsat, 1)
     return Color.fromHSL(this.hslHue, newsat, this.hslLum, this.alpha)
   }
 
@@ -614,7 +614,7 @@ export default class Color {
    */
   lighten(p: number, relative = false): Color {
     let newlum: number = this.hslLum + (relative ? (this.hslLum * p) : p)
-    newlum = xjs_Math.clamp(0, newlum, 1)
+    newlum = xjs.Math.clamp(0, newlum, 1)
     return Color.fromHSL(this.hslHue, this.hslSat, newlum, this.alpha)
   }
 
@@ -650,7 +650,7 @@ export default class Color {
    */
   fadeIn(p: number, relative = false): Color {
     let newalpha: number = this.alpha + (relative ? (this.alpha * p) : p)
-    newalpha = xjs_Math.clamp(0, newalpha, 1)
+    newalpha = xjs.Math.clamp(0, newalpha, 1)
     return new Color(...this.rgb, newalpha)
   }
 
