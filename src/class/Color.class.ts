@@ -208,14 +208,12 @@ export default class Color {
       if (!returned) throw new Error(`No color found for the name given: '${str}'.`)
       return Color.fromString(returned)
     }
-    let switch_: { [index: string]: (ch: number[]) => Color } = {
-      rgb: (channels) => new Color    (...channels),
-      hsv: (channels) => Color.fromHSV(...channels),
-      hsl: (channels) => Color.fromHSL(...channels),
-      hwb: (channels) => Color.fromHWB(...channels),
-      default(channels) { throw new Error('Incorrect string format given.') },
-    }
-    return (switch_[str.slice(0,3)] || switch_.default).call(null, str.slice((str[3] === 'a') ? 5 : 4, -1).split(',').map((s) => +s))
+		return xjs.Object.switch<Color>(str.slice(0,3), {
+			rgb: (channels: number[]) => new Color    (...channels),
+			hsv: (channels: number[]) => Color.fromHSV(...channels),
+			hsl: (channels: number[]) => Color.fromHSL(...channels),
+			hwb: (channels: number[]) => Color.fromHWB(...channels),
+		})(str.slice((str[3] === 'a') ? 5 : 4, -1).split(',').map((s) => +s))
   }
 
   /**
@@ -350,8 +348,8 @@ export default class Color {
     if (space === Color.Space.HEX) {
       return `#${this.rgb.slice(0,3).map(leadingZeroHex).join('')}${(this.alpha < 1) ? leadingZeroHex(Math.round(this.alpha * 255)) : ''}`
     }
-    let switch_: { [index: string]: () => number[] } = {
-      [Color.Space.RGB]: () => this.rgb.slice(0,3),
+    const returned = xjs.Object.switch<[number, number, number]>(space, {
+      [Color.Space.RGB]: () => this.rgb.slice(0,3) as [number, number, number],
       [Color.Space.HSV]: () => [
         Math.round(this.hsvHue *  10) /  10,
         Math.round(this.hsvSat * 100) / 100,
@@ -367,11 +365,10 @@ export default class Color {
         Math.round(this.hwbWht * 100) / 100,
         Math.round(this.hwbBlk * 100) / 100,
       ],
-      default() { throw new TypeError('Argument must be of type `Color.Space`.') },
-    }
+    })()
     return (this.alpha < 1) ?
-      `${space}a(${(switch_[space] || switch_.default).call(this).join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
-    : `${space}(${ (switch_[space] || switch_.default).call(this).join(', ')})`
+      `${space}a(${returned.join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
+    : `${space}(${ returned.join(', ')})`
   }
 
   /**
