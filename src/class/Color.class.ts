@@ -1,4 +1,4 @@
-import {Math as xjs_Math} from 'extrajs'
+import * as xjs from 'extrajs'
 
 const NAMES = require('../color-names.json')
 
@@ -94,7 +94,7 @@ export default class Color {
    * @returns a new Color object with hsva(hue, sat, val, alpha)
    */
   static fromHSV(hue = 0, sat = 0, val = 0, alpha = 1): Color {
-    hue = xjs_Math.mod(hue, 360)
+    hue = xjs.Math.mod(hue, 360)
     let c: number = sat * val
     let x: number = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m: number = val - c
@@ -122,7 +122,7 @@ export default class Color {
    * @returns a new Color object with hsla(hue, sat, lum, alpha)
    */
   static fromHSL(hue = 0, sat = 0, lum = 0, alpha = 1): Color {
-    hue = xjs_Math.mod(hue, 360)
+    hue = xjs.Math.mod(hue, 360)
     let c: number = sat * (1 - Math.abs(2*lum - 1))
     let x: number = c * (1 - Math.abs(hue/60 % 2 - 1))
     let m: number = lum - c/2
@@ -208,14 +208,12 @@ export default class Color {
       if (!returned) throw new Error(`No color found for the name given: '${str}'.`)
       return Color.fromString(returned)
     }
-    let switch_: { [index: string]: (ch: number[]) => Color } = {
-      rgb: (channels) => new Color    (...channels),
-      hsv: (channels) => Color.fromHSV(...channels),
-      hsl: (channels) => Color.fromHSL(...channels),
-      hwb: (channels) => Color.fromHWB(...channels),
-      default(channels) { throw new Error('Incorrect string format given.') },
-    }
-    return (switch_[str.slice(0,3)] || switch_.default).call(null, str.slice((str[3] === 'a') ? 5 : 4, -1).split(',').map((s) => +s))
+		return xjs.Object.switch<Color>(str.slice(0,3), {
+			rgb: (channels: number[]) => new Color    (...channels),
+			hsv: (channels: number[]) => Color.fromHSV(...channels),
+			hsl: (channels: number[]) => Color.fromHSL(...channels),
+			hwb: (channels: number[]) => Color.fromHWB(...channels),
+		})(str.slice((str[3] === 'a') ? 5 : 4, -1).split(',').map((s) => +s))
   }
 
   /**
@@ -318,10 +316,10 @@ export default class Color {
   constructor(r = 0, g = 0, b = 0, a = 1) {
     if (arguments.length === 0) a = 0
 
-    this._RED   = Math.round(xjs_Math.clamp(0, r, 255))
-    this._GREEN = Math.round(xjs_Math.clamp(0, g, 255))
-    this._BLUE  = Math.round(xjs_Math.clamp(0, b, 255))
-    this._ALPHA = xjs_Math.clamp(0, a, 1)
+    this._RED   = Math.round(xjs.Math.clamp(0, r, 255))
+    this._GREEN = Math.round(xjs.Math.clamp(0, g, 255))
+    this._BLUE  = Math.round(xjs.Math.clamp(0, b, 255))
+    this._ALPHA = xjs.Math.clamp(0, a, 1)
 
     this._MAX    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
     this._MIN    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
@@ -344,14 +342,12 @@ export default class Color {
    * @returns a string representing this color
    */
   toString(space = Color.Space.HEX): string {
-    function leadingZeroHex(n: number): string {
-      return `${(n < 16) ? '0' : ''}${n.toString(16)}`
-    }
+    const leadingZero = (n: number, r: number = 10) => `0${n.toString(r)}`.slice(-2)
     if (space === Color.Space.HEX) {
-      return `#${this.rgb.slice(0,3).map(leadingZeroHex).join('')}${(this.alpha < 1) ? leadingZeroHex(Math.round(this.alpha * 255)) : ''}`
+      return `#${this.rgb.slice(0,3).map((c) => leadingZero(c, 16)).join('')}${(this.alpha < 1) ? leadingZero(Math.round(this.alpha * 255), 16) : ''}`
     }
-    let switch_: { [index: string]: () => number[] } = {
-      [Color.Space.RGB]: () => this.rgb.slice(0,3),
+    const returned = xjs.Object.switch<[number, number, number]>(space, {
+      [Color.Space.RGB]: () => this.rgb.slice(0,3) as [number, number, number],
       [Color.Space.HSV]: () => [
         Math.round(this.hsvHue *  10) /  10,
         Math.round(this.hsvSat * 100) / 100,
@@ -367,11 +363,10 @@ export default class Color {
         Math.round(this.hwbWht * 100) / 100,
         Math.round(this.hwbBlk * 100) / 100,
       ],
-      default() { throw new TypeError('Argument must be of type `Color.Space`.') },
-    }
+    })()
     return (this.alpha < 1) ?
-      `${space}a(${(switch_[space] || switch_.default).call(this).join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
-    : `${space}(${ (switch_[space] || switch_.default).call(this).join(', ')})`
+      `${space}a(${returned.join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
+    : `${space}(${ returned.join(', ')})`
   }
 
   /**
@@ -579,7 +574,7 @@ export default class Color {
    */
   saturate(p: number, relative = false): Color {
     let newsat: number = this.hslSat + (relative ? (this.hslSat * p) : p)
-    newsat = xjs_Math.clamp(0, newsat, 1)
+    newsat = xjs.Math.clamp(0, newsat, 1)
     return Color.fromHSL(this.hslHue, newsat, this.hslLum, this.alpha)
   }
 
@@ -614,7 +609,7 @@ export default class Color {
    */
   lighten(p: number, relative = false): Color {
     let newlum: number = this.hslLum + (relative ? (this.hslLum * p) : p)
-    newlum = xjs_Math.clamp(0, newlum, 1)
+    newlum = xjs.Math.clamp(0, newlum, 1)
     return Color.fromHSL(this.hslHue, this.hslSat, newlum, this.alpha)
   }
 
@@ -650,7 +645,7 @@ export default class Color {
    */
   fadeIn(p: number, relative = false): Color {
     let newalpha: number = this.alpha + (relative ? (this.alpha * p) : p)
-    newalpha = xjs_Math.clamp(0, newalpha, 1)
+    newalpha = xjs.Math.clamp(0, newalpha, 1)
     return new Color(...this.rgb, newalpha)
   }
 
