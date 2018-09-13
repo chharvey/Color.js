@@ -1,3 +1,12 @@
 {
-  "extends": "./config/tsconfig.json"
+  "compilerOptions": {
+    "target"              : "ES2017",
+    "module"              : "commonjs",
+    "removeComments"      : true,
+    "strictNullChecks"    : true,
+    "strictFunctionTypes" : true,
+    "noImplicitAny"       : true,
+    "noImplicitThis"      : true,
+    "noEmitOnError"       : true
+  }
 }
