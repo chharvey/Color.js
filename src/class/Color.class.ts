@@ -2,27 +2,6 @@ import * as xjs from 'extrajs'
 
 const NAMES = require('../color-names.json')
 
-/**
- * @todo TODO take from `continuum/Util.average`
- * @private
- * @param   a 1st number
- * @param   b 2nd number; for best results, should be greater than `a`
- * @param   w number between [0,1]; weight of 2nd number
- * @returns the weighted average of `a` and `b`
- */
-function average(a: number, b: number, w = 0.5): number {
-  return (a * (1-w)) + (b * w)
-}
-/**
- * @todo TODO take from `continuum/Util.aMean`
- * @private
- * @param   arr an array of numbers
- * @returns the arithmetic mean of the array entries
- */
-function aMean(arr: number[]): number {
-  return arr.reduce((a,b) => a + b) / arr.length
-}
-
 
 /**
  * @summary Enum for the types of string representations of colors.
@@ -229,9 +208,9 @@ export default class Color {
    * @returns a mix of the given colors
    */
   static mix(colors: Color[]): Color {
-    let red  : number = Math.round(aMean(colors.map((c) => c.red  )))
-    let green: number = Math.round(aMean(colors.map((c) => c.green)))
-    let blue : number = Math.round(aMean(colors.map((c) => c.blue )))
+    let red  : number = Math.round(xjs.Math.meanArithmetic(colors.map((c) => c.red  )))
+    let green: number = Math.round(xjs.Math.meanArithmetic(colors.map((c) => c.green)))
+    let blue : number = Math.round(xjs.Math.meanArithmetic(colors.map((c) => c.blue )))
     let alpha: number = Color._compoundOpacity(colors.map((c) => c.alpha))
     return new Color(red, green, blue, alpha)
   }
@@ -252,7 +231,7 @@ export default class Color {
      * @returns the compounded value
      */
     function compoundChannel(arr: number[]): number {
-      return Color._linear_sRGB(aMean(arr.map(Color._sRGB_Linear)))
+      return Color._linear_sRGB(xjs.Math.meanArithmetic(arr.map(Color._sRGB_Linear)))
     }
     let red  : number = Math.round(compoundChannel(colors.map((c) => c.red  )))
     let green: number = Math.round(compoundChannel(colors.map((c) => c.green)))
@@ -673,9 +652,9 @@ export default class Color {
    * @returns a mix of the two given colors
    */
   mix(color: Color, weight = 0.5): Color {
-    let red  : number = Math.round(average(this.red  , color.red  , weight))
-    let green: number = Math.round(average(this.green, color.green, weight))
-    let blue : number = Math.round(average(this.blue , color.blue , weight))
+    let red  : number = Math.round(xjs.Math.average(this.red  , color.red  , weight))
+    let green: number = Math.round(xjs.Math.average(this.green, color.green, weight))
+    let blue : number = Math.round(xjs.Math.average(this.blue , color.blue , weight))
     let alpha: number = Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
@@ -698,7 +677,7 @@ export default class Color {
      * @returns the compounded value
      */
     function compoundChannel(c1: number, c2: number) {
-      return Color._linear_sRGB(average(Color._sRGB_Linear(c1), Color._sRGB_Linear(c2), weight))
+      return Color._linear_sRGB(xjs.Math.average(Color._sRGB_Linear(c1), Color._sRGB_Linear(c2), weight))
     }
     let red  : number = Math.round(compoundChannel(this.red  , color.red  ))
     let green: number = Math.round(compoundChannel(this.green, color.green))
