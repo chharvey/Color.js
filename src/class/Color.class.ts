@@ -7,12 +7,12 @@ const NAMES: { [index: string]: string } = require('../color-names.json')
  * Enum for the types of string representations of colors.
  */
 enum Space {
-  /** #rrggbb      / #rrggbbaa        */ HEX = 'hex',
-  /** rgb(r, g, b) / rgba(r, g, b, a) */ RGB = 'rgb',
-  /** hsv(h, s, v) / hsva(h, s, v, a) */ HSV = 'hsv',
-  /** hsl(h, s, l) / hsla(h, s, l, a) */ HSL = 'hsl',
-  /** hwb(h, w, b) / hwba(h, w, b, a) */ HWB = 'hwb',
-  /** cmyk(c, m, y, k) / cmyka(c, m, y, k, a) */ CMYK = 'cmyk',
+	/** #rrggbb / #rrggbbaa / #rgb / #rgba */ HEX = 'hex',
+	/** rgb(r g b [/ a]) */ RGB = 'rgb',
+	/** hsv(h s v [/ a]) */ HSV = 'hsv',
+	/** hsl(h s l [/ a]) */ HSL = 'hsl',
+	/** hwb(h w b [/ a]) */ HWB = 'hwb',
+	/** cmyk(c m y k [/ a]) */ CMYK = 'cmyk',
 }
 
 
@@ -181,22 +181,38 @@ export default class Color {
    *  - `#rrggbbaa`
    *  - `#rgb`
    *  - `#rgba`
-   *  - `rgb(r, g, b)`
-   *  - `rgb(r, g, b, a)`
-   *  - `rgba(r, g, b, a)`
-   *  - `hsv(h, s, v)`
-   *  - `hsv(h, s, v, a)`
-   *  - `hsva(h, s, v, a)`
-   *  - `hsl(h, s, l)`
-   *  - `hsl(h, s, l, a)`
-   *  - `hsla(h, s, l, a)`
-   *  - `hwb(h, w, b)`
-   *  - `hwb(h, w, b, a)`
-   *  - `hwba(h, w, b, a)`
-   *  - `cmyk(c, m, y, k)`
-   *  - `cmyk(c, m, y, k, a)`
-   *  - `cmyka(c, m, y, k, a)`
+	 *  - `rgb(r, g, b)`         — DEPRECATED
+	 *  - `rgb(r, g, b, a)`      — DEPRECATED
+	 *  - `rgba(r, g, b, a)`     — DEPRECATED
+	 *  - `rgb(r g b)`
+	 *  - `rgb(r g b / a)`
+	 *  - `hsv(h, s, v)`         — DEPRECATED
+	 *  - `hsv(h, s, v, a)`      — DEPRECATED
+	 *  - `hsva(h, s, v, a)`     — DEPRECATED
+	 *  - `hsv(h s v)`
+	 *  - `hsv(h s v / a)`
+	 *  - `hsl(h, s, l)`         — DEPRECATED
+	 *  - `hsl(h, s, l, a)`      — DEPRECATED
+	 *  - `hsla(h, s, l, a)`     — DEPRECATED
+	 *  - `hsl(h s l)`
+	 *  - `hsl(h s l / a)`
+	 *  - `hwb(h, w, b)`         — DEPRECATED
+	 *  - `hwb(h, w, b, a)`      — DEPRECATED
+	 *  - `hwba(h, w, b, a)`     — DEPRECATED
+	 *  - `hwb(h w b)`
+	 *  - `hwb(h w b / a)`
+	 *  - `cmyk(c, m, y, k)`     — DEPRECATED
+	 *  - `cmyk(c, m, y, k, a)`  — DEPRECATED
+	 *  - `cmyka(c, m, y, k, a)` — DEPRECATED
+	 *  - `cmyk(c m y k)`
+	 *  - `cmyk(c m y k / a)`
    *  - *any exact string match of a named color*
+	 *
+	 * Note that the comma-separated value syntax, while still supported, is deprecated.
+	 * Authors should convert to the new space-separated value syntax, as specified in
+	 * {@link https://drafts.csswg.org/css-color/|CSS Color Module Level 4, Editor’s Draft}.
+	 * Deprecated syntax will become obsolete in an upcoming major version.
+	 *
    * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
    * @param   str a string of one of the forms described
    * @returns a new Color object constructed from the given string
@@ -345,8 +361,10 @@ export default class Color {
    * Return a string representation of this color.
    *
    * If the alpha of this color is 1, then the string returned will represent an opaque color,
-   * e.g. `hsv()`, `hsl()`, etc. Otherwise, the string returned will represent a translucent color,
-   * `hsva()`, `hsla()`, etc.
+   * `hsv(h s v)`, `hsl(h s l)`, etc.
+   * Otherwise, the string returned will represent a translucent color,
+   * `hsv(h s v / a)`, `hsl(h s l / a)`, etc.
+   *
    * The format of the numbers returned will be as follows. The default format is {@link Color.Space.HEX}.
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
