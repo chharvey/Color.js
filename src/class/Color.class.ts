@@ -147,6 +147,31 @@ export default class Color {
      */
   }
 
+	/**
+	 * Return a new Color object, given cyan, magenta, yellow, and black in CMYK-space.
+	 *
+	 * The CMYK-cyan    must be between 0.0 and 1.0.
+	 * The CMYK-magenta must be between 0.0 and 1.0.
+	 * The CMYK-yellow  must be between 0.0 and 1.0.
+	 * The CMYK-black   must be between 0.0 and 1.0.
+	 * The alpha        must be between 0.0 and 1.0.
+	 * @see https://www.w3.org/TR/css-color-4/#cmyk-rgb
+	 * @param   cyan    the CMYK-cyan    channel of this color (a number 0—1)
+	 * @param   magenta the CMYK-magenta channel of this color (a number 0—1)
+	 * @param   yellow  the CMYK-yellow  channel of this color (a number 0—1)
+	 * @param   black   the CMYK-black   channel of this color (a number 0—1)
+	 * @param   alpha the opacity (a number 0—1)
+	 * @returns a new Color object with cmyka(cyan, magenta, yellow, black, alpha)
+	 */
+	static fromCMYK(cyan = 0, magenta = 0, yellow = 0, black = 1, alpha = 1): Color {
+		return new Color(
+			255 * (1 - Math.min(cyan    * (1 - black) + black, 1)),
+			255 * (1 - Math.min(magenta * (1 - black) + black, 1)),
+			255 * (1 - Math.min(yellow  * (1 - black) + black, 1)),
+			alpha
+		)
+	}
+
   /**
    * Return a new Color object, given a string.
    *
