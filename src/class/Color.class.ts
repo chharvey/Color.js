@@ -494,6 +494,46 @@ export default class Color {
     return 1 - this._MAX
   }
 
+	/**
+	 * Get the cmyk-cyan of this color.
+	 *
+	 * The amount of Cyan in this color, or a subtraction of the amount of Red in this color.
+	 * A number bound by [0, 1].
+	 */
+	get cmykCyan(): number {
+		return (this.cmykBlack === 1) ? 0 : (1 - this.red/255 - this.cmykBlack) / (1 - this.cmykBlack)
+	}
+
+	/**
+	 * Get the cmyk-magenta of this color.
+	 *
+	 * The amount of Magenta in this color, or a subtraction of the amount of Green in this color.
+	 * A number bound by [0, 1].
+	 */
+	get cmykMagenta(): number {
+		return (this.cmykBlack === 1) ? 0 : (1 - this.green/255 - this.cmykBlack) / (1 - this.cmykBlack)
+	}
+
+	/**
+	 * Get the cmyk-yellow of this color.
+	 *
+	 * The amount of Yellow in this color, or a subtraction of the amount of Blue in this color.
+	 * A number bound by [0, 1].
+	 */
+	get cmykYellow(): number {
+		return (this.cmykBlack === 1) ? 0 : (1 - this.blue/255 - this.cmykBlack) / (1 - this.cmykBlack)
+	}
+
+	/**
+	 * Get the cmyk-black of this color.
+	 *
+	 * The amount of Black in this color in the CMYK color space.
+	 * A number bound by [0, 1].
+	 */
+	get cmykBlack(): number {
+		return 1 - this._MAX
+	}
+
   /**
    * Get an array of RGBA channels.
    */
@@ -514,6 +554,10 @@ export default class Color {
    */
   get hwb(): number[] { return [this.hwbHue, this.hwbWht, this.hwbBlk, this.alpha] }
 
+	/**
+	 * Get an array of CMYKA channels.
+	 */
+	get cmyk(): number[] { return [this.cmykCyan, this.cmykMagenta, this.cmykYellow, this.cmykBlack, this.alpha] }
 
   /**
    * Return the complement of this color, preserving alpha.
