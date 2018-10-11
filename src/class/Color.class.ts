@@ -12,6 +12,7 @@ enum Space {
   /** hsv(h, s, v) / hsva(h, s, v, a) */ HSV = 'hsv',
   /** hsl(h, s, l) / hsla(h, s, l, a) */ HSL = 'hsl',
   /** hwb(h, w, b) / hwba(h, w, b, a) */ HWB = 'hwb',
+  /** cmyk(c, m, y, k) / cmyka(c, m, y, k, a) */ CMYK = 'cmyk',
 }
 
 
@@ -340,11 +341,10 @@ export default class Color {
    * The format of the numbers returned will be as follows. The default format is {@link Color.Space.HEX}.
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
-   * - HSV/HSL-sat/val/lum and HWB-wht/blk values will be base 10 decimals in [0,1] rounded to the nearest 0.01
+   * - HSV/HSL-sat/val/lum, HWB-wht/blk, and CMYK-cyan/magenta/yellow/black values will be base 10 decimals in [0,1] rounded to the nearest 0.01
    * - all RGB values will be base 10 integers in [0,255], one to three digits
    * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
    * @override
-   * @see https://www.w3.org/TR/css-color-4/#hex-notation
    * @param   space represents the space in which this color exists
    * @returns a string representing this color
    */
@@ -353,8 +353,8 @@ export default class Color {
     if (space === Color.Space.HEX) {
       return `#${this.rgb.slice(0,3).map((c) => leadingZero(c, 16)).join('')}${(this.alpha < 1) ? leadingZero(Math.round(this.alpha * 255), 16) : ''}`
     }
-    const returned = xjs.Object.switch<[number, number, number]>(space, {
-      [Color.Space.RGB]: () => this.rgb.slice(0,3) as [number, number, number],
+    const returned = xjs.Object.switch<number[]>(space, {
+      [Color.Space.RGB]: () => this.rgb.slice(0,3),
       [Color.Space.HSV]: () => [
         Math.round(this.hsvHue *  10) /  10,
         Math.round(this.hsvSat * 100) / 100,
@@ -370,6 +370,12 @@ export default class Color {
         Math.round(this.hwbWht * 100) / 100,
         Math.round(this.hwbBlk * 100) / 100,
       ],
+			[Color.Space.CMYK]: () => [
+				Math.round(this.cmykCyan    * 100) / 100,
+				Math.round(this.cmykMagenta * 100) / 100,
+				Math.round(this.cmykYellow  * 100) / 100,
+				Math.round(this.cmykBlack   * 100) / 100,
+			],
     })()
     return (this.alpha < 1) ?
       `${space}a(${returned.join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
