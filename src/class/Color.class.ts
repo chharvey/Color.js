@@ -193,6 +193,9 @@ export default class Color {
    *  - `hwb(h, w, b)`
    *  - `hwb(h, w, b, a)`
    *  - `hwba(h, w, b, a)`
+   *  - `cmyk(c, m, y, k)`
+   *  - `cmyk(c, m, y, k, a)`
+   *  - `cmyka(c, m, y, k, a)`
    *  - *any exact string match of a named color*
    * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
    * @param   str a string of one of the forms described
@@ -219,12 +222,18 @@ export default class Color {
       if (!returned) throw new Error(`No color found for the name given: '${str}'.`)
       return Color.fromString(returned)
     }
-		return xjs.Object.switch<Color>(str.slice(0,3), {
-			rgb: (channels: number[]) => new Color    (...channels),
-			hsv: (channels: number[]) => Color.fromHSV(...channels),
-			hsl: (channels: number[]) => Color.fromHSL(...channels),
-			hwb: (channels: number[]) => Color.fromHWB(...channels),
-		})(str.slice((str[3] === 'a') ? 5 : 4, -1).split(',').map((s) => +s))
+		return xjs.Object.switch<Color>(str.split('(')[0], {
+			rgb  : (channels: number[]) => new Color     (...channels),
+			rgba : (channels: number[]) => new Color     (...channels),
+			hsv  : (channels: number[]) => Color.fromHSV (...channels),
+			hsva : (channels: number[]) => Color.fromHSV (...channels),
+			hsl  : (channels: number[]) => Color.fromHSL (...channels),
+			hsla : (channels: number[]) => Color.fromHSL (...channels),
+			hwb  : (channels: number[]) => Color.fromHWB (...channels),
+			hwba : (channels: number[]) => Color.fromHWB (...channels),
+			cmyk : (channels: number[]) => Color.fromCMYK(...channels),
+			cmyka: (channels: number[]) => Color.fromCMYK(...channels),
+		})(str.split('(')[1].slice(0, -1).split(',').map((s) => +s))
   }
 
   /**
