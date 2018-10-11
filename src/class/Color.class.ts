@@ -238,18 +238,28 @@ export default class Color {
       if (!returned) throw new Error(`No color found for the name given: '${str}'.`)
       return Color.fromString(returned)
     }
-		return xjs.Object.switch<Color>(str.split('(')[0], {
-			rgb  : (channels: number[]) => new Color     (...channels),
-			rgba : (channels: number[]) => new Color     (...channels),
-			hsv  : (channels: number[]) => Color.fromHSV (...channels),
-			hsva : (channels: number[]) => Color.fromHSV (...channels),
-			hsl  : (channels: number[]) => Color.fromHSL (...channels),
-			hsla : (channels: number[]) => Color.fromHSL (...channels),
-			hwb  : (channels: number[]) => Color.fromHWB (...channels),
-			hwba : (channels: number[]) => Color.fromHWB (...channels),
-			cmyk : (channels: number[]) => Color.fromCMYK(...channels),
-			cmyka: (channels: number[]) => Color.fromCMYK(...channels),
-		})(str.split('(')[1].slice(0, -1).split(',').map((s) => +s))
+		return (() => {
+			const space : string = str.split('(')[0]
+			const cssarg: string = str.split('(')[1].slice(0, -1)
+			const channelstrings: string[] = (cssarg.includes(',')) ?
+				cssarg.split(',') : // legacy syntax — COMBAK{DEPRECATED}
+				cssarg.split('/')[0].split(' ').filter((s) => s !== '')
+			if (cssarg.includes('/')) {
+				channelstrings.push(cssarg.split('/')[1])
+			}
+			return xjs.Object.switch<Color>(space, {
+				rgb  : (channels: number[]) => new Color     (...channels),
+				rgba : (channels: number[]) => new Color     (...channels), // COMBAK{DEPRECATED}
+				hsv  : (channels: number[]) => Color.fromHSV (...channels),
+				hsva : (channels: number[]) => Color.fromHSV (...channels), // COMBAK{DEPRECATED}
+				hsl  : (channels: number[]) => Color.fromHSL (...channels),
+				hsla : (channels: number[]) => Color.fromHSL (...channels), // COMBAK{DEPRECATED}
+				hwb  : (channels: number[]) => Color.fromHWB (...channels),
+				hwba : (channels: number[]) => Color.fromHWB (...channels), // COMBAK{DEPRECATED}
+				cmyk : (channels: number[]) => Color.fromCMYK(...channels),
+				cmyka: (channels: number[]) => Color.fromCMYK(...channels), // COMBAK{DEPRECATED}
+			})(channelstrings.map((s) => +s))
+		})()
   }
 
   /**
@@ -404,9 +414,9 @@ export default class Color {
 				Math.round(this.cmykBlack   * 100) / 100,
 			],
     })()
-    return (this.alpha < 1) ?
-      `${space}a(${returned.join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
-    : `${space}(${ returned.join(', ')})`
+		return `${space}(${returned.join(' ')}${
+			(this.alpha < 1) ? ` / ${Math.round(this.alpha * 1000) / 1000}` : ''
+		})`
   }
 
   /**
