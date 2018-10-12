@@ -551,11 +551,11 @@ export default class Color {
   /** Alias of {@link Color#hwb} */ get hwba() { return this.hwb }
 
   /**
-   * @summary Return the complement of this color, preserving alpha.
-   * @description The complement of a color is the difference between that color and white.
-   * @returns a new Color object that corresponds to this color’s complement
+   * @summary Return the inversion of this color, preserving alpha.
+   * @description The inversion of a color is the difference between that color and white.
+   * @returns a new Color object that corresponds to this color’s inversion
    */
-  complement(): Color {
+  invert(): Color {
     return new Color(
       255 - this.red,
       255 - this.green,
@@ -574,11 +574,11 @@ export default class Color {
   }
 
   /**
-   * @summary Return the inverse of this color.
-   * @description The inverse of a color is that color with a hue rotation of 180 degrees.
-   * @returns a new Color object that corresponds to this color’s inverse
+   * @summary Return the complement of this color.
+   * @description The complement of a color amounts to a hue rotation of 180 degrees.
+   * @returns a new Color object that corresponds to this color’s complement
    */
-  invert(): Color {
+  complement(): Color {
     return this.rotate(180)
   }
 
