@@ -64,6 +64,19 @@ export default class Color {
     return (c_lin <= 0.00304) ? c_lin * 12.92 : 1.055 * c_lin ** (1 / 2.4) - 0.055
   }
 
+	/**
+	 * Return a new Color object, given red, green, and blue, in RGB-space, where
+	 * each color channel is an integer 0–255.
+	 * @param   red   the RGB-red   channel of this color (an integer in 0–255)
+	 * @param   green the RGB-green channel of this color (an integer in 0–255)
+	 * @param   blue  the RGB-blue  channel of this color (an integer in 0–255)
+	 * @param   alpha the alpha channel of this color (a number 0–1)
+	 * @returns a new Color object with rgba(red, green, blue, alpha)
+	 */
+	static fromRGB(red = 0, green = 0, blue = 0, alpha = 1): Color {
+		return new Color(red/255, green/255, blue/255, alpha)
+	}
+
   /**
    * Return a new Color object, given hue, saturation, and value in HSV-space.
    *
@@ -74,7 +87,7 @@ export default class Color {
    * @param   hue the HSV-hue channel of this color (a number 0—360)
    * @param   sat the HSV-sat channel of this color (a number 0—1)
    * @param   val the HSV-val channel of this color (a number 0—1)
-   * @param   alpha the opacity (a number 0—1)
+   * @param   alpha the alpha channel of this color (a number 0—1)
    * @returns a new Color object with hsva(hue, sat, val, alpha)
    */
   static fromHSV(hue = 0, sat = 0, val = 0, alpha = 1): Color {
@@ -103,7 +116,7 @@ export default class Color {
    * @param   hue the HSL-hue channel of this color (a number 0—360)
    * @param   sat the HSL-sat channel of this color (a number 0—1)
    * @param   lum the HSL-lum channel of this color (a number 0—1)
-   * @param   alpha the opacity (a number 0—1)
+   * @param   alpha the alpha channel of this color (a number 0—1)
    * @returns a new Color object with hsla(hue, sat, lum, alpha)
    */
   static fromHSL(hue = 0, sat = 0, lum = 0, alpha = 1): Color {
@@ -132,7 +145,7 @@ export default class Color {
    * @param   hue the HWB-hue channel of this color (a number 0—360)
    * @param   wht the HWB-wht channel of this color (a number 0—1)
    * @param   blk the HWB-blk channel of this color (a number 0—1)
-   * @param   alpha the opacity (a number 0—1)
+   * @param   alpha the alpha channel of this color (a number 0—1)
    * @returns a new Color object with hwba(hue, wht, blk, alpha)
    */
   static fromHWB(hue = 0, wht = 0, blk = 0, alpha = 1): Color {
@@ -161,7 +174,7 @@ export default class Color {
 	 * @param   magenta the CMYK-magenta channel of this color (a number 0—1)
 	 * @param   yellow  the CMYK-yellow  channel of this color (a number 0—1)
 	 * @param   black   the CMYK-black   channel of this color (a number 0—1)
-	 * @param   alpha the opacity (a number 0—1)
+	 * @param   alpha   the alpha channel of this color (a number 0—1)
 	 * @returns a new Color object with cmyka(cyan, magenta, yellow, black, alpha)
 	 */
 	static fromCMYK(cyan = 0, magenta = 0, yellow = 0, black = 0, alpha = 1): Color {
