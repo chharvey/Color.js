@@ -26,8 +26,9 @@ gulp.task('test-run', async function () {
 		require('./test/out/Color--randomName.test.js').default,
 		require('./test/out/Color-constructor.test.js').default,
 		require('./test/out/Color-toString.test.js').default,
-		require('./test/out/Color-rotate.test.js').default,
 		require('./test/out/Color-invert.test.js').default,
+		require('./test/out/Color-rotate.test.js').default,
+		require('./test/out/Color-complement.test.js').default,
 		require('./test/out/Color-name.test.js').default,
 	])
 	console.info('All tests ran successfully!')
