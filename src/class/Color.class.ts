@@ -1,6 +1,6 @@
 import * as xjs from 'extrajs'
 
-const NAMES: { [index: string]: string } = require('../color-names.json')
+const NAMES: { [index: string]: string } = require('../../src/color-names.json') // NB relative to dist
 
 
 /**
