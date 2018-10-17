@@ -528,12 +528,12 @@ export default class Color {
 
 
   /**
-   * Return the complement of this color, preserving alpha.
+   * Return the inversion of this color, preserving alpha.
    *
-   * The complement of a color is the difference between that color and white.
-   * @returns a new Color object that corresponds to this color’s complement
+   * The inversion of a color is the difference between that color and white.
+   * @returns a new Color object that corresponds to this color’s inversion
    */
-  complement(): Color {
+  invert(): Color {
     return new Color(
       255 - this.red,
       255 - this.green,
@@ -553,12 +553,12 @@ export default class Color {
   }
 
   /**
-   * Return the inverse of this color.
+   * Return the complement of this color.
    *
-   * The inverse of a color is that color with a hue rotation of 180 degrees.
-   * @returns a new Color object that corresponds to this color’s inverse
+   * The complement of a color amounts to a hue rotation of 180 degrees.
+   * @returns a new Color object that corresponds to this color’s complement
    */
-  invert(): Color {
+  complement(): Color {
     return this.rotate(180)
   }
 
