@@ -12,7 +12,7 @@ export default Promise.all([
 		try {
 			return Color.fromString('blanco').toString()
 		} catch (e) {
-			return e.message.slice(0, 14) // TODO use a ReferenceError
+			return e.name
 		}
-	})(), 'No color found'),
+	})(), 'ReferenceError'),
 ])

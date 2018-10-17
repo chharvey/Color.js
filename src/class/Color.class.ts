@@ -171,12 +171,13 @@ export default class Color {
    * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
    * @param   str a string of one of the forms described
    * @returns a new Color object constructed from the given string
-   * @throws  {Error} if the string given is not a valid format
+   * @throws  {RangeError} if the string given is not a valid format
+   * @throws  {ReferenceError} if the color name given was not found
    */
   static fromString(str = ''): Color {
     if (str === '') return new Color()
     if (str[0] === '#') {
-      if ([4,5,7,9].includes(str.length)) {
+      if (![4,5,7,9].includes(str.length)) throw new RangeError(`Invalid string format: '${str}'.`)
         if ([4,5].includes(str.length)) {
           let [r, g, b, a]: string[] = [str[1], str[2], str[3], str[4] || '']
           return Color.fromString(`#${r}${r}${g}${g}${b}${b}${a}${a}`)
@@ -185,20 +186,31 @@ export default class Color {
         let green: number = parseInt(str.slice(3,5), 16)
         let blue : number = parseInt(str.slice(5,7), 16)
         let alpha: number = (str.length === 9) ? parseInt(str.slice(7,9), 16)/255 : 1
+				try {
+					xjs.Number.assertType(red  , 'natural')
+					xjs.Number.assertType(green, 'natural')
+					xjs.Number.assertType(blue , 'natural')
+					xjs.Number.assertType(alpha, 'non-negative')
+				} catch (e) {
+					throw new RangeError(`Invalid string format: '${str}'.`)
+				}
         return new Color(red, green, blue, alpha)
-      }
     }
     if (!str.includes('(')) {
       const returned: string|null = NAMES[str] || null
-      if (!returned) throw new Error(`No color found for the name given: '${str}'.`)
+      if (!returned) throw new ReferenceError(`No color found for the name given: '${str}'.`)
       return Color.fromString(returned)
     }
+		try {
 		return xjs.Object.switch<Color>(str.slice(0,3), {
 			rgb: (channels: number[]) => new Color    (...channels),
 			hsv: (channels: number[]) => Color.fromHSV(...channels),
 			hsl: (channels: number[]) => Color.fromHSL(...channels),
 			hwb: (channels: number[]) => Color.fromHWB(...channels),
 		})(str.slice((str[3] === 'a') ? 5 : 4, -1).split(',').map((s) => +s))
+		} catch (e) {
+			throw new RangeError(`Invalid string format: '${str}'.`)
+		}
   }
 
   /**
