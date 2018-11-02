@@ -12,6 +12,7 @@ enum Space {
   /** hsv(h, s, v) / hsva(h, s, v, a) */ HSV = 'hsv',
   /** hsl(h, s, l) / hsla(h, s, l, a) */ HSL = 'hsl',
   /** hwb(h, w, b) / hwba(h, w, b, a) */ HWB = 'hwb',
+  /** cmyk(c, m, y, k) / cmyka(c, m, y, k, a) */ CMYK = 'cmyk',
 }
 
 
@@ -147,6 +148,31 @@ export default class Color {
      */
   }
 
+	/**
+	 * Return a new Color object, given cyan, magenta, yellow, and black in CMYK-space.
+	 *
+	 * The CMYK-cyan    must be between 0.0 and 1.0.
+	 * The CMYK-magenta must be between 0.0 and 1.0.
+	 * The CMYK-yellow  must be between 0.0 and 1.0.
+	 * The CMYK-black   must be between 0.0 and 1.0.
+	 * The alpha        must be between 0.0 and 1.0.
+	 * @see https://www.w3.org/TR/css-color-4/#cmyk-rgb
+	 * @param   cyan    the CMYK-cyan    channel of this color (a number 0—1)
+	 * @param   magenta the CMYK-magenta channel of this color (a number 0—1)
+	 * @param   yellow  the CMYK-yellow  channel of this color (a number 0—1)
+	 * @param   black   the CMYK-black   channel of this color (a number 0—1)
+	 * @param   alpha the opacity (a number 0—1)
+	 * @returns a new Color object with cmyka(cyan, magenta, yellow, black, alpha)
+	 */
+	static fromCMYK(cyan = 0, magenta = 0, yellow = 0, black = 1, alpha = 1): Color {
+		return new Color(
+			255 * (1 - Math.min(cyan    * (1 - black) + black, 1)),
+			255 * (1 - Math.min(magenta * (1 - black) + black, 1)),
+			255 * (1 - Math.min(yellow  * (1 - black) + black, 1)),
+			alpha
+		)
+	}
+
   /**
    * Return a new Color object, given a string.
    *
@@ -167,6 +193,9 @@ export default class Color {
    *  - `hwb(h, w, b)`
    *  - `hwb(h, w, b, a)`
    *  - `hwba(h, w, b, a)`
+   *  - `cmyk(c, m, y, k)`
+   *  - `cmyk(c, m, y, k, a)`
+   *  - `cmyka(c, m, y, k, a)`
    *  - *any exact string match of a named color*
    * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
    * @param   str a string of one of the forms described
@@ -202,12 +231,18 @@ export default class Color {
       return Color.fromString(returned)
     }
 		try {
-		return xjs.Object.switch<Color>(str.slice(0,3), {
-			rgb: (channels: number[]) => new Color    (...channels),
-			hsv: (channels: number[]) => Color.fromHSV(...channels),
-			hsl: (channels: number[]) => Color.fromHSL(...channels),
-			hwb: (channels: number[]) => Color.fromHWB(...channels),
-		})(str.slice((str[3] === 'a') ? 5 : 4, -1).split(',').map((s) => +s))
+			return xjs.Object.switch<Color>(str.split('(')[0], {
+				rgb  : (channels: number[]) => new Color     (...channels),
+				rgba : (channels: number[]) => new Color     (...channels),
+				hsv  : (channels: number[]) => Color.fromHSV (...channels),
+				hsva : (channels: number[]) => Color.fromHSV (...channels),
+				hsl  : (channels: number[]) => Color.fromHSL (...channels),
+				hsla : (channels: number[]) => Color.fromHSL (...channels),
+				hwb  : (channels: number[]) => Color.fromHWB (...channels),
+				hwba : (channels: number[]) => Color.fromHWB (...channels),
+				cmyk : (channels: number[]) => Color.fromCMYK(...channels),
+				cmyka: (channels: number[]) => Color.fromCMYK(...channels),
+			})(str.split('(')[1].slice(0, -1).split(',').map((s) => +s))
 		} catch (e) {
 			throw new RangeError(`Invalid string format: '${str}'.`)
 		}
@@ -327,11 +362,10 @@ export default class Color {
    * The format of the numbers returned will be as follows. The default format is {@link Color.Space.HEX}.
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
-   * - HSV/HSL-sat/val/lum and HWB-wht/blk values will be base 10 decimals in [0,1] rounded to the nearest 0.01
+   * - HSV/HSL-sat/val/lum, HWB-wht/blk, and CMYK-cyan/magenta/yellow/black values will be base 10 decimals in [0,1] rounded to the nearest 0.01
    * - all RGB values will be base 10 integers in [0,255], one to three digits
    * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
    * @override
-   * @see https://www.w3.org/TR/css-color-4/#hex-notation
    * @param   space represents the space in which this color exists
    * @returns a string representing this color
    */
@@ -340,8 +374,8 @@ export default class Color {
     if (space === Color.Space.HEX) {
       return `#${this.rgb.slice(0,3).map((c) => leadingZero(c, 16)).join('')}${(this.alpha < 1) ? leadingZero(Math.round(this.alpha * 255), 16) : ''}`
     }
-    const returned = xjs.Object.switch<[number, number, number]>(space, {
-      [Color.Space.RGB]: () => this.rgb.slice(0,3) as [number, number, number],
+    const returned = xjs.Object.switch<number[]>(space, {
+      [Color.Space.RGB]: () => this.rgb.slice(0,3),
       [Color.Space.HSV]: () => [
         Math.round(this.hsvHue *  10) /  10,
         Math.round(this.hsvSat * 100) / 100,
@@ -357,6 +391,12 @@ export default class Color {
         Math.round(this.hwbWht * 100) / 100,
         Math.round(this.hwbBlk * 100) / 100,
       ],
+			[Color.Space.CMYK]: () => [
+				Math.round(this.cmykCyan    * 100) / 100,
+				Math.round(this.cmykMagenta * 100) / 100,
+				Math.round(this.cmykYellow  * 100) / 100,
+				Math.round(this.cmykBlack   * 100) / 100,
+			],
     })()
     return (this.alpha < 1) ?
       `${space}a(${returned.join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
@@ -506,6 +546,46 @@ export default class Color {
     return 1 - this._MAX
   }
 
+	/**
+	 * Get the cmyk-cyan of this color.
+	 *
+	 * The amount of Cyan in this color, or a subtraction of the amount of Red in this color.
+	 * A number bound by [0, 1].
+	 */
+	get cmykCyan(): number {
+		return (this.cmykBlack === 1) ? 0 : (1 - this.red/255 - this.cmykBlack) / (1 - this.cmykBlack)
+	}
+
+	/**
+	 * Get the cmyk-magenta of this color.
+	 *
+	 * The amount of Magenta in this color, or a subtraction of the amount of Green in this color.
+	 * A number bound by [0, 1].
+	 */
+	get cmykMagenta(): number {
+		return (this.cmykBlack === 1) ? 0 : (1 - this.green/255 - this.cmykBlack) / (1 - this.cmykBlack)
+	}
+
+	/**
+	 * Get the cmyk-yellow of this color.
+	 *
+	 * The amount of Yellow in this color, or a subtraction of the amount of Blue in this color.
+	 * A number bound by [0, 1].
+	 */
+	get cmykYellow(): number {
+		return (this.cmykBlack === 1) ? 0 : (1 - this.blue/255 - this.cmykBlack) / (1 - this.cmykBlack)
+	}
+
+	/**
+	 * Get the cmyk-black of this color.
+	 *
+	 * The amount of Black in this color in the CMYK color space.
+	 * A number bound by [0, 1].
+	 */
+	get cmykBlack(): number {
+		return 1 - this._MAX
+	}
+
   /**
    * Get an array of RGBA channels.
    */
@@ -526,6 +606,10 @@ export default class Color {
    */
   get hwb(): number[] { return [this.hwbHue, this.hwbWht, this.hwbBlk, this.alpha] }
 
+	/**
+	 * Get an array of CMYKA channels.
+	 */
+	get cmyk(): number[] { return [this.cmykCyan, this.cmykMagenta, this.cmykYellow, this.cmykBlack, this.alpha] }
 
   /**
    * Return the inversion of this color, preserving alpha.
