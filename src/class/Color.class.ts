@@ -7,12 +7,12 @@ const NAMES: { [index: string]: string } = require('../../src/color-names.json')
  * Enum for the types of string representations of colors.
  */
 enum Space {
-  /** #rrggbb      / #rrggbbaa        */ HEX = 'hex',
-  /** rgb(r, g, b) / rgba(r, g, b, a) */ RGB = 'rgb',
-  /** hsv(h, s, v) / hsva(h, s, v, a) */ HSV = 'hsv',
-  /** hsl(h, s, l) / hsla(h, s, l, a) */ HSL = 'hsl',
-  /** hwb(h, w, b) / hwba(h, w, b, a) */ HWB = 'hwb',
-  /** cmyk(c, m, y, k) / cmyka(c, m, y, k, a) */ CMYK = 'cmyk',
+	/** #rrggbb / #rrggbbaa / #rgb / #rgba */ HEX = 'hex',
+	/** rgb(r g b [/ a]) */ RGB = 'rgb',
+	/** hsv(h s v [/ a]) */ HSV = 'hsv',
+	/** hsl(h s l [/ a]) */ HSL = 'hsl',
+	/** hwb(h w b [/ a]) */ HWB = 'hwb',
+	/** cmyk(c m y k [/ a]) */ CMYK = 'cmyk',
 }
 
 
@@ -67,9 +67,9 @@ export default class Color {
   /**
    * Return a new Color object, given hue, saturation, and value in HSV-space.
    *
-   * The HSV-hue must be between 0 and 360.
+   * The HSV-hue        must be between 0 and 360.
    * The HSV-saturation must be between 0.0 and 1.0.
-   * The HSV-value must be between 0.0 and 1.0.
+   * The HSV-value      must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
    * @param   hue the HSV-hue channel of this color (a number 0—360)
    * @param   sat the HSV-sat channel of this color (a number 0—1)
@@ -95,7 +95,7 @@ export default class Color {
   /**
    * Return a new Color object, given hue, saturation, and luminosity in HSL-space.
    *
-   * The HSL-hue must be between 0 and 360.
+   * The HSL-hue        must be between 0 and 360.
    * The HSL-saturation must be between 0.0 and 1.0.
    * The HSL-luminosity must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
@@ -124,19 +124,19 @@ export default class Color {
   /**
    * Return a new Color object, given hue, white, and black in HWB-space.
    *
-   * The HWB-hue must be between 0 and 360.
+   * The HWB-hue   must be between 0 and 360.
    * The HWB-white must be between 0.0 and 1.0.
    * The HWB-black must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
    * @see https://www.w3.org/TR/css-color-4/#hwb-to-rgb
-   * @param   hue the HWB-hue channel of this color (a number 0—360)
-   * @param   wht the HWB-wht channel of this color (a number 0—1)
-   * @param   blk the HWB-blk channel of this color (a number 0—1)
+   * @param   hue   the HWB-hue   channel of this color (a number 0—360)
+   * @param   white the HWB-white channel of this color (a number 0—1)
+   * @param   black the HWB-black channel of this color (a number 0—1)
    * @param   alpha the opacity (a number 0—1)
-   * @returns a new Color object with hwba(hue, wht, blk, alpha)
+   * @returns a new Color object with hwba(hue, white, black, alpha)
    */
-  static fromHWB(hue = 0, wht = 0, blk = 0, alpha = 1): Color {
-    return Color.fromHSV(hue, 1 - wht / (1 - blk), 1 - blk, alpha)
+  static fromHWB(hue = 0, white = 0, black = 0, alpha = 1): Color {
+    return Color.fromHSV(hue, 1 - white / (1 - black), 1 - black, alpha)
     // HWB -> RGB:
     /*
     var rgb = Color.fromHSL([hue, 1, 0.5]).rgb.map((el) => el/255)
@@ -181,22 +181,38 @@ export default class Color {
    *  - `#rrggbbaa`
    *  - `#rgb`
    *  - `#rgba`
-   *  - `rgb(r, g, b)`
-   *  - `rgb(r, g, b, a)`
-   *  - `rgba(r, g, b, a)`
-   *  - `hsv(h, s, v)`
-   *  - `hsv(h, s, v, a)`
-   *  - `hsva(h, s, v, a)`
-   *  - `hsl(h, s, l)`
-   *  - `hsl(h, s, l, a)`
-   *  - `hsla(h, s, l, a)`
-   *  - `hwb(h, w, b)`
-   *  - `hwb(h, w, b, a)`
-   *  - `hwba(h, w, b, a)`
-   *  - `cmyk(c, m, y, k)`
-   *  - `cmyk(c, m, y, k, a)`
-   *  - `cmyka(c, m, y, k, a)`
+	 *  - `rgb(r, g, b)`         — DEPRECATED
+	 *  - `rgb(r, g, b, a)`      — DEPRECATED
+	 *  - `rgba(r, g, b, a)`     — DEPRECATED
+	 *  - `rgb(r g b)`
+	 *  - `rgb(r g b / a)`
+	 *  - `hsv(h, s, v)`         — DEPRECATED
+	 *  - `hsv(h, s, v, a)`      — DEPRECATED
+	 *  - `hsva(h, s, v, a)`     — DEPRECATED
+	 *  - `hsv(h s v)`
+	 *  - `hsv(h s v / a)`
+	 *  - `hsl(h, s, l)`         — DEPRECATED
+	 *  - `hsl(h, s, l, a)`      — DEPRECATED
+	 *  - `hsla(h, s, l, a)`     — DEPRECATED
+	 *  - `hsl(h s l)`
+	 *  - `hsl(h s l / a)`
+	 *  - `hwb(h, w, b)`         — DEPRECATED
+	 *  - `hwb(h, w, b, a)`      — DEPRECATED
+	 *  - `hwba(h, w, b, a)`     — DEPRECATED
+	 *  - `hwb(h w b)`
+	 *  - `hwb(h w b / a)`
+	 *  - `cmyk(c, m, y, k)`     — DEPRECATED
+	 *  - `cmyk(c, m, y, k, a)`  — DEPRECATED
+	 *  - `cmyka(c, m, y, k, a)` — DEPRECATED
+	 *  - `cmyk(c m y k)`
+	 *  - `cmyk(c m y k / a)`
    *  - *any exact string match of a named color*
+	 *
+	 * Note that the comma-separated value syntax, while still supported, is deprecated.
+	 * Authors should convert to the new space-separated value syntax, as specified in
+	 * {@link https://drafts.csswg.org/css-color/|CSS Color Module Level 4, Editor’s Draft}.
+	 * Deprecated syntax will become obsolete in an upcoming major version.
+	 *
    * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
    * @param   str a string of one of the forms described
    * @returns a new Color object constructed from the given string
@@ -231,18 +247,28 @@ export default class Color {
       return Color.fromString(returned)
     }
 		try {
-			return xjs.Object.switch<Color>(str.split('(')[0], {
-				rgb  : (channels: number[]) => new Color     (...channels),
-				rgba : (channels: number[]) => new Color     (...channels),
-				hsv  : (channels: number[]) => Color.fromHSV (...channels),
-				hsva : (channels: number[]) => Color.fromHSV (...channels),
-				hsl  : (channels: number[]) => Color.fromHSL (...channels),
-				hsla : (channels: number[]) => Color.fromHSL (...channels),
-				hwb  : (channels: number[]) => Color.fromHWB (...channels),
-				hwba : (channels: number[]) => Color.fromHWB (...channels),
-				cmyk : (channels: number[]) => Color.fromCMYK(...channels),
-				cmyka: (channels: number[]) => Color.fromCMYK(...channels),
-			})(str.split('(')[1].slice(0, -1).split(',').map((s) => +s))
+			return (() => {
+				const space : string = str.split('(')[0]
+				const cssarg: string = str.split('(')[1].slice(0, -1)
+				const channelstrings: string[] = (cssarg.includes(',')) ?
+					cssarg.split(',') : // legacy syntax — COMBAK{DEPRECATED}
+					cssarg.split('/')[0].split(' ').filter((s) => s !== '')
+				if (cssarg.includes('/')) {
+					channelstrings.push(cssarg.split('/')[1])
+				}
+				return xjs.Object.switch<Color>(space, {
+					rgb  : (channels: number[]) => new Color     (...channels),
+					rgba : (channels: number[]) => new Color     (...channels), // COMBAK{DEPRECATED}
+					hsv  : (channels: number[]) => Color.fromHSV (...channels),
+					hsva : (channels: number[]) => Color.fromHSV (...channels), // COMBAK{DEPRECATED}
+					hsl  : (channels: number[]) => Color.fromHSL (...channels),
+					hsla : (channels: number[]) => Color.fromHSL (...channels), // COMBAK{DEPRECATED}
+					hwb  : (channels: number[]) => Color.fromHWB (...channels),
+					hwba : (channels: number[]) => Color.fromHWB (...channels), // COMBAK{DEPRECATED}
+					cmyk : (channels: number[]) => Color.fromCMYK(...channels),
+					cmyka: (channels: number[]) => Color.fromCMYK(...channels), // COMBAK{DEPRECATED}
+				})(channelstrings.map((s) => +s))
+			})()
 		} catch (e) {
 			throw new RangeError(`Invalid string format: '${str}'.`)
 		}
@@ -357,12 +383,14 @@ export default class Color {
    * Return a string representation of this color.
    *
    * If the alpha of this color is 1, then the string returned will represent an opaque color,
-   * e.g. `hsv()`, `hsl()`, etc. Otherwise, the string returned will represent a translucent color,
-   * `hsva()`, `hsla()`, etc.
+   * `hsv(h s v)`, `hsl(h s l)`, etc.
+   * Otherwise, the string returned will represent a translucent color,
+   * `hsv(h s v / a)`, `hsl(h s l / a)`, etc.
+   *
    * The format of the numbers returned will be as follows. The default format is {@link Color.Space.HEX}.
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
-   * - HSV/HSL-sat/val/lum, HWB-wht/blk, and CMYK-cyan/magenta/yellow/black values will be base 10 decimals in [0,1] rounded to the nearest 0.01
+   * - HSV/HSL-sat/val/lum, HWB-white/black, and CMYK-cyan/magenta/yellow/black values will be base 10 decimals in [0,1] rounded to the nearest 0.01
    * - all RGB values will be base 10 integers in [0,255], one to three digits
    * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
    * @override
@@ -387,9 +415,9 @@ export default class Color {
         Math.round(this.hslLum * 100) / 100,
       ],
       [Color.Space.HWB]: () => [
-        Math.round(this.hwbHue *  10) /  10,
-        Math.round(this.hwbWht * 100) / 100,
-        Math.round(this.hwbBlk * 100) / 100,
+        Math.round(this.hwbHue   *  10) /  10,
+        Math.round(this.hwbWhite * 100) / 100,
+        Math.round(this.hwbBlack * 100) / 100,
       ],
 			[Color.Space.CMYK]: () => [
 				Math.round(this.cmykCyan    * 100) / 100,
@@ -398,9 +426,9 @@ export default class Color {
 				Math.round(this.cmykBlack   * 100) / 100,
 			],
     })()
-    return (this.alpha < 1) ?
-      `${space}a(${returned.join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
-    : `${space}(${ returned.join(', ')})`
+		return `${space}(${returned.join(' ')}${
+			(this.alpha < 1) ? ` / ${Math.round(this.alpha * 1000) / 1000}` : ''
+		})`
   }
 
   /**
@@ -531,7 +559,7 @@ export default class Color {
    * a lower white means the color has a true hue (more colorful).
    * A number bound by [0, 1].
    */
-  get hwbWht(): number {
+  get hwbWhite(): number {
     return this._MIN
   }
 
@@ -542,7 +570,7 @@ export default class Color {
    * a lower black means the color has a true hue (more colorful).
    * A number bound by [0, 1].
    */
-  get hwbBlk(): number {
+  get hwbBlack(): number {
     return 1 - this._MAX
   }
 
@@ -604,7 +632,7 @@ export default class Color {
   /**
    * Get an array of HWBA channels.
    */
-  get hwb(): number[] { return [this.hwbHue, this.hwbWht, this.hwbBlk, this.alpha] }
+  get hwb(): number[] { return [this.hwbHue, this.hwbWhite, this.hwbBlack, this.alpha] }
 
 	/**
 	 * Get an array of CMYKA channels.
