@@ -1,9 +1,11 @@
 {
   "name": "extrajs-color",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "A css color in Javascript.",
   "main": "index.js",
   "scripts": {
+    "build": "gulp build",
+    "prepublishOnly": "npm run build",
     "test": "node test.js"
   },
   "repository": {
@@ -23,10 +25,12 @@
   "homepage": "https://github.com/chharvey/extrajs-color#readme",
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-jsdoc3": "^2.0.0",
     "gulp-typedoc": "^2.2.0",
     "gulp-typescript": "^5.0.0-alpha.3",
-    "typedoc": "^0.11.1",
-    "typescript": "^3.0.1"
+    "typedoc": "^0.13.0",
+    "typescript": "^3.1.3"
+  },
+  "dependencies": {
+    "extrajs": "^0.14.0"
   }
 }

@@ -1,1 +1,3 @@
-module.exports = require('./src/Color.class.js')
+module.exports = {
+  Color: require('./dist/class/Color.class.js').default
+}
