@@ -245,9 +245,9 @@ export default class Color {
 				let blue : number = parseInt(str.slice(5,7), 16) / 255
         let alpha: number = (str.length === 9) ? parseInt(str.slice(7,9), 16)/255 : 1
 				try {
-					xjs.Number.assertType(red  , 'natural')
-					xjs.Number.assertType(green, 'natural')
-					xjs.Number.assertType(blue , 'natural')
+					xjs.Number.assertType(red  , 'non-negative')
+					xjs.Number.assertType(green, 'non-negative')
+					xjs.Number.assertType(blue , 'non-negative')
 					xjs.Number.assertType(alpha, 'non-negative')
 				} catch (e) {
 					throw new RangeError(`Invalid string format: '${str}'.`)
@@ -413,7 +413,7 @@ export default class Color {
   toString(space = Color.Space.HEX): string {
     const leadingZero = (n: number, r: number = 10) => `0${n.toString(r)}`.slice(-2)
     if (space === Color.Space.HEX) {
-      return `#${this.rgb.slice(0,3).map((c) => leadingZero(c, 16)).join('')}${(this.alpha < 1) ? leadingZero(Math.round(this.alpha * 255), 16) : ''}`
+      return `#${this.rgb.slice(0,3).map((c) => leadingZero(Math.round(c * 255), 16)).join('')}${(this.alpha < 1) ? leadingZero(Math.round(this.alpha * 255), 16) : ''}`
     }
     const returned = xjs.Object.switch<number[]>(space, {
       [Color.Space.RGB]: () => this.rgb.slice(0,3).map((c) => Math.round(c * 255)),
