@@ -1,6 +1,10 @@
 # extrajs-color
 A css color in Javascript.
 
+## DEPRECATED
+This module is **deprecated**, and merged into [extrajs-types](https://github.com/chharvey/extrajs-types).
+Version 4 is the last release of this package, and this repository is archived.
+Any further development will be done in `extrajs-types`.
 
 ## Usage
 

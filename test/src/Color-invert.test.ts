@@ -3,5 +3,5 @@ import test from './test'
 
 
 export default Promise.all([
-	test(new Color(128,0,0).invert().toString(), '#7fffff'),
+	test(new Color(0.5,0,0).invert().toString(), '#80ffff'),
 ])

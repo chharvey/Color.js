@@ -7,12 +7,12 @@ const NAMES: { [index: string]: string } = require('../../src/color-names.json')
  * Enum for the types of string representations of colors.
  */
 enum Space {
-  /** #rrggbb      / #rrggbbaa        */ HEX = 'hex',
-  /** rgb(r, g, b) / rgba(r, g, b, a) */ RGB = 'rgb',
-  /** hsv(h, s, v) / hsva(h, s, v, a) */ HSV = 'hsv',
-  /** hsl(h, s, l) / hsla(h, s, l, a) */ HSL = 'hsl',
-  /** hwb(h, w, b) / hwba(h, w, b, a) */ HWB = 'hwb',
-  /** cmyk(c, m, y, k) / cmyka(c, m, y, k, a) */ CMYK = 'cmyk',
+	/** #rrggbb / #rrggbbaa / #rgb / #rgba */ HEX = 'hex',
+	/** rgb(r g b [/ a]) */ RGB = 'rgb',
+	/** hsv(h s v [/ a]) */ HSV = 'hsv',
+	/** hsl(h s l [/ a]) */ HSL = 'hsl',
+	/** hwb(h w b [/ a]) */ HWB = 'hwb',
+	/** cmyk(c m y k [/ a]) */ CMYK = 'cmyk',
 }
 
 
@@ -64,17 +64,30 @@ export default class Color {
     return (c_lin <= 0.00304) ? c_lin * 12.92 : 1.055 * c_lin ** (1 / 2.4) - 0.055
   }
 
+	/**
+	 * Return a new Color object, given red, green, and blue, in RGB-space, where
+	 * each color channel is an integer 0–255.
+	 * @param   red   the RGB-red   channel of this color (an integer in 0–255)
+	 * @param   green the RGB-green channel of this color (an integer in 0–255)
+	 * @param   blue  the RGB-blue  channel of this color (an integer in 0–255)
+	 * @param   alpha the alpha channel of this color (a number 0–1)
+	 * @returns a new Color object with rgba(red, green, blue, alpha)
+	 */
+	static fromRGB(red = 0, green = 0, blue = 0, alpha = 1): Color {
+		return new Color(red/255, green/255, blue/255, alpha)
+	}
+
   /**
    * Return a new Color object, given hue, saturation, and value in HSV-space.
    *
-   * The HSV-hue must be between 0 and 360.
+   * The HSV-hue        must be between 0 and 360.
    * The HSV-saturation must be between 0.0 and 1.0.
-   * The HSV-value must be between 0.0 and 1.0.
+   * The HSV-value      must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
    * @param   hue the HSV-hue channel of this color (a number 0—360)
    * @param   sat the HSV-sat channel of this color (a number 0—1)
    * @param   val the HSV-val channel of this color (a number 0—1)
-   * @param   alpha the opacity (a number 0—1)
+   * @param   alpha the alpha channel of this color (a number 0—1)
    * @returns a new Color object with hsva(hue, sat, val, alpha)
    */
   static fromHSV(hue = 0, sat = 0, val = 0, alpha = 1): Color {
@@ -89,13 +102,13 @@ export default class Color {
     else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
     else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
-    return new Color(...rgb.map((el) => Math.round((el + m) * 255)), alpha)
+    return new Color(...rgb.map((el) => el + m), alpha)
   }
 
   /**
    * Return a new Color object, given hue, saturation, and luminosity in HSL-space.
    *
-   * The HSL-hue must be between 0 and 360.
+   * The HSL-hue        must be between 0 and 360.
    * The HSL-saturation must be between 0.0 and 1.0.
    * The HSL-luminosity must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
@@ -103,7 +116,7 @@ export default class Color {
    * @param   hue the HSL-hue channel of this color (a number 0—360)
    * @param   sat the HSL-sat channel of this color (a number 0—1)
    * @param   lum the HSL-lum channel of this color (a number 0—1)
-   * @param   alpha the opacity (a number 0—1)
+   * @param   alpha the alpha channel of this color (a number 0—1)
    * @returns a new Color object with hsla(hue, sat, lum, alpha)
    */
   static fromHSL(hue = 0, sat = 0, lum = 0, alpha = 1): Color {
@@ -118,33 +131,33 @@ export default class Color {
     else if (180 <= hue && hue < 240) { rgb = [0, x, c] }
     else if (240 <= hue && hue < 300) { rgb = [x, 0, c] }
     else if (300 <= hue && hue < 360) { rgb = [c, 0, x] }
-    return new Color(...rgb.map((el) => Math.round((el + m) * 255)), alpha)
+    return new Color(...rgb.map((el) => el + m), alpha)
   }
 
   /**
    * Return a new Color object, given hue, white, and black in HWB-space.
    *
-   * The HWB-hue must be between 0 and 360.
+   * The HWB-hue   must be between 0 and 360.
    * The HWB-white must be between 0.0 and 1.0.
    * The HWB-black must be between 0.0 and 1.0.
    * The alpha must be between 0.0 and 1.0.
    * @see https://www.w3.org/TR/css-color-4/#hwb-to-rgb
-   * @param   hue the HWB-hue channel of this color (a number 0—360)
-   * @param   wht the HWB-wht channel of this color (a number 0—1)
-   * @param   blk the HWB-blk channel of this color (a number 0—1)
-   * @param   alpha the opacity (a number 0—1)
-   * @returns a new Color object with hwba(hue, wht, blk, alpha)
+   * @param   hue   the HWB-hue   channel of this color (a number 0—360)
+   * @param   white the HWB-white channel of this color (a number 0—1)
+   * @param   black the HWB-black channel of this color (a number 0—1)
+   * @param   alpha the alpha     channel of this color (a number 0—1)
+   * @returns a new Color object with hwba(hue, white, black, alpha)
    */
-  static fromHWB(hue = 0, wht = 0, blk = 0, alpha = 1): Color {
-    return Color.fromHSV(hue, 1 - wht / (1 - blk), 1 - blk, alpha)
+  static fromHWB(hue = 0, white = 0, black = 0, alpha = 1): Color {
+    return Color.fromHSV(hue, 1 - white / (1 - black), 1 - black, alpha)
     // HWB -> RGB:
     /*
-    var rgb = Color.fromHSL([hue, 1, 0.5]).rgb.map((el) => el/255)
+    var rgb = Color.fromHSL([hue, 1, 0.5]).rgb
     for (var i = 0; i < 3; i++) {
       rgb[i] *= (1 - white - black);
       rgb[i] += white;
     }
-    return new Color(rgb.map(function (el) { return Math.round(el * 255) }))
+    return new Color(...rgb)
      */
   }
 
@@ -161,14 +174,14 @@ export default class Color {
 	 * @param   magenta the CMYK-magenta channel of this color (a number 0—1)
 	 * @param   yellow  the CMYK-yellow  channel of this color (a number 0—1)
 	 * @param   black   the CMYK-black   channel of this color (a number 0—1)
-	 * @param   alpha the opacity (a number 0—1)
+	 * @param   alpha   the alpha channel of this color (a number 0—1)
 	 * @returns a new Color object with cmyka(cyan, magenta, yellow, black, alpha)
 	 */
-	static fromCMYK(cyan = 0, magenta = 0, yellow = 0, black = 1, alpha = 1): Color {
+	static fromCMYK(cyan = 0, magenta = 0, yellow = 0, black = 0, alpha = 1): Color {
 		return new Color(
-			255 * (1 - Math.min(cyan    * (1 - black) + black, 1)),
-			255 * (1 - Math.min(magenta * (1 - black) + black, 1)),
-			255 * (1 - Math.min(yellow  * (1 - black) + black, 1)),
+			1 - Math.min(cyan    * (1 - black) + black, 1),
+			1 - Math.min(magenta * (1 - black) + black, 1),
+			1 - Math.min(yellow  * (1 - black) + black, 1),
 			alpha
 		)
 	}
@@ -181,22 +194,38 @@ export default class Color {
    *  - `#rrggbbaa`
    *  - `#rgb`
    *  - `#rgba`
-   *  - `rgb(r, g, b)`
-   *  - `rgb(r, g, b, a)`
-   *  - `rgba(r, g, b, a)`
-   *  - `hsv(h, s, v)`
-   *  - `hsv(h, s, v, a)`
-   *  - `hsva(h, s, v, a)`
-   *  - `hsl(h, s, l)`
-   *  - `hsl(h, s, l, a)`
-   *  - `hsla(h, s, l, a)`
-   *  - `hwb(h, w, b)`
-   *  - `hwb(h, w, b, a)`
-   *  - `hwba(h, w, b, a)`
-   *  - `cmyk(c, m, y, k)`
-   *  - `cmyk(c, m, y, k, a)`
-   *  - `cmyka(c, m, y, k, a)`
+	 *  - `rgb(r, g, b)`         — DEPRECATED
+	 *  - `rgb(r, g, b, a)`      — DEPRECATED
+	 *  - `rgba(r, g, b, a)`     — DEPRECATED
+	 *  - `rgb(r g b)`
+	 *  - `rgb(r g b / a)`
+	 *  - `hsv(h, s, v)`         — DEPRECATED
+	 *  - `hsv(h, s, v, a)`      — DEPRECATED
+	 *  - `hsva(h, s, v, a)`     — DEPRECATED
+	 *  - `hsv(h s v)`
+	 *  - `hsv(h s v / a)`
+	 *  - `hsl(h, s, l)`         — DEPRECATED
+	 *  - `hsl(h, s, l, a)`      — DEPRECATED
+	 *  - `hsla(h, s, l, a)`     — DEPRECATED
+	 *  - `hsl(h s l)`
+	 *  - `hsl(h s l / a)`
+	 *  - `hwb(h, w, b)`         — DEPRECATED
+	 *  - `hwb(h, w, b, a)`      — DEPRECATED
+	 *  - `hwba(h, w, b, a)`     — DEPRECATED
+	 *  - `hwb(h w b)`
+	 *  - `hwb(h w b / a)`
+	 *  - `cmyk(c, m, y, k)`     — DEPRECATED
+	 *  - `cmyk(c, m, y, k, a)`  — DEPRECATED
+	 *  - `cmyka(c, m, y, k, a)` — DEPRECATED
+	 *  - `cmyk(c m y k)`
+	 *  - `cmyk(c m y k / a)`
    *  - *any exact string match of a named color*
+	 *
+	 * Note that the comma-separated value syntax, while still supported, is deprecated.
+	 * Authors should convert to the new space-separated value syntax, as specified in
+	 * {@link https://drafts.csswg.org/css-color/|CSS Color Module Level 4, Editor’s Draft}.
+	 * Deprecated syntax will become obsolete in an upcoming major version.
+	 *
    * @see {@link https://www.w3.org/TR/css-color-4/#named-colors|Named Colors | CSS Color Module Level 4}
    * @param   str a string of one of the forms described
    * @returns a new Color object constructed from the given string
@@ -211,14 +240,14 @@ export default class Color {
           let [r, g, b, a]: string[] = [str[1], str[2], str[3], str[4] || '']
           return Color.fromString(`#${r}${r}${g}${g}${b}${b}${a}${a}`)
         }
-        let red  : number = parseInt(str.slice(1,3), 16)
-        let green: number = parseInt(str.slice(3,5), 16)
-        let blue : number = parseInt(str.slice(5,7), 16)
+				let red  : number = parseInt(str.slice(1,3), 16) / 255
+				let green: number = parseInt(str.slice(3,5), 16) / 255
+				let blue : number = parseInt(str.slice(5,7), 16) / 255
         let alpha: number = (str.length === 9) ? parseInt(str.slice(7,9), 16)/255 : 1
 				try {
-					xjs.Number.assertType(red  , 'natural')
-					xjs.Number.assertType(green, 'natural')
-					xjs.Number.assertType(blue , 'natural')
+					xjs.Number.assertType(red  , 'non-negative')
+					xjs.Number.assertType(green, 'non-negative')
+					xjs.Number.assertType(blue , 'non-negative')
 					xjs.Number.assertType(alpha, 'non-negative')
 				} catch (e) {
 					throw new RangeError(`Invalid string format: '${str}'.`)
@@ -231,18 +260,28 @@ export default class Color {
       return Color.fromString(returned)
     }
 		try {
-			return xjs.Object.switch<Color>(str.split('(')[0], {
-				rgb  : (channels: number[]) => new Color     (...channels),
-				rgba : (channels: number[]) => new Color     (...channels),
-				hsv  : (channels: number[]) => Color.fromHSV (...channels),
-				hsva : (channels: number[]) => Color.fromHSV (...channels),
-				hsl  : (channels: number[]) => Color.fromHSL (...channels),
-				hsla : (channels: number[]) => Color.fromHSL (...channels),
-				hwb  : (channels: number[]) => Color.fromHWB (...channels),
-				hwba : (channels: number[]) => Color.fromHWB (...channels),
-				cmyk : (channels: number[]) => Color.fromCMYK(...channels),
-				cmyka: (channels: number[]) => Color.fromCMYK(...channels),
-			})(str.split('(')[1].slice(0, -1).split(',').map((s) => +s))
+			return (() => {
+				const space : string = str.split('(')[0]
+				const cssarg: string = str.split('(')[1].slice(0, -1)
+				const channelstrings: string[] = (cssarg.includes(',')) ?
+					cssarg.split(',') : // legacy syntax — COMBAK{DEPRECATED}
+					cssarg.split('/')[0].split(' ').filter((s) => s !== '')
+				if (cssarg.includes('/')) {
+					channelstrings.push(cssarg.split('/')[1])
+				}
+				return xjs.Object.switch<Color>(space, {
+					rgb  : (channels: number[]) => new Color     (...channels.map((c) => c / 255)),
+					rgba : (channels: number[]) => new Color     (...channels.map((c) => c / 255)), // COMBAK{DEPRECATED}
+					hsv  : (channels: number[]) => Color.fromHSV (...channels),
+					hsva : (channels: number[]) => Color.fromHSV (...channels), // COMBAK{DEPRECATED}
+					hsl  : (channels: number[]) => Color.fromHSL (...channels),
+					hsla : (channels: number[]) => Color.fromHSL (...channels), // COMBAK{DEPRECATED}
+					hwb  : (channels: number[]) => Color.fromHWB (...channels),
+					hwba : (channels: number[]) => Color.fromHWB (...channels), // COMBAK{DEPRECATED}
+					cmyk : (channels: number[]) => Color.fromCMYK(...channels),
+					cmyka: (channels: number[]) => Color.fromCMYK(...channels), // COMBAK{DEPRECATED}
+				})(channelstrings.map((s) => +s))
+			})()
 		} catch (e) {
 			throw new RangeError(`Invalid string format: '${str}'.`)
 		}
@@ -262,9 +301,9 @@ export default class Color {
    * @returns a mix of the given colors
    */
   static mix(colors: Color[]): Color {
-    let red  : number = Math.round(xjs.Math.meanArithmetic(colors.map((c) => c.red  )))
-    let green: number = Math.round(xjs.Math.meanArithmetic(colors.map((c) => c.green)))
-    let blue : number = Math.round(xjs.Math.meanArithmetic(colors.map((c) => c.blue )))
+		let red  : number = xjs.Math.meanArithmetic(colors.map((c) => c.red  ))
+		let green: number = xjs.Math.meanArithmetic(colors.map((c) => c.green))
+		let blue : number = xjs.Math.meanArithmetic(colors.map((c) => c.blue ))
     let alpha: number = Color._compoundOpacity(colors.map((c) => c.alpha))
     return new Color(red, green, blue, alpha)
   }
@@ -288,9 +327,9 @@ export default class Color {
     function compoundChannel(arr: number[]): number {
       return Color._linear_sRGB(xjs.Math.meanArithmetic(arr.map(Color._sRGB_Linear)))
     }
-    let red  : number = Math.round(compoundChannel(colors.map((c) => c.red  )))
-    let green: number = Math.round(compoundChannel(colors.map((c) => c.green)))
-    let blue : number = Math.round(compoundChannel(colors.map((c) => c.blue )))
+		let red  : number = compoundChannel(colors.map((c) => c.red  ))
+		let green: number = compoundChannel(colors.map((c) => c.green))
+		let blue : number = compoundChannel(colors.map((c) => c.blue ))
     let alpha: number =     Color._compoundOpacity(colors.map((c) => c.alpha))
     return new Color(red, green, blue, alpha)
   }
@@ -314,13 +353,13 @@ export default class Color {
   }
 
 
-  /** The red channel of this color. An integer in [0,255]. */
+  /** The red   channel of this color. A number in [0,1]. */
   private readonly _RED: number
-  /** The green channel of this color. An integer in [0,255]. */
+  /** The green channel of this color. A number in [0,1]. */
   private readonly _GREEN: number
-  /** The blue channel of this color. An integer in [0,255]. */
+  /** The blue  channel of this color. A number in [0,1]. */
   private readonly _BLUE: number
-  /** The alpha channel of this color. An number in [0,1]. */
+  /** The alpha channel of this color. A number in [0,1]. */
   private readonly _ALPHA: number
 
   private readonly _MAX: number
@@ -335,21 +374,21 @@ export default class Color {
    * Calling `new Color(r, g, b)` (3 arguments) will result in an opaque color (`#rrggbbFF`),
    * where the alpha is 1 by default.
    * Calling `new Color()` (no arguments) will result in transparent (`#00000000`).
-   * @param r the red   channel of this color (an integer 0—255)
-   * @param g the green channel of this color (an integer 0—255)
-   * @param b the blue  channel of this color (an integer 0—255)
+	 * @param r the red   channel of this color (a number 0—1)
+	 * @param g the green channel of this color (a number 0—1)
+	 * @param b the blue  channel of this color (a number 0—1)
    * @param a the alpha channel of this color (a number 0–1)
    */
   constructor(r = 0, g = 0, b = 0, a = 1) {
     if (arguments.length === 0) a = 0
 
-    this._RED   = Math.round(xjs.Math.clamp(0, r, 255))
-    this._GREEN = Math.round(xjs.Math.clamp(0, g, 255))
-    this._BLUE  = Math.round(xjs.Math.clamp(0, b, 255))
+		this._RED   = xjs.Math.clamp(0, r, 1)
+		this._GREEN = xjs.Math.clamp(0, g, 1)
+		this._BLUE  = xjs.Math.clamp(0, b, 1)
     this._ALPHA = xjs.Math.clamp(0, a, 1)
 
-    this._MAX    = Math.max(this._RED, this._GREEN, this._BLUE) / 255
-    this._MIN    = Math.min(this._RED, this._GREEN, this._BLUE) / 255
+		this._MAX    = Math.max(this._RED, this._GREEN, this._BLUE)
+		this._MIN    = Math.min(this._RED, this._GREEN, this._BLUE)
     this._CHROMA = this._MAX - this._MIN
   }
 
@@ -357,12 +396,14 @@ export default class Color {
    * Return a string representation of this color.
    *
    * If the alpha of this color is 1, then the string returned will represent an opaque color,
-   * e.g. `hsv()`, `hsl()`, etc. Otherwise, the string returned will represent a translucent color,
-   * `hsva()`, `hsla()`, etc.
+   * `hsv(h s v)`, `hsl(h s l)`, etc.
+   * Otherwise, the string returned will represent a translucent color,
+   * `hsv(h s v / a)`, `hsl(h s l / a)`, etc.
+   *
    * The format of the numbers returned will be as follows. The default format is {@link Color.Space.HEX}.
    * - all HEX values will be base 16 integers in [00,FF], two digits
    * - HSV/HSL/HWB-hue values will be base 10 decimals in [0,360) rounded to the nearest 0.1
-   * - HSV/HSL-sat/val/lum, HWB-wht/blk, and CMYK-cyan/magenta/yellow/black values will be base 10 decimals in [0,1] rounded to the nearest 0.01
+   * - HSV/HSL-sat/val/lum, HWB-white/black, and CMYK-cyan/magenta/yellow/black values will be base 10 decimals in [0,1] rounded to the nearest 0.01
    * - all RGB values will be base 10 integers in [0,255], one to three digits
    * - all alpha values will be base 10 decimals in [0,1], rounded to the nearest 0.001
    * @override
@@ -372,10 +413,10 @@ export default class Color {
   toString(space = Color.Space.HEX): string {
     const leadingZero = (n: number, r: number = 10) => `0${n.toString(r)}`.slice(-2)
     if (space === Color.Space.HEX) {
-      return `#${this.rgb.slice(0,3).map((c) => leadingZero(c, 16)).join('')}${(this.alpha < 1) ? leadingZero(Math.round(this.alpha * 255), 16) : ''}`
+      return `#${this.rgb.slice(0,3).map((c) => leadingZero(Math.round(c * 255), 16)).join('')}${(this.alpha < 1) ? leadingZero(Math.round(this.alpha * 255), 16) : ''}`
     }
     const returned = xjs.Object.switch<number[]>(space, {
-      [Color.Space.RGB]: () => this.rgb.slice(0,3),
+      [Color.Space.RGB]: () => this.rgb.slice(0,3).map((c) => Math.round(c * 255)),
       [Color.Space.HSV]: () => [
         Math.round(this.hsvHue *  10) /  10,
         Math.round(this.hsvSat * 100) / 100,
@@ -387,9 +428,9 @@ export default class Color {
         Math.round(this.hslLum * 100) / 100,
       ],
       [Color.Space.HWB]: () => [
-        Math.round(this.hwbHue *  10) /  10,
-        Math.round(this.hwbWht * 100) / 100,
-        Math.round(this.hwbBlk * 100) / 100,
+        Math.round(this.hwbHue   *  10) /  10,
+        Math.round(this.hwbWhite * 100) / 100,
+        Math.round(this.hwbBlack * 100) / 100,
       ],
 			[Color.Space.CMYK]: () => [
 				Math.round(this.cmykCyan    * 100) / 100,
@@ -398,9 +439,9 @@ export default class Color {
 				Math.round(this.cmykBlack   * 100) / 100,
 			],
     })()
-    return (this.alpha < 1) ?
-      `${space}a(${returned.join(', ')}, ${Math.round(this.alpha * 1000) / 1000})`
-    : `${space}(${ returned.join(', ')})`
+		return `${space}(${returned.join(' ')}${
+			(this.alpha < 1) ? ` / ${Math.round(this.alpha * 1000) / 1000}` : ''
+		})`
   }
 
   /**
@@ -432,9 +473,9 @@ export default class Color {
   get hsvHue(): number {
     if (this._CHROMA === 0) return 0
     let rgb_norm: [number, number, number] = [
-      this._RED   / 255,
-      this._GREEN / 255,
-      this._BLUE  / 255,
+			this._RED,
+			this._GREEN,
+			this._BLUE,
     ]
     return [
       (r: number, g: number, b: number) => ((g - b) / this._CHROMA + 6) % 6 * 60,
@@ -531,7 +572,7 @@ export default class Color {
    * a lower white means the color has a true hue (more colorful).
    * A number bound by [0, 1].
    */
-  get hwbWht(): number {
+  get hwbWhite(): number {
     return this._MIN
   }
 
@@ -542,7 +583,7 @@ export default class Color {
    * a lower black means the color has a true hue (more colorful).
    * A number bound by [0, 1].
    */
-  get hwbBlk(): number {
+  get hwbBlack(): number {
     return 1 - this._MAX
   }
 
@@ -553,7 +594,7 @@ export default class Color {
 	 * A number bound by [0, 1].
 	 */
 	get cmykCyan(): number {
-		return (this.cmykBlack === 1) ? 0 : (1 - this.red/255 - this.cmykBlack) / (1 - this.cmykBlack)
+		return (this.cmykBlack === 1) ? 0 : (1 - this.red - this.cmykBlack) / (1 - this.cmykBlack)
 	}
 
 	/**
@@ -563,7 +604,7 @@ export default class Color {
 	 * A number bound by [0, 1].
 	 */
 	get cmykMagenta(): number {
-		return (this.cmykBlack === 1) ? 0 : (1 - this.green/255 - this.cmykBlack) / (1 - this.cmykBlack)
+		return (this.cmykBlack === 1) ? 0 : (1 - this.green - this.cmykBlack) / (1 - this.cmykBlack)
 	}
 
 	/**
@@ -573,7 +614,7 @@ export default class Color {
 	 * A number bound by [0, 1].
 	 */
 	get cmykYellow(): number {
-		return (this.cmykBlack === 1) ? 0 : (1 - this.blue/255 - this.cmykBlack) / (1 - this.cmykBlack)
+		return (this.cmykBlack === 1) ? 0 : (1 - this.blue - this.cmykBlack) / (1 - this.cmykBlack)
 	}
 
 	/**
@@ -604,7 +645,7 @@ export default class Color {
   /**
    * Get an array of HWBA channels.
    */
-  get hwb(): number[] { return [this.hwbHue, this.hwbWht, this.hwbBlk, this.alpha] }
+  get hwb(): number[] { return [this.hwbHue, this.hwbWhite, this.hwbBlack, this.alpha] }
 
 	/**
 	 * Get an array of CMYKA channels.
@@ -619,9 +660,9 @@ export default class Color {
    */
   invert(): Color {
     return new Color(
-      255 - this.red,
-      255 - this.green,
-      255 - this.blue,
+			1 - this.red,
+			1 - this.green,
+			1 - this.blue,
       this.alpha
     )
   }
@@ -772,9 +813,9 @@ export default class Color {
    * @returns a mix of the two given colors
    */
   mix(color: Color, weight = 0.5): Color {
-    let red  : number = Math.round(xjs.Math.average(this.red  , color.red  , weight))
-    let green: number = Math.round(xjs.Math.average(this.green, color.green, weight))
-    let blue : number = Math.round(xjs.Math.average(this.blue , color.blue , weight))
+		let red  : number = xjs.Math.average(this.red  , color.red  , weight)
+		let green: number = xjs.Math.average(this.green, color.green, weight)
+		let blue : number = xjs.Math.average(this.blue , color.blue , weight)
     let alpha: number = Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
@@ -800,9 +841,9 @@ export default class Color {
     function compoundChannel(c1: number, c2: number) {
       return Color._linear_sRGB(xjs.Math.average(Color._sRGB_Linear(c1), Color._sRGB_Linear(c2), weight))
     }
-    let red  : number = Math.round(compoundChannel(this.red  , color.red  ))
-    let green: number = Math.round(compoundChannel(this.green, color.green))
-    let blue : number = Math.round(compoundChannel(this.blue , color.blue ))
+		let red  : number = compoundChannel(this.red  , color.red  )
+		let green: number = compoundChannel(this.green, color.green)
+		let blue : number = compoundChannel(this.blue , color.blue )
     let alpha: number =    Color._compoundOpacity([this.alpha, color.alpha])
     return new Color(red, green, blue, alpha)
   }
@@ -842,9 +883,9 @@ export default class Color {
    * @returns the relative luminance of this color, a number 0–1
    */
   relativeLuminance(): number {
-    return 0.2126 * Color._sRGB_Linear(this.red   / 255)
-         + 0.7152 * Color._sRGB_Linear(this.green / 255)
-         + 0.0722 * Color._sRGB_Linear(this.blue  / 255)
+    return 0.2126 * Color._sRGB_Linear(this.red)
+         + 0.7152 * Color._sRGB_Linear(this.green)
+         + 0.0722 * Color._sRGB_Linear(this.blue)
   }
 
   /**
